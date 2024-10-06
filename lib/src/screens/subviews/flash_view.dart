@@ -1,9 +1,7 @@
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlashCellView extends ConsumerStatefulWidget {
@@ -18,14 +16,14 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
 
   @override
   Widget build(BuildContext context) {
+    bool collapse = MediaQuery.of(context).size.width < 900? true: false;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.fromLTRB(30, 15, 30, 15),
       child: Container(
         color: Colors.white70,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            vertical(3),
-            buildUserPanel(),
+            buildUserPanel(collapse),
             vertical(6),
             FZText(text: widget.flash.content, style: FZTextStyle.paragraph),
             vertical(),
@@ -63,13 +61,12 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     );
   }
 
-  Widget buildUserPanel() {
+  Widget buildUserPanel(bool collapse) {
     return Row(mainAxisSize: MainAxisSize.max,
       children: [
-        horizontal(3),
-        CircleAvatar(backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl),),
-        horizontal(4),
-        flashInfoView(),
+        CircleAvatar(backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl), radius: 30,),
+        horizontal(2),
+        flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
         // ignore: avoid_print
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.more_vert)),
@@ -78,7 +75,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     );
   }
 
-  Widget flashInfoView() {
+  Widget flashInfoView(bool collapse) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -94,10 +91,10 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
                 const FZSymbol(type: FZSymbolType.time),
                 horizontal(),
                 FZText(text: Helpers.getDisplayDate(widget.flash.postDate), style: FZTextStyle.subheading),
-                horizontal(),
-                const FZSymbol(type: FZSymbolType.location),
-                horizontal(),
-                FZText(text: widget.flash.postAddress ?? "Unknown", style: FZTextStyle.subheading),
+                if(!collapse) horizontal(),
+                if(!collapse) const FZSymbol(type: FZSymbolType.location),
+                if(!collapse) horizontal(),
+                if(!collapse) FZText(text: widget.flash.postAddress ?? "Unknown", style: FZTextStyle.subheading),
               ],
             )
           ], 

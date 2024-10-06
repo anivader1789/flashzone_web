@@ -1,6 +1,7 @@
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
+import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,9 +21,9 @@ class HomeScreen extends ConsumerWidget {
       title: Row(
         children: [
           Image.asset("assets/flashzoneR.png", height: 25,),
-          const SizedBox(width: 45,),
+          const SizedBox(width: 15,),
           SizedBox(
-            width: 450,height: 35,
+            width: MediaQuery.of(context).size.width/4,height: 35,
             child: TextField(
                     cursorColor: Constants.primaryColor(),
                     style: const TextStyle(fontSize: 11),
@@ -45,7 +46,12 @@ class HomeScreen extends ConsumerWidget {
       ],
       backgroundColor: Colors.grey,
       ),
-      body: const MainFeedListView(),
+      body: const Row(mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SideMenuView(),
+          Expanded(child: MainFeedListView()),
+        ],
+      ),
     );
   }
 }
