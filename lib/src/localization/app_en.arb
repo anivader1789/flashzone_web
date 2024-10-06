@@ -1,6 +1,6 @@
 {
-  "appTitle": "flashzone_web",
+  "appTitle": "FlashZone",
   "@appTitle": {
-    "description": "The title of the application"
+    "description": "Your local social network"
   }
 }

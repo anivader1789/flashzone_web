@@ -1,5 +1,5 @@
 name: flashzone_web
-description: "A new Flutter project."
+description: "FlashZone Web"
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -10,10 +10,18 @@ environment:
   sdk: '>=3.3.3 <4.0.0'
 
 dependencies:
+  cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_riverpod: ^2.5.1
+  geocoding: ^3.0.0
+  geolocator: ^12.0.0
+  intl: ^0.18.1
+  provider: ^6.1.2
+  random_date: ^0.0.7
+  riverpod: ^2.5.1
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +38,5 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/profile_pic_placeholder.png
+    - assets/flashzoneR.png
