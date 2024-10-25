@@ -1,13 +1,15 @@
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //https://pub.dev/packages/easy_sidemenu
 
 class SideMenuView extends ConsumerStatefulWidget {
-  const SideMenuView({super.key});
+  const SideMenuView({super.key, required this.menuClicked});
+  final Function (HomeView) menuClicked;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _SideMenuViewState();
@@ -46,7 +48,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     items.add(SideMenuItem(
       title: 'Home',
       onTap: (index, _) {
-        
+        widget.menuClicked(HomeView.flashes);
       },
       icon: const Icon(Icons.home),
       // badgeContent: const Text(
@@ -63,6 +65,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
         title: 'Events Today',
         onTap: (index, _) {
           sideMenu.changePage(index);
+          widget.menuClicked(HomeView.eventToday);
         },
         icon: const Icon(Icons.stream),
         badgeContent: const Text(
@@ -74,6 +77,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
         title: 'Upcoming Events',
         onTap: (index, _) {
           sideMenu.changePage(index);
+          widget.menuClicked(HomeView.events);
         },
         icon: const Icon(Icons.upcoming),
         badgeContent: const Text(

@@ -82,7 +82,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline),
                 horizontal(),
-                FZText(text: widget.flash.user.username, style: FZTextStyle.subheading),
+                FZText(text: widget.flash.user.username, style: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
             vertical(),
@@ -90,11 +90,11 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 const FZSymbol(type: FZSymbolType.time),
                 horizontal(),
-                FZText(text: Helpers.getDisplayDate(widget.flash.postDate), style: FZTextStyle.subheading),
+                FZText(text: Helpers.getDisplayDate(widget.flash.postDate), style: FZTextStyle.subheading, color: Colors.grey,),
                 if(!collapse) horizontal(),
                 if(!collapse) const FZSymbol(type: FZSymbolType.location),
                 if(!collapse) horizontal(),
-                if(!collapse) FZText(text: widget.flash.postAddress ?? "Unknown", style: FZTextStyle.subheading),
+                if(!collapse) FZText(text: widget.flash.postAddress ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
               ],
             )
           ], 

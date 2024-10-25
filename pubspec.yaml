@@ -10,6 +10,7 @@ environment:
   sdk: '>=3.3.3 <4.0.0'
 
 dependencies:
+  calendar_view: ^1.2.0
   cupertino_icons: ^1.0.8
   easy_sidemenu: ^0.6.0
   flutter:
@@ -45,3 +46,4 @@ flutter:
     - assets/images/
     - assets/profile_pic_placeholder.png
     - assets/flashzoneR.png
+    - assets/event_placeholder.jpeg

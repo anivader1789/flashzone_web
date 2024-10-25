@@ -1,5 +1,6 @@
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
@@ -16,8 +17,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 }
 
+enum HomeView {
+  flashes, post, eventToday, events
+}
+
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _writing = false;
+  HomeView _currentView = HomeView.flashes;
 
   @override
   void initState() {
@@ -37,26 +42,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           Image.asset("assets/flashzoneR.png", height: 25,),
           const SizedBox(width: 15,),
-          SizedBox(
-            width: MediaQuery.of(context).size.width/4,height: 35,
-            child: TextField(
-                    cursorColor: Constants.primaryColor(),
-                    style: const TextStyle(fontSize: 11),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
-                      hintText: 'search FlashZone',
-                      fillColor: Colors.white70,
-                      filled: true,
-                      
-                    ),
-                  ),
-          ),
+          const FZText(text: "Your local social network", style: FZTextStyle.smallsubheading, color: Colors.white,)
         ],
       ), 
       actions: [
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.chat), iconSize: 35,),
+        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.room), iconSize: 30,),
+        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.forum), iconSize: 35,),
         IconButton(
-          onPressed: _editingToggle, 
+          onPressed: _postClicked, 
           icon: const Icon(Icons.add_circle), 
           iconSize: 35,),
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.notifications), iconSize: 30,),
@@ -68,17 +61,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: 
       Row(mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SideMenuView(),
-          Expanded(child: _writing? WriteFlashView(onFinished: _editingToggle,)
-            : const MainFeedListView()),
+          SideMenuView(
+            menuClicked: (view) {
+              setState(() {
+                _currentView = view;
+              });
+            },
+          ),
+          Expanded(
+            child: switch (_currentView) {
+              HomeView.flashes => const MainFeedListView(),
+              HomeView.post => WriteFlashView(onFinished: _editingFinished,),
+              HomeView.eventToday => const EventFeedView(today: true,),
+              HomeView.events => const EventFeedView(today: false,),
+            }),
         ],
       ),
     );
   }
 
-  _editingToggle() {
+  _editingFinished() {
     setState(() {
-                            _writing = !_writing;
+                            _currentView = HomeView.flashes;
                           });
+  }
+
+  _postClicked() {
+    setState(() {
+      _currentView = HomeView.post;
+    });
   }
 }

@@ -20,15 +20,16 @@ class Helpers {
 const fzSymbol = "\u2021";
 
 enum FZTextStyle {
-  headline, subheading, paragraph, largeHeadline
+  headline, subheading, paragraph, largeHeadline, smallsubheading
 }
 
 
 
 class FZText extends StatelessWidget {
-  const FZText({super.key, required this.text, required this.style});
+  const FZText({super.key, required this.text, required this.style, this.color = Colors.black});
   final String text;
   final FZTextStyle style;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +37,14 @@ class FZText extends StatelessWidget {
     String enhancedText = text;
 
     TextStyle textStyle = switch (style) {
-      FZTextStyle.headline => const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      FZTextStyle.largeHeadline => const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-      FZTextStyle.subheading => const TextStyle(color: Colors.grey, fontWeight: FontWeight.w300),
-      FZTextStyle.paragraph => const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+      FZTextStyle.headline =>  TextStyle(color: color, fontWeight: FontWeight.bold),
+      FZTextStyle.largeHeadline =>  TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+      FZTextStyle.subheading =>  TextStyle(color: color, fontWeight: FontWeight.w300),
+      FZTextStyle.smallsubheading =>  TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w200),
+      FZTextStyle.paragraph =>  TextStyle(color: color, fontWeight: FontWeight.normal),
     };
 
-    return Text(enhancedText, style: textStyle,);
+    return Text(enhancedText, style: textStyle,softWrap: true,);
   }
   
 

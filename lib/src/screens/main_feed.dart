@@ -1,3 +1,4 @@
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/fakes_generator.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
@@ -67,34 +68,53 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 40,
-          child: Row( crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(width: 5,),
-              const FZText(text: "Filter by: ", style: FZTextStyle.headline),
-              const SizedBox(width: 5,),
-              _filterssDropDown(),
-            ],
-          ),
-          ),
-        const SizedBox(height: 10,),
-        Expanded(
-        child: ListView.separated(
-                separatorBuilder: (context, index) => const SizedBox(height: 5,),
-                      itemCount: _flashes.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          //onTap: () => ,
-                          child: FlashCellView(
-                              flash: _flashes[index],
-                          ),
-                        );
-                      },
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column( crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          
+          SizedBox(height: 40,
+            child: Row( crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 5,),
+                const FZText(text: "Filter by: ", style: FZTextStyle.headline),
+                const SizedBox(width: 5,),
+                _filterssDropDown(),
+              ],
+            ),
+            ),
+          const SizedBox(height: 20,),
+          SizedBox(
+              width: MediaQuery.of(context).size.width / 3,height: 45,
+              child: TextField(
+                      cursorColor: Constants.primaryColor(),
+                      style: const TextStyle(fontSize: 12),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
+                        hintText: 'search FlashZone',
+                        fillColor: Colors.white70,
+                        filled: true,
+                        
+                      ),
                     ),
+            ),
+          const SizedBox(height: 20,),
+          Expanded(
+          child: ListView.separated(
+                  separatorBuilder: (context, index) => const SizedBox(height: 5,),
+                        itemCount: _flashes.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            //onTap: () => ,
+                            child: FlashCellView(
+                                flash: _flashes[index],
+                            ),
+                          );
+                        },
+                      ),
+        ),
+                    ]
       ),
-                  ]
     );
   }
 
