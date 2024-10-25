@@ -17,7 +17,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
 
   PageController pageController = PageController();
   SideMenuController sideMenu = SideMenuController();
-  List<SideMenuItem> items = List.empty(growable: true);
+  List items = List.empty(growable: true);
 
   @override
   void initState() {
@@ -31,6 +31,18 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
   }
 
   void populateMenuItems() {
+    // items.add(SideMenuItem(
+    //   title: 'Events',
+    //   onTap: (index, _) {
+        
+    //   },
+    //   icon: const Icon(Icons.home),
+    //   badgeContent: const Text(
+    //     'Live',
+    //     style: TextStyle(color: Colors.white),
+    //   ),
+    // ));
+
     items.add(SideMenuItem(
       title: 'Home',
       onTap: (index, _) {
@@ -42,7 +54,37 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
       //   style: TextStyle(color: Colors.white),
       // ),
     ));
+    final supermenu = SideMenuExpansionItem(
+    title: "Events Now",
+    icon: const Icon(Icons.kitchen),
+    
+    children: [
+      SideMenuItem(
+        title: 'Events Today',
+        onTap: (index, _) {
+          sideMenu.changePage(index);
+        },
+        icon: const Icon(Icons.stream),
+        badgeContent: const Text(
+          '2',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      SideMenuItem(
+        title: 'Upcoming Events',
+        onTap: (index, _) {
+          sideMenu.changePage(index);
+        },
+        icon: const Icon(Icons.upcoming),
+        badgeContent: const Text(
+          '9',
+          style: TextStyle(color: Colors.white),
+        ),
+      )
+    ],
+  );
 
+    items.add(supermenu);
     items.add(SideMenuItem(
       title: 'My FlashTags',
       onTap: (index, _) {

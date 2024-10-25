@@ -20,7 +20,7 @@ class Helpers {
 const fzSymbol = "\u2021";
 
 enum FZTextStyle {
-  headline, subheading, paragraph
+  headline, subheading, paragraph, largeHeadline
 }
 
 
@@ -37,6 +37,7 @@ class FZText extends StatelessWidget {
 
     TextStyle textStyle = switch (style) {
       FZTextStyle.headline => const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      FZTextStyle.largeHeadline => const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
       FZTextStyle.subheading => const TextStyle(color: Colors.grey, fontWeight: FontWeight.w300),
       FZTextStyle.paragraph => const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
     };
@@ -48,6 +49,45 @@ class FZText extends StatelessWidget {
   List<String?> extractFlashTags(String str) {
     final reg = RegExp(r'\u2021[a-zA-z]+\b');
     return reg.allMatches(str).map((z) => z.group(0)).toList();
+  }
+}
+
+class FZButton extends StatelessWidget {
+  const FZButton({super.key, 
+  required this.onPressed,
+  required this.text, 
+  this.bgColor = Colors.transparent, 
+  this.compact = false});
+  final String text;
+  final Color bgColor;
+  final bool compact;
+  final Function ()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(onPressed: onPressed, 
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(bgColor),
+              side: MaterialStatePropertyAll(
+                BorderSide(
+                  color: bgColor,
+                  width: 1,
+                  style: BorderStyle.solid
+                  )
+              ),
+              shape: const MaterialStatePropertyAll(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(12)
+                    ),
+                )
+              )
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: compact? 4: 12, horizontal: 12),
+              child: FZText(text: text, style: FZTextStyle.paragraph),
+            ),
+          );
   }
 }
 

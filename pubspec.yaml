@@ -23,6 +23,7 @@ dependencies:
   provider: ^6.1.2
   random_date: ^0.0.7
   riverpod: ^2.5.1
+  shared_preferences: ^2.2.3
 
 dependency_overrides:
   intl: any

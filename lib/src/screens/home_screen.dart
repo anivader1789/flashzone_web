@@ -2,16 +2,31 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
+import 'package:flashzone_web/src/screens/write_flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
-
+  
   static const routeName = '/';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _writing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
       centerTitle: false,
@@ -39,19 +54,31 @@ class HomeScreen extends ConsumerWidget {
         ],
       ), 
       actions: [
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.add_circle), iconSize: 35,),
+        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.chat), iconSize: 35,),
+        IconButton(
+          onPressed: _editingToggle, 
+          icon: const Icon(Icons.add_circle), 
+          iconSize: 35,),
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.notifications), iconSize: 30,),
         CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
       ],
       backgroundColor: Colors.grey,
       ),
-      body: const Row(mainAxisAlignment: MainAxisAlignment.start,
+      body: 
+      Row(mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SideMenuView(),
-          Expanded(child: MainFeedListView()),
+          const SideMenuView(),
+          Expanded(child: _writing? WriteFlashView(onFinished: _editingToggle,)
+            : const MainFeedListView()),
         ],
       ),
     );
+  }
+
+  _editingToggle() {
+    setState(() {
+                            _writing = !_writing;
+                          });
   }
 }
