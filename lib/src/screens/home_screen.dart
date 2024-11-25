@@ -1,7 +1,13 @@
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/model/chat.dart';
+import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
+import 'package:flashzone_web/src/screens/messages_view.dart';
+import 'package:flashzone_web/src/screens/notifications_list_view.dart';
+import 'package:flashzone_web/src/screens/profile_view.dart';
 import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +24,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 enum HomeView {
-  flashes, post, eventToday, events
+  flashes, post, chat, eventToday, events, profile, notifications
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   HomeView _currentView = HomeView.flashes;
+  FZUser? _userToView;
 
   @override
   void initState() {
@@ -47,12 +54,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ), 
       actions: [
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.room), iconSize: 30,),
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.forum), iconSize: 35,),
+        IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
         IconButton(
           onPressed: _postClicked, 
           icon: const Icon(Icons.add_circle), 
           iconSize: 35,),
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.notifications), iconSize: 30,),
+        IconButton(onPressed: _notificationsClicked, icon: const Icon(Icons.notifications), iconSize: 30,),
         CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
       ],
@@ -70,25 +77,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes => const MainFeedListView(),
-              HomeView.post => WriteFlashView(onFinished: _editingFinished,),
+              HomeView.flashes =>  MainFeedListView(profileNavigate: (user) => _profileClicked(user),),
+              HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
+              HomeView.chat => const MessagesView(),
               HomeView.eventToday => const EventFeedView(today: true,),
               HomeView.events => const EventFeedView(today: false,),
+              HomeView.notifications => const NotificationsListView(),
+              HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked,)
             }),
         ],
       ),
     );
   }
 
-  _editingFinished() {
+  _backToFeedView() {
     setState(() {
-                            _currentView = HomeView.flashes;
-                          });
+      _currentView = HomeView.flashes;
+    });
   }
 
   _postClicked() {
     setState(() {
       _currentView = HomeView.post;
+    });
+  }
+
+  _profileClicked(FZUser user) {
+    setState(() {
+      _userToView = user;
+      _currentView = HomeView.profile;
+    });
+  }
+
+  _messageClicked() {
+    ref.read(messages)[_userToView!] = List<ChatMessage>.empty(growable: true);
+    setState(() {
+      _currentView = HomeView.chat;
+    });
+  }
+
+  _notificationsClicked() {
+    setState(() {
+      _currentView = HomeView.notifications;
+    });
+  }
+
+  _chatClicked() {
+    setState(() {
+      _currentView = HomeView.chat;
     });
   }
 }

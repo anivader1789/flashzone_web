@@ -1,3 +1,5 @@
+import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -15,6 +17,23 @@ class Helpers {
     String time = DateFormat('h:mm a').format(dateTime);
     return "$time on $day";
   }
+
+  static showDialogWithMessage({required BuildContext ctx, required String msg, String title = "FlashZone"}) {
+    showDialog(context: ctx, 
+          builder: (ctx) => AlertDialog(
+          title: Text(title),
+          content: Text(msg),
+          actions: <Widget>[
+            FZButton(
+              text: "OK", 
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              bgColor: Constants.lightColor()
+            ),
+          ],
+        ));
+  }
 }
 
 const fzSymbol = "\u2021";
@@ -26,10 +45,11 @@ enum FZTextStyle {
 
 
 class FZText extends StatelessWidget {
-  const FZText({super.key, required this.text, required this.style, this.color = Colors.black});
+  const FZText({super.key, required this.text, required this.style, this.color = Colors.black, this.onTap});
   final String text;
   final FZTextStyle style;
   final Color color;
+  final Function ()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +63,16 @@ class FZText extends StatelessWidget {
       FZTextStyle.smallsubheading =>  TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w200),
       FZTextStyle.paragraph =>  TextStyle(color: color, fontWeight: FontWeight.normal),
     };
+
+    if(onTap != null) {
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Text(enhancedText, style: textStyle,softWrap: true,),
+        )
+      );
+    }
 
     return Text(enhancedText, style: textStyle,softWrap: true,);
   }
@@ -58,10 +88,12 @@ class FZButton extends StatelessWidget {
   const FZButton({super.key, 
   required this.onPressed,
   required this.text, 
+  this.textColor = Colors.black,
   this.bgColor = Colors.transparent, 
   this.compact = false});
   final String text;
   final Color bgColor;
+  final Color textColor;
   final bool compact;
   final Function ()? onPressed;
 
@@ -87,9 +119,26 @@ class FZButton extends StatelessWidget {
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: compact? 4: 12, horizontal: 12),
-              child: FZText(text: text, style: FZTextStyle.paragraph),
+              child: FZText(text: text, style: FZTextStyle.paragraph, color: textColor,),
             ),
           );
+  }
+}
+
+class FZIconButton extends StatelessWidget {
+  const FZIconButton({super.key, required this.tint, required this.icon, required this.onPressed});
+  final Color tint;
+  final IconData icon;
+  final Function ()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(onPressed: onPressed, 
+    child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              child: Icon(icon, size: 21,),
+            ),
+    );
   }
 }
 

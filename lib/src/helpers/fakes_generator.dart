@@ -40,6 +40,7 @@ class Fakes {
 
     print("Generated user: $firstName $lastName , $username , $address");
     return FZUser(
+      id: UniqueKey().toString(),
       name: "$firstName $lastName", 
       username: username,
       fzLocation: address != null? FZLocation(address: address, location: location): null

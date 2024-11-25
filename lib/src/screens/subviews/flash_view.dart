@@ -1,12 +1,15 @@
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlashCellView extends ConsumerStatefulWidget {
-  const FlashCellView({super.key, required this.flash});
+  const FlashCellView({super.key, required this.flash, required this.profileClicked, this.compact = false});
   final Flash flash;
+  final Function (FZUser) profileClicked;
+  final bool compact;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _FlashCellViewState();
@@ -27,7 +30,8 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             vertical(6),
             FZText(text: widget.flash.content, style: FZTextStyle.paragraph),
             vertical(),
-            buildInteractionsView(),
+            if(!widget.compact)
+              buildInteractionsView(),
             
             
           ],
@@ -64,7 +68,15 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget buildUserPanel(bool collapse) {
     return Row(mainAxisSize: MainAxisSize.max,
       children: [
-        CircleAvatar(backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl), radius: 30,),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: profileNavigate, 
+            child: CircleAvatar(
+              backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl), 
+              radius: 30,)
+          ),
+        ),
         horizontal(2),
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
@@ -80,7 +92,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
           children: [
             Row(
               children: [
-                FZText(text: widget.flash.user.name, style: FZTextStyle.headline),
+                FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
                 FZText(text: widget.flash.user.username, style: FZTextStyle.subheading, color: Colors.grey,),
               ],
@@ -103,4 +115,9 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
 
   Widget vertical([int multiplier = 1]) => SizedBox(height: 5 * multiplier.toDouble(),);
   Widget horizontal([int multiplier = 1]) => SizedBox(width: 5 * multiplier.toDouble(),);
+
+  profileNavigate() {
+    print("user profile clicked");
+    widget.profileClicked(widget.flash.user);
+  }
 }
