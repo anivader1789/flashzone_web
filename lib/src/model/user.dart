@@ -7,6 +7,7 @@ class FZUser {
   FZLocation? fzLocation;
   FZUser({required this.id, required this.name, required this.username, this.avatar, this.fzLocation});
 
+  static String collection = "user";
   static FZUser dummy() {
     return FZUser(
       id: "123test", 

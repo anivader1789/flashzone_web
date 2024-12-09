@@ -1,3 +1,4 @@
+import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/model/user.dart';
 
 class Flash {
@@ -6,5 +7,8 @@ class Flash {
   FZUser user;
   DateTime postDate;
   String? postAddress;
-  Flash({required this.content, required this.user, required this.postDate, this.postAddress, this.imageUrl});
+  FZLocation? postLocation;
+  Flash({required this.content, required this.user, required this.postDate, this.postAddress, this.imageUrl, this.postLocation});
+
+  static String collectionName = "flash";
 }
