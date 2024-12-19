@@ -1,7 +1,13 @@
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/model/location.dart';
+import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 class WriteFlashView extends ConsumerStatefulWidget {
   const WriteFlashView({super.key, required this.onFinished});
@@ -12,6 +18,9 @@ class WriteFlashView extends ConsumerStatefulWidget {
 }
 
 class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
+  final inputController = TextEditingController();
+  bool _flashSubmitting = false;
+  bool _errorSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +43,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
           SizedBox(
             height: 200,
             child: TextField(
+              controller: inputController,
                       maxLines: 5,
                       cursorColor: Constants.secondaryColor(),
                       style: const TextStyle(fontSize: 18),
@@ -47,7 +57,22 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
             ),
           ),
           const SizedBox(height: 15,),
+          if(_errorSubmitting) Row(
+                    children: [
+                      Expanded(child: Container()),
+                      const FZText(text: "Error posting flash", style: FZTextStyle.subheading, color: Colors.red,),
+                      const SizedBox(width: 15,),
+                    ],
+                  ),
+          _flashSubmitting?
           Row(
+            children: [
+              Expanded(child: Container()),
+              const CircularProgressIndicator(),
+              const SizedBox(width: 15,),
+            ],
+          )
+          : Row(
             children: [
               Expanded(child: Container()),
               FZButton(
@@ -59,7 +84,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
               const SizedBox(width: 10,),
               FZButton(
                 onPressed: () {
-                  widget.onFinished();
+                  postFlash();
                 }, 
                 bgColor: Constants.primaryColor(),
                 text: "Flash")
@@ -67,5 +92,49 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
           ),
         ],
       ),);
+  }
+
+  void postFlash() async {
+    if(validate() == false) return;
+
+    setState(() {
+      _flashSubmitting = true;
+
+    });
+
+    print("Posting a flash: ${inputController.text}");
+    final GeoFirePoint geoFirePoint = GeoFirePoint(ref.read(userCurrentLocation));
+    final postAddress = await LocationService.getAddressFromLatLng(ref);
+
+    print(postAddress);
+    //Create a new flash object
+    final flash = Flash(
+      content: inputController.text,
+      user: ref.read(currentuser),
+      postDate: DateTime.now(),
+      postLocation: FZLocation(address: postAddress, geoData: geoFirePoint.data)
+    );
+
+    final res = await ref.read(backend).createNewFlash(flash);
+    if(res.code == SuccessCode.successful) {
+      setState(() {
+        _errorSubmitting = false;
+        _flashSubmitting = false;
+      });
+      widget.onFinished();
+    } else {
+      setState(() {
+        _flashSubmitting = false;
+        _errorSubmitting = true;
+      });
+    }
+  }
+
+  bool validate() {
+    if(inputController.text.isEmpty) {
+      return false;
+    }
+
+    return true;
   }
 }

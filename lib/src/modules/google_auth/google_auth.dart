@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +83,7 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
       idToken: googleAuth?.idToken,
     );
 
-    //final creds = await ref.read(authServiceProvider).signInWithCredential(credential);
+    ref.read(backend).signInWithCredential(credential);
     //Do something with creds if necessary
   }
 }

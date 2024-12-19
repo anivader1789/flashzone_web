@@ -43,7 +43,32 @@ class Fakes {
       id: UniqueKey().toString(),
       name: "$firstName $lastName", 
       username: username,
-      fzLocation: address != null? FZLocation(address: address, location: location): null
+      fzLocation: address != null? FZLocation(address: address, geoData: <String,dynamic>{}): null
+      );
+  }
+
+  static FZUser generateFakeUserSync() {
+    final randomIntce = Random();
+
+    final List<int> randoms = [
+      random(randomIntce, 0, NamesStore.lastNames.length), 
+      random(randomIntce, 0, NamesStore.maleFirstNames.length), 
+      random(randomIntce, 0, NamesStore.femaleFirstNames.length)
+    ];
+
+    String firstName = random(randomIntce, 0,2) == 0? NamesStore.maleFirstNames[randoms[1]] : NamesStore.maleFirstNames[randoms[2]];
+    String lastName = NamesStore.lastNames[randoms[0]];
+    String username = "$firstName${randoms[0]}${randoms[1]}${randoms[2]}";
+    LatLng randomCoords = LatLng(lat: randomDouble(randomIntce, -90, 90), lon: randomDouble(randomIntce, -180, 180));
+
+    const address = "12 Test Dr, White Plains";
+
+    print("Generated user: $firstName $lastName , $username , $address");
+    return FZUser(
+      id: UniqueKey().toString(),
+      name: "$firstName $lastName", 
+      username: username,
+      fzLocation: FZLocation(address: address, geoData: <String,dynamic>{}),
       );
   }
 

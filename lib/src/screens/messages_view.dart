@@ -36,7 +36,7 @@ class _MessagesViewState extends ConsumerState<MessagesView> {
       firstChatUser ??= user;
 
       String lastMessage = msgMap[user]!.isEmpty? "" : msgMap[user]!.last.message;
-      chatThreads.add(ChatThread(name: user.name, pic: user.avatar , lastMsg: lastMessage));
+      chatThreads.add(ChatThread(name: user.name!, pic: user.avatar , lastMsg: lastMessage));
     }
 
     if(firstChatUser != null) {
@@ -120,7 +120,7 @@ class _MessagesViewState extends ConsumerState<MessagesView> {
     if(selectedThreadIndex == null || selectedThreadIndex == -1) return;
 
     ChatThread thread = chatThreads[selectedThreadIndex!];
-    ChatMessage newChat = ChatMessage(sender: ref.read(currentuser).id, message: message, receiver: thread.name, time: DateTime.now());
+    ChatMessage newChat = ChatMessage(sender: ref.read(currentuser).id!, message: message, receiver: thread.name, time: DateTime.now());
     setState(() {
       chats.add(newChat);
     });

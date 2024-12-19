@@ -1,8 +1,6 @@
 
-import 'package:geolocator/geolocator.dart';
-
 class FZLocation {
-  String address;
-  Position location;
-  FZLocation({required this.address, required this.location});
+  String? address;
+  Map<String, dynamic> geoData;
+  FZLocation({this.address, required this.geoData});
 }

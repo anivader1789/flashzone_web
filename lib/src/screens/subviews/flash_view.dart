@@ -16,7 +16,20 @@ class FlashCellView extends ConsumerStatefulWidget {
 }
 
 class _FlashCellViewState extends ConsumerState<FlashCellView> {
+  late Map<String, bool> textsToDisplay;
 
+  @override
+  void initState() {
+    super.initState();
+    // final content = widget.flash.content;
+    // String fts = Constants.flashtags.join("|");
+    // RegExp exp = RegExp(r"\('()'\)");
+    // List<String> _list =[];
+    // for (var m in exp.allMatches(myString)) {
+    //   _list.add(m[1].toString());
+    
+    // }
+  }
   @override
   Widget build(BuildContext context) {
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
@@ -106,7 +119,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
                 if(!collapse) horizontal(),
                 if(!collapse) const FZSymbol(type: FZSymbolType.location),
                 if(!collapse) horizontal(),
-                if(!collapse) FZText(text: widget.flash.postAddress ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
+                if(!collapse) FZText(text: widget.flash.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
               ],
             )
           ], 

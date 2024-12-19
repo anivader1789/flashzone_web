@@ -46,7 +46,7 @@ enum FZTextStyle {
 
 class FZText extends StatelessWidget {
   const FZText({super.key, required this.text, required this.style, this.color = Colors.black, this.onTap});
-  final String text;
+  final String? text;
   final FZTextStyle style;
   final Color color;
   final Function ()? onTap;
@@ -54,7 +54,7 @@ class FZText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //TODO: Figure out how to enhance text for flashtag posts
-    String enhancedText = text;
+    String enhancedText = text ?? "null";
 
     TextStyle textStyle = switch (style) {
       FZTextStyle.headline =>  TextStyle(color: color, fontWeight: FontWeight.bold),

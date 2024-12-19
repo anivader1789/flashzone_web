@@ -3,6 +3,7 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/chat.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/messages_view.dart';
@@ -30,13 +31,23 @@ enum HomeView {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   HomeView _currentView = HomeView.flashes;
   FZUser? _userToView;
+  bool _initDone = false;
+  final _accountPopupController = OverlayPortalController();
 
   @override
   void initState() {
     super.initState();
     
+    initBackend();
   }
 
+  void initBackend() async {
+    await ref.read(backend).init();
+    setState(() {
+      _initDone = true;
+    });
+  }
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,11 +67,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.room), iconSize: 30,),
         IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
         IconButton(
-          onPressed: _postClicked, 
+          onPressed:() => _postClicked(context), 
           icon: const Icon(Icons.add_circle), 
           iconSize: 35,),
         IconButton(onPressed: _notificationsClicked, icon: const Icon(Icons.notifications), iconSize: 30,),
-        CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
+        ElevatedButton(
+          onPressed: _accountPopupController.toggle, 
+          style: const ButtonStyle(
+            backgroundColor: MaterialStatePropertyAll(Colors.grey),
+            foregroundColor: MaterialStatePropertyAll(Colors.grey),
+            padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+          child: CircleAvatar(
+            backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png"),
+            child: OverlayPortal(
+              controller: _accountPopupController, 
+              overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+              ),),
+        //CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
       ],
       backgroundColor: Colors.grey,
@@ -77,11 +100,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes =>  MainFeedListView(profileNavigate: (user) => _profileClicked(user),),
+              HomeView.flashes => _initDone? MainFeedListView(profileNavigate: (user) => _profileClicked(user),): const SizedBox(width: 70, height: 70, child: CircularProgressIndicator()),
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
               HomeView.chat => const MessagesView(),
-              HomeView.eventToday => const EventFeedView(today: true,),
-              HomeView.events => const EventFeedView(today: false,),
+              HomeView.eventToday => const TodayEventFeedView(),
+              HomeView.events => const AllEventFeedView(),
               HomeView.notifications => const NotificationsListView(),
               HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked,)
             }),
@@ -90,13 +113,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  // _accountClicked() {
+    
+  // }
+
   _backToFeedView() {
     setState(() {
       _currentView = HomeView.flashes;
     });
   }
 
-  _postClicked() {
+  _postClicked(BuildContext ctx) {
+    final user = ref.read(currentuser);
+
+    if(user.id == "dummy" || user.username == null) {
+      Helpers.showDialogWithMessage(ctx: ctx, msg: "Please finish creating your profile first");
+      return;
+    }
+
     setState(() {
       _currentView = HomeView.post;
     });

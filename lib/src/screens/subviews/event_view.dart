@@ -23,7 +23,7 @@ class _EventViewState extends ConsumerState<EventView> {
           const SizedBox(height: 15,),
           FZText(text: widget.event.description, style: FZTextStyle.paragraph),
           const SizedBox(height: 15,),
-          FZText(text: "Host: ${widget.event.by}", style: FZTextStyle.headline),
+          FZText(text: "Host: ${widget.event.user?.name}", style: FZTextStyle.headline),
           FZText(text: "Price: \$${widget.event.price}", style: FZTextStyle.headline),
         ],
       ),

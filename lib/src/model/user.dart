@@ -1,19 +1,102 @@
 import 'package:flashzone_web/src/model/location.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FZUser {
-  String id;
-  String name, username;
-  String? avatar;
+  String? id;
+  String? name;
+  String? avatar, email, bio, username;
   FZLocation? fzLocation;
-  FZUser({required this.id, required this.name, required this.username, this.avatar, this.fzLocation});
+  FZUser({this.id, this.name, this.username, this.avatar, this.fzLocation, this.email, this.bio});
 
-  static String collection = "user";
+  static String collection = "user", nameKey = "name", usernameKey = "username", 
+    avatarKey = "avatar", idKey = "id", bioKey = "bio", emailKey = "email";
   static FZUser dummy() {
     return FZUser(
-      id: "123test", 
+      id: "dummy", 
       name: "Dummy User", 
       username: "dummy");
   } 
+
+  Map<String,String> profileUpdateObject() {
+    final Map<String,String> obj = {};
+    if(name != null) obj.addEntries({nameKey : name!}.entries);
+    if(email != null) obj.addEntries({emailKey : email!}.entries);
+    if(username != null) obj.addEntries({usernameKey : username!}.entries);
+    if(bio != null)  obj.addEntries({bioKey : bio!}.entries);
+    if(avatar != null) obj.addEntries({avatarKey : avatar!}.entries);
+
+    return obj;
+  }
+
+  Map<String,String> addNewUserObject() {
+    final Map<String,String> obj = {};
+    //if(token != null) obj.addEntries({_tokenKey : token!}.entries);
+    if(name != null) obj.addEntries({nameKey : name!}.entries);
+    if(email != null) obj.addEntries({emailKey : email!}.entries);
+    if(username != null) obj.addEntries({usernameKey : username!}.entries);
+    if(bio != null)  obj.addEntries({bioKey : bio!}.entries);
+    if(avatar != null) obj.addEntries({avatarKey : avatar!}.entries);
+
+    return obj;
+  }
+
+  Future<FZUser?> updateWith(Map<String,dynamic>? data, Ref ref) {
+    if(data == null) {
+      print("While updating user data: data is not a proper map object");
+      return Future.value(this);
+    }
+
+    if(data[nameKey] != null) name = data[nameKey];
+    if(data[usernameKey] != null) username = data[usernameKey];
+    if(data[emailKey] != null) email = data[emailKey];
+    if(data[avatarKey] != null) avatar = data[avatarKey];
+    if(data[bioKey] != null) bio = data[bioKey];
+    
+
+    //For logic on update, see firebase_auth_service.dart
+    // if(data[_tokenKey] == null) {
+    //   if(token != null) {
+    //     //This would be when user's token was never set but now it can be set
+    //     //So return source user so it can be set in the backend
+    //     ref.read(userProvider.notifier).update((state) => this);
+    //     return Future.value(this);
+    //   } 
+    // } else {
+    //   if(token == null) {
+    //     //If token was not retrieved now but its already in the db
+    //     token = data[_tokenKey];
+    //     ref.read(userProvider.notifier).update((state) => this);
+    //     //No need to update the user
+    //     return Future.value(null);
+    //   }
+    //   if(token != data[_tokenKey]) {
+    //     //This means token now is different from token earlier, so update with new one -- by returning source user
+    //     ref.read(userProvider.notifier).update((state) => this);
+    //     return Future.value(this);
+    //   } else {
+    //     //Token retrived now and from backend and both are equal - NORMAL CASE
+    //     ref.read(userProvider.notifier).update((state) => this);
+    //     //No need to update the user
+    //     return Future.value(null);
+    //   }
+    // } 
+
+    //Fallback
+    //No need to update the user
+    return Future.value(null);
+  }
+
+  static FZUser newSourceUserWithData(String id, Map<String,dynamic> data) {
+    FZUser user = FZUser();
+    user.id = id;
+    if(data[nameKey] != null) user.name = data[nameKey];
+    if(data[emailKey] != null) user.email = data[emailKey];
+    if(data[bioKey] != null) user.bio = data[bioKey];
+    if(data[usernameKey] != null) user.username = data[usernameKey];
+    if(data[avatarKey] != null) user.avatar = data[avatarKey];
+
+    return user;
+  }
 
   @override
   bool operator ==(Object other) {
