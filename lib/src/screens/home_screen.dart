@@ -100,7 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes => _initDone? MainFeedListView(profileNavigate: (user) => _profileClicked(user),): const SizedBox(width: 70, height: 70, child: CircularProgressIndicator()),
+              HomeView.flashes => _initDone? MainFeedListView(profileNavigate: (user) => _profileClicked(user),): showLoading(),
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
               HomeView.chat => const MessagesView(),
               HomeView.eventToday => const TodayEventFeedView(),
@@ -116,6 +116,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // _accountClicked() {
     
   // }
+
+  showLoading() {
+    return Center(
+      child: SizedBox(width: 70, height: 70, child: CircularProgressIndicator(color: Constants.primaryColor(),)),
+    );
+  }
 
   _backToFeedView() {
     setState(() {

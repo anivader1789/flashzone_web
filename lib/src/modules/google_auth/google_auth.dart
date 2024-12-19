@@ -65,13 +65,15 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
     // ref.read(seekerSessionsProvider.notifier).update((state) => List.empty(growable: true));
     // ref.read(sourceSessionsProvider.notifier).update((state) => List.empty(growable: true));
     
+    const oauthClientId = "26609542744-io0414qpi557bgot80stmmlg8egug868.apps.googleusercontent.com";
+    //final firebaseClientId = "26609542744-kavlofsqfska8fagcpg57fer9r6parrd.apps.googleusercontent.com";
     
     late GoogleSignInAccount? googleUser;
     // Trigger the authentication flow
     if(defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       googleUser = await GoogleSignIn(scopes: scopes).signIn();
     } else {
-      googleUser = await GoogleSignIn(scopes: scopes,clientId: '26609542744-kavlofsqfska8fagcpg57fer9r6parrd.apps.googleusercontent.com').signIn();
+      googleUser = await GoogleSignIn(scopes: scopes,clientId: oauthClientId).signIn();
     }
 
     // Obtain the auth details from the request
