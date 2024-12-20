@@ -92,36 +92,43 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   usernameField() {
-    return Column(mainAxisSize: MainAxisSize.min,
-      children: [
-        label("Let's pick a nice username"),
-        vertical(3),
-        Row(mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 250,
-              child: TextField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                  hintText: 'Username',
+    return IntrinsicWidth(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          label("Let's pick a nice username"),
+          vertical(3),
+          Row(mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 250,
+                child: TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    prefix: FZText(text: "@", style: FZTextStyle.paragraph),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                    hintText: 'Username',
+                  ),
+                  cursorColor: Constants.primaryColor(),
                 ),
-                cursorColor: Constants.primaryColor(),
               ),
-            ),
-            const SizedBox(width: 5,),
-            FZIconButton(
-                  onPressed: () {
-                    // Implement the logic to send the message
-                    _usernameSubmitted();
-                    //usernameController.clear();
-                  },
-                  tint: Constants.primaryColor(),
-                  icon: Icons.send
-                ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 5,),
+              FZIconButton(
+                    onPressed: () {
+                      // Implement the logic to send the message
+                      _usernameSubmitted(context);
+                      //usernameController.clear();
+                    },
+                    tint: Constants.primaryColor(),
+                    icon: Icons.send
+                  ),
+            ],
+          ),
+          vertical(2),
+          const Divider(),
+          const FZText(text: "Must be between 4 and 30 characters", style: FZTextStyle.smallsubheading, color: Colors.red,),
+          const FZText(text: "Allowed characters: a-z, A-Z, 0-9 and _", style: FZTextStyle.smallsubheading, color: Colors.red,),
+        ],
+      ),
     );
   }
 
@@ -212,7 +219,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
-  _usernameSubmitted() async {
+  _usernameSubmitted(BuildContext ctx) async {
+    final validate = validateUsername();
+    if(validate != null) {
+      Helpers.showDialogWithMessage(ctx: ctx, msg: validate);
+      return;
+    }
+
     setState(() {
       state = AccountInputState.loading;
     });
@@ -224,7 +237,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
     if(res.code == SuccessCode.successful) {
       setState(() {
-        state = AccountInputState.bio;
+        if(_user.bio == null) {
+          state = AccountInputState.bio;
+        } else {
+          state = AccountInputState.finished;
+          Timer(const Duration(seconds: 1), () { widget.onDismiss(); });
+        }
+        
       });
     } else {
 
@@ -251,6 +270,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     } else {
       
     }
+  }
+
+  String? validateUsername() {
+    final str = usernameController.text;
+    if(str.length < 4 || str.length > 31) return "Username must be between 4 and 30 characters";
+    
+    for(int i=0; i<str.length; i++) {
+      final ascii = str.codeUnitAt(i);
+      if(ascii >= 0 && ascii <= 47) return "Invalid characters";
+      if(ascii >= 58 && ascii <= 64) return "Invalid characters";
+      if(ascii >= 91 && ascii <= 94) return "Invalid characters";
+      if(ascii >= 123) return "Invalid characters";
+      if(ascii == 96) return "Invalid characters";
+    }
+
+    return null;
   }
 
   label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);

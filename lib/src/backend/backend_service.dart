@@ -23,8 +23,9 @@ class BackendService {
     firebase = FirebaseService(ref: ref);
   }
 
-  Future<void> init() {
-    requestPermissions();
+  Future<void> init() async {
+    await requestPermissions();
+    await LocationService.updateCurrentLocation(ref);
     return firebase.init();
   }
 

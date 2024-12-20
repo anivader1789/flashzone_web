@@ -32,7 +32,7 @@ class LocationService {
     return true;
   }
 
-  static Future<void> updateCurrentLocation(WidgetRef ref) async {
+  static Future<void> updateCurrentLocation(dynamic ref) async {
     final hasPermission = await handleLocationPermission();
     if (!hasPermission) return;
     await Geolocator.getCurrentPosition(
@@ -47,7 +47,9 @@ class LocationService {
 
   static Future<String?> getAddressFromLatLng(WidgetRef ref) async {
     try {
+      
       GeoPoint coords = ref.read(userCurrentLocation);
+      print("Trying to get landmark from ${coords.latitude}, ${coords.longitude}");
       List<Placemark> placemarks = await placemarkFromCoordinates(
         coords.latitude,
         coords.longitude
@@ -60,9 +62,7 @@ class LocationService {
       return "${place.locality}, ${place.country}";
     } catch (e) {
 
-      if (kDebugMode) {
-        print(e);
-      }
+      print("Caught error while getting lkandmark: $e");
       return null;
     }
   }

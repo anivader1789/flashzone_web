@@ -100,12 +100,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes => _initDone? MainFeedListView(profileNavigate: (user) => _profileClicked(user),): showLoading(),
+              HomeView.flashes => _initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user),),
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
               HomeView.chat => const MessagesView(),
-              HomeView.eventToday => const TodayEventFeedView(),
-              HomeView.events => const AllEventFeedView(),
-              HomeView.notifications => const NotificationsListView(),
+              HomeView.eventToday => _initDone == false? showLoading() :  const TodayEventFeedView(),
+              HomeView.events => _initDone == false? showLoading() :  const AllEventFeedView(),
+              HomeView.notifications => _initDone == false? showLoading() :  const NotificationsListView(),
               HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked,)
             }),
         ],

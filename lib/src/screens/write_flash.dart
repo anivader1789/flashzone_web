@@ -90,8 +90,24 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
                 text: "Flash")
             ],
           ),
+          vertical(10),
+          infoView(),
         ],
       ),);
+  }
+
+  infoView() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        vertical(),
+        label("Rules of posting:"),
+        vertical(2),
+        label("1. Be Kind. Do not post rude remarks"),
+        vertical(),
+        label("2. Adhere to one topic in each post"),
+      ],
+    );
   }
 
   void postFlash() async {
@@ -106,7 +122,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     final GeoFirePoint geoFirePoint = GeoFirePoint(ref.read(userCurrentLocation));
     final postAddress = await LocationService.getAddressFromLatLng(ref);
 
-    print(postAddress);
+    print("posting address with: $postAddress");
     //Create a new flash object
     final flash = Flash(
       content: inputController.text,
@@ -121,6 +137,8 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
         _errorSubmitting = false;
         _flashSubmitting = false;
       });
+
+      ref.read(flashes).insert(0, res.returnedObject);
       widget.onFinished();
     } else {
       setState(() {
@@ -137,4 +155,8 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
     return true;
   }
+
+  label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
+  vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
+  horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 }
