@@ -10,8 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MainFeedListView extends ConsumerStatefulWidget {
-  const MainFeedListView({super.key, required this.profileNavigate});
+  const MainFeedListView({super.key, required this.profileNavigate, required this.mobileSize});
   final Function (FZUser) profileNavigate;
+  final bool mobileSize;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MainFeedListViewState();
 }
@@ -118,36 +119,89 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column( crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column( crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           
-          SizedBox(height: 40,
-            child: Row( crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(width: 5,),
-                const FZText(text: "Filter by: ", style: FZTextStyle.headline),
-                const SizedBox(width: 5,),
-                _filterssDropDown(),
-              ],
-            ),
-            ),
+          // SizedBox(height: 40,
+          //   child: Row( crossAxisAlignment: CrossAxisAlignment.center,
+          //     children: [
+          //       const SizedBox(width: 5,),
+          //       const FZText(text: "Filter by: ", style: FZTextStyle.headline),
+          //       const SizedBox(width: 5,),
+          //       _filterssDropDown(),
+          //     ],
+          //   ),
+          //   ),
+          const SizedBox(height: 10,),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                    //width: MediaQuery.of(context).size.width / 3,
+                    height: 45,
+                    child: TextField(
+                            //onChanged: _search,
+                            controller: searchController,
+                            cursorColor: Constants.primaryColor(),
+                            style: const TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
+                              hintText: 'search FlashZone',
+                              fillColor: Colors.white70,
+                              filled: true,
+                              
+                            ),
+                          ),
+                  ),
+              ),
+                horizontal(),
+                widget.mobileSize?
+                IconButton(
+                  icon: const Icon(Icons.search), 
+                  onPressed:  () {
+                      // Implement the logic to send the message
+                      searchFlashes(searchController.text);
+                      //usernameController.clear();
+                    })
+                : FZButton(
+                    onPressed: () {
+                      // Implement the logic to send the message
+                      searchFlashes(searchController.text);
+                      //usernameController.clear();
+                    },
+                    text: "Search",
+                    bgColor: Constants.primaryColor(),
+                  ),
+                horizontal(),
+                widget.mobileSize?
+                IconButton(
+                  icon: const Icon(Icons.cancel), 
+                  onPressed: () {
+                      // Implement the logic to send the message
+                      searchController.text = "";
+                      _filterFlashes.clear();
+                      _filterFlashes.addAll(_flashes);
+                      searchTerm = "";
+                      setState(() { });
+                      //usernameController.clear();
+                    })
+                : FZButton(
+                    onPressed: () {
+                      // Implement the logic to send the message
+                      searchController.text = "";
+                      _filterFlashes.clear();
+                      _filterFlashes.addAll(_flashes);
+                      searchTerm = "";
+                      setState(() { });
+                      //usernameController.clear();
+                    },
+                    text: "Clear",
+                    bgColor: Colors.grey,
+                  ),
+            ],
+          ),
           const SizedBox(height: 20,),
-          SizedBox(
-              width: MediaQuery.of(context).size.width / 3,height: 45,
-              child: TextField(
-                      onChanged: _searchTermChanged,
-                      cursorColor: Constants.primaryColor(),
-                      style: const TextStyle(fontSize: 12),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
-                        hintText: 'search FlashZone',
-                        fillColor: Colors.white70,
-                        filled: true,
-                        
-                      ),
-                    ),
-            ),
-          const SizedBox(height: 20,),
+          if(searchTerm.isNotEmpty) FZText(text: "Showing search results for \"$searchTerm\"", style: FZTextStyle.smallsubheading, color: Colors.grey,),
           Expanded(
           child: ListView.separated(
                   separatorBuilder: (context, index) => const SizedBox(height: 5,),
@@ -168,12 +222,8 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
     );
   }
 
-  _searchTermChanged(String val) {
-    if(val.isEmpty || !val.contains(" ")) {
-      _filterFlashes.clear();
-      _filterFlashes.addAll(_flashes);
-      
-    } else {
+  searchFlashes(String val) {
+    
       _filterFlashes.clear();
       for(final flash in _flashes) {
         if(flash.content.toLowerCase().contains(val.toLowerCase())) {
@@ -182,9 +232,8 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
         }
       }
       
-    }
     setState(() {
-        
+        searchTerm = val;
       });
   }
 

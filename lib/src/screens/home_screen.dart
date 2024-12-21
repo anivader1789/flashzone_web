@@ -11,7 +11,9 @@ import 'package:flashzone_web/src/screens/notifications_list_view.dart';
 import 'package:flashzone_web/src/screens/profile_view.dart';
 import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -29,10 +31,12 @@ enum HomeView {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _smallScreenSize = false;
   HomeView _currentView = HomeView.flashes;
   FZUser? _userToView;
   bool _initDone = false;
   final _accountPopupController = OverlayPortalController();
+  final _menuPopupController = OverlayPortalController();
 
   @override
   void initState() {
@@ -50,6 +54,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
  
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    _setScreenScale(width,height);
+
     return Scaffold(
       appBar: AppBar(
       centerTitle: false,
@@ -58,12 +66,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       title: Row(
         children: [
-          Image.asset("assets/flashzoneR.png", height: 25,),
-          const SizedBox(width: 15,),
+          Image.asset("assets/flashzoneR.png", height: _smallScreenSize? 18: 25,),
+          SizedBox(width: _smallScreenSize? 5: 15,),
           const FZText(text: "Your local social network", style: FZTextStyle.smallsubheading, color: Colors.white,)
         ],
       ), 
-      actions: [
+      actions: _smallScreenSize == true? [
+            Stack(
+              children: [
+                IconButton(
+                iconSize: 30, 
+                icon: const Icon(Icons.menu), 
+                onPressed: _menuPopupController.toggle,),
+                Positioned(
+                  top: 60,
+                  child: OverlayPortal(
+                    controller: _menuPopupController, 
+                    overlayChildBuilder: (context) => menuViewMobile(context),
+                  ),
+                ),
+                SizedBox(
+                  child: OverlayPortal(
+                          controller: _accountPopupController, 
+                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+                )
+              ],
+            ),
+          ]
+        : [
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.room), iconSize: 30,),
         IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
         IconButton(
@@ -100,13 +130,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes => _initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user),),
+              HomeView.flashes => _initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user), mobileSize: _smallScreenSize,),
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
-              HomeView.chat => const MessagesView(),
-              HomeView.eventToday => _initDone == false? showLoading() :  const TodayEventFeedView(),
-              HomeView.events => _initDone == false? showLoading() :  const AllEventFeedView(),
-              HomeView.notifications => _initDone == false? showLoading() :  const NotificationsListView(),
-              HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked,)
+              HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
+              HomeView.eventToday => _initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.events => _initDone == false? showLoading() :   AllEventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.notifications => _initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
+              HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,)
             }),
         ],
       ),
@@ -167,4 +197,86 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _currentView = HomeView.chat;
     });
   }
+
+  menuViewMobile(BuildContext ctx) {
+    
+    return Stack(
+      children: [ 
+      Positioned.fill(
+            child: GestureDetector(
+              onTap: () => _menuPopupController.hide(),
+              child: Container(
+                color: const Color.fromARGB(200, 0, 0, 0),
+              ),
+            )
+        ),
+      
+      Positioned(
+        top: 50,right: 0,
+        child: Container(
+          width: 200,
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(9)),
+          ),
+          child: IntrinsicWidth(
+            child: Column(mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  style: menuButtonStyle(),
+                  onPressed: () { 
+                    _menuPopupController.hide();
+                    _postClicked(ctx); 
+                  }, 
+                  child: const Row(children: [Icon(Icons.add_circle), FZText(text: "Post", style: FZTextStyle.paragraph)],)),
+                const Divider(),
+                ElevatedButton(
+                  style: menuButtonStyle(),
+                  onPressed: () { 
+                    _menuPopupController.hide();
+                    _chatClicked(); 
+                  }, 
+                  child: const Row(children: [Icon(Icons.forum), FZText(text: "Messages", style: FZTextStyle.paragraph)],)),
+                const Divider(),
+                ElevatedButton(
+                  style: menuButtonStyle(),
+                  onPressed: () { 
+                    _menuPopupController.hide();
+                    _notificationsClicked(); 
+                  }, 
+                  child: const Row(children: [Icon(Icons.notifications), FZText(text: "Notifications", style: FZTextStyle.paragraph)],)),
+                const Divider(),
+                ElevatedButton(
+                  style: menuButtonStyle(),
+                  onPressed: () { 
+                    _menuPopupController.hide();
+                    _accountPopupController.show(); 
+                  }, 
+                  child: const Row(children: [Icon(Icons.person), FZText(text: "Account", style: FZTextStyle.paragraph)],)),
+              ],
+            ),
+          ),
+        ),
+      ),]
+    );
+  }
+
+  _setScreenScale(double width, double height) {
+    if(height < 720 || width < 480) {
+      setState(() {
+        _smallScreenSize = true;
+      });
+    } else {
+      setState(() {
+        _smallScreenSize = false;
+      });
+    }
+  }
+
+  menuButtonStyle() => const ButtonStyle(
+                    overlayColor: MaterialStatePropertyAll(Colors.white),
+                    surfaceTintColor:  MaterialStatePropertyAll(Colors.white),
+                    elevation: MaterialStatePropertyAll(0)
+                  );
 }

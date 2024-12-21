@@ -9,10 +9,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfileView extends ConsumerStatefulWidget {
-  const ProfileView({super.key, required this.user, required this.backClicked, required this.messageClicked});
+  const ProfileView({super.key, required this.user, required this.backClicked, required this.mobileSize, required this.messageClicked});
   final FZUser? user;
   final Function () backClicked;
   final Function () messageClicked;
+  final bool mobileSize;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ProfileViewState();
 }
@@ -43,19 +44,19 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
             height: 50,
             child: FZIconButton(tint: Colors.grey, icon: Icons.arrow_back, onPressed: widget.backClicked),
           ),
-          vertical(),
+          vertical(widget.mobileSize? 2: 1),
           Row(
             children: [
               horizontal(),
               CircleAvatar(
                 backgroundImage: Helpers.loadImageProvider(widget.user!.avatar),
-                radius: 40,
+                radius: widget.mobileSize? 24: 40,
               ),
               horizontal(),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FZText(text: widget.user!.name, style: FZTextStyle.largeHeadline),
+                    FZText(text: widget.user!.name, style: widget.mobileSize? FZTextStyle.headline: FZTextStyle.largeHeadline),
                     vertical(),
                     FZText(text: widget.user!.username, style: FZTextStyle.paragraph),
                     vertical(),
@@ -63,7 +64,13 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
                   ],
                 ),
               ),
-              FZButton(onPressed: widget.messageClicked, text: "Message", bgColor: Constants.fillColor(), textColor: Colors.white,),
+              widget.mobileSize?
+                IconButton(onPressed: widget.messageClicked, icon: Icon(Icons.chat_bubble, color: Constants.primaryColor(),))
+              : FZButton(
+                onPressed: widget.messageClicked, 
+                text: "Message", 
+                bgColor: Constants.fillColor(), 
+                textColor: Colors.white,),
               horizontal()
             ],
           ),
@@ -80,11 +87,11 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
   }
 
   vertical([double multiple = 1]) {
-    return SizedBox(height: 15 * multiple,);
+    return SizedBox(height: widget.mobileSize? 5: 15 * multiple,);
   }
 
   horizontal([double multiple = 1]) {
-    return SizedBox(width: 15 * multiple,);
+    return SizedBox(width: widget.mobileSize? 5:  15 * multiple,);
   }
   
   buildFlashesView() {

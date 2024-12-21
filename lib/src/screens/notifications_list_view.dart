@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationsListView extends ConsumerStatefulWidget {
-  const NotificationsListView({super.key});
+  const NotificationsListView({super.key, required this.mobileSize});
+  final bool mobileSize;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _NotificationsListViewState();
@@ -41,6 +42,7 @@ class _NotificationsListViewState extends ConsumerState<NotificationsListView> {
                             //onTap: () => ,
                             child: NotificationCellView(
                                 notif: _notifications[index],
+                                mobileSize: widget.mobileSize,
                                 bgColor: index %2 ==0? Constants.lightColor(): Colors.grey,
                             ),
                           );

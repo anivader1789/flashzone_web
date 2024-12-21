@@ -147,8 +147,9 @@ enum FZSymbolType {
 }
 
 class FZSymbol extends StatelessWidget {
-  const FZSymbol({super.key, required this.type});
+  const FZSymbol({super.key, required this.type, this.compact = false});
   final FZSymbolType type;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +158,6 @@ class FZSymbol extends StatelessWidget {
       FZSymbolType.time => Icons.watch_later,
     };
     
-    return Icon(icon,);
+    return Icon(icon, size: compact? 16: 22,);
   }
 }

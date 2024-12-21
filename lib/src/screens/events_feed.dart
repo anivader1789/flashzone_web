@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AllEventFeedView extends ConsumerStatefulWidget {
-  const AllEventFeedView({super.key});
-
+  const AllEventFeedView({super.key, required this.mobileSize});
+  final bool mobileSize;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AllEventFeedViewState();
 }
@@ -38,7 +38,9 @@ class _AllEventFeedViewState extends ConsumerState<AllEventFeedView> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Row(
+      child: widget.mobileSize?
+        eventsDisplayViews()
+      : Row(
         children: [
           Expanded(
             flex: 2,
@@ -75,7 +77,15 @@ class _AllEventFeedViewState extends ConsumerState<AllEventFeedView> {
             vertical(),
             FZText(text: _eventViewing?.title, style: FZTextStyle.largeHeadline),
             vertical(),
-            Row(
+            widget.mobileSize?
+            Column(
+              children: [
+                Image(image: Helpers.loadImageProvider(_eventViewing?.pic)),
+                vertical(),
+                FZText(text: _eventViewing?.description, style: FZTextStyle.paragraph)
+              ],
+            )
+            : Row(
               children: [
                 Expanded(
                   flex: 2,
@@ -156,7 +166,8 @@ class _AllEventFeedViewState extends ConsumerState<AllEventFeedView> {
 }
 
 class TodayEventFeedView extends ConsumerStatefulWidget {
-  const TodayEventFeedView({super.key});
+  const TodayEventFeedView({super.key, required this.mobileSize});
+  final mobileSize;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _TodayEventFeedViewState();
@@ -216,7 +227,15 @@ class _TodayEventFeedViewState extends ConsumerState<TodayEventFeedView> {
             vertical(),
             FZText(text: _eventViewing?.title, style: FZTextStyle.largeHeadline),
             vertical(),
-            Row(
+            widget.mobileSize?
+            Column(
+              children: [
+                Image(image: Helpers.loadImageProvider(_eventViewing?.pic)),
+                vertical(),
+                FZText(text: _eventViewing?.description, style: FZTextStyle.paragraph)
+              ],
+            )
+            : Row(
               children: [
                 Expanded(
                   flex: 2,

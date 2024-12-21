@@ -34,7 +34,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget build(BuildContext context) {
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 15, 30, 15),
+      padding: collapse? const EdgeInsets.fromLTRB(8, 5, 8, 5):  const EdgeInsets.fromLTRB(30, 15, 30, 15),
       child: Container(
         color: Colors.white70,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,15 +87,15 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             onTap: profileNavigate, 
             child: CircleAvatar(
               backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl), 
-              radius: 30,)
+              radius: collapse? 24: 30,)
           ),
         ),
-        horizontal(2),
+        horizontal(collapse? 1: 2),
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
         // ignore: avoid_print
         IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.more_vert)),
-        horizontal(3),
+        horizontal(collapse? 1: 3),
       ],
     );
   }
@@ -107,15 +107,15 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: widget.flash.user.username, style: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: widget.flash.user.username, style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
             vertical(),
             Row(
               children: [
-                const FZSymbol(type: FZSymbolType.time),
+                FZSymbol(type: FZSymbolType.time, compact: collapse,),
                 horizontal(),
-                FZText(text: Helpers.getDisplayDate(widget.flash.postDate), style: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: Helpers.getDisplayDate(widget.flash.postDate), style:collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
                 if(!collapse) horizontal(),
                 if(!collapse) const FZSymbol(type: FZSymbolType.location),
                 if(!collapse) horizontal(),

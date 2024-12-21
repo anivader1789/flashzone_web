@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MessagesView extends ConsumerStatefulWidget {
-  const MessagesView({super.key});
+  const MessagesView({super.key, required this.mobileSize});
+  final bool mobileSize;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MessagesViewState();
@@ -70,7 +71,7 @@ class _MessagesViewState extends ConsumerState<MessagesView> {
         decoration: const BoxDecoration(border: Border(right: BorderSide(width: 2))),
         child: ListView.separated(
                   itemBuilder: (context, i) {
-                    return ChatCellView(data: chatThreads[i]);
+                    return ChatCellView(data: chatThreads[i], mobileSize: widget.mobileSize);
                   }, 
                   separatorBuilder: (_, i) => const Divider(), 
                   itemCount: chatThreads.length),
@@ -177,15 +178,15 @@ class _MessagesViewState extends ConsumerState<MessagesView> {
               ),
             ),
             const SizedBox(width: 2.0),
-            FZIconButton(
+            IconButton(
               onPressed: () {
                 // Implement the logic to send the message
                 print('Sending Message: ${textController.text}');
                 _sendMessage(textController.text);
                 textController.clear();
               },
-              tint: Constants.primaryColor(),
-              icon: Icons.send
+              color: Constants.primaryColor(),
+              icon: const Icon(Icons.send)
             ),
           ],
         ),
