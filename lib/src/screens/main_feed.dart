@@ -90,16 +90,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
   @override
   Widget build(BuildContext context) {
     if(_flashesLoading) {
-      return Center(
-        child: Column(
-          children: [
-            vertical(24),
-            SizedBox(width: 70, height: 70, child: CircularProgressIndicator(color: Constants.primaryColor(),)),
-            vertical(),
-            const FZText(text: "Loading flashes in your area..", style: FZTextStyle.paragraph, color: Colors.grey,),
-          ],
-        ),
-      );
+      return FZLoadingIndicator(text: "Loading flashes in your area", mobileSize: widget.mobileSize);
     }
 
     if(_flashes.isEmpty) {

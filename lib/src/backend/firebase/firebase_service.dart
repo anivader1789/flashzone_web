@@ -238,6 +238,24 @@ class FirebaseService {
     }
   }
 
+  Future<Flash?> fetchFlash(String flashId) async {
+    try {
+      final docRef = _db.collection(Flash.collectionName).doc(flashId);
+      final result = await docRef.get();
+      if(result.data() == null) {
+        print("flash fetched but is null");
+        return null;
+      } else {
+        print("flash fetched with id: ${result.id}");
+        final data = result.data() as Map<String, dynamic>;
+        return Flash.fromDocSnapshot(result.id, data);
+      }
+    } catch(e) {
+      print("Error in Fetch flash data: ${e.toString()}");
+      throw FirebaseError(message: "Fetch flash data: ${e.toString()}");
+    }
+  }
+
   Future<FZResult> createNewFlash(Flash flash) async {
     try {
       final doc = await _db.collection(Flash.collectionName).add(flash.creationObj());

@@ -2,22 +2,23 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/chat.dart';
+import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
+import 'package:flashzone_web/src/screens/flash_detail_screen.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/messages_view.dart';
 import 'package:flashzone_web/src/screens/notifications_list_view.dart';
 import 'package:flashzone_web/src/screens/profile_view.dart';
 import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.route});
+  final String? route;
   
   static const routeName = '/';
 
@@ -27,13 +28,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 enum HomeView {
-  flashes, post, chat, eventToday, events, profile, notifications
+  flashes, post, chat, eventToday, events, profile, notifications, flashDetail, loading
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _smallScreenSize = false;
-  HomeView _currentView = HomeView.flashes;
+  HomeView _currentView = HomeView.loading;
   FZUser? _userToView;
+  String? _flashId, _profileId;
+  Flash? _flashtoView;
   bool _initDone = false;
   final _accountPopupController = OverlayPortalController();
   final _menuPopupController = OverlayPortalController();
@@ -42,14 +45,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     
-    initBackend();
+    setup();
   }
 
-  void initBackend() async {
+  void setup() async {
     await ref.read(backend).init();
+    
+    final route = widget.route;
+    if(route == null || route == "") {
+      _currentView = HomeView.flashes;
+    } else if(route.contains("flash")) {
+      _flashId = route.substring(6);
+      print("Trying to load flash: $_flashId");
+      if(_flashId != null && _flashId!.isNotEmpty) {
+        final flashesRef = ref.read(flashes);
+        if(flashesRef.isNotEmpty) {
+          _flashtoView = flashesRef.firstWhere((element) => element.id == _flashId);
+        }
+
+        _flashtoView ??= await ref.read(backend).fetchFlash(_flashId!);
+      }
+
+      _currentView = HomeView.flashDetail;
+    } else if(route.contains("user")) {
+      _profileId = route.substring(5);
+
+      _currentView = HomeView.profile;
+    }
+
     setState(() {
       _initDone = true;
     });
+  }
+
+  void goToRoute() {
+
   }
  
   @override
@@ -136,7 +166,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               HomeView.eventToday => _initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
               HomeView.events => _initDone == false? showLoading() :   AllEventFeedView(mobileSize: _smallScreenSize,),
               HomeView.notifications => _initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
-              HomeView.profile => ProfileView(user: _userToView, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,)
+              HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
+              HomeView.flashDetail => FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+              HomeView.loading => showLoading()
             }),
         ],
       ),

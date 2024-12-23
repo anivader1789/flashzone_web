@@ -70,6 +70,8 @@ class App extends ConsumerWidget {
           //darkTheme: ThemeData.dark(),
           //themeMode: settingsController.themeMode,
 
+          initialRoute: "",
+
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
@@ -83,7 +85,7 @@ class App extends ConsumerWidget {
                     return const SampleItemDetailsView();
                   case HomeScreen.routeName:
                   default:
-                    return const HomeScreen();
+                    return HomeScreen(route: routeSettings.name,);
                 }
               },
             );

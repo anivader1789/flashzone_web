@@ -45,4 +45,18 @@ class Flash {
   static Flash dummyFlash(String id) {
     return Flash(content: "Content failed to load..", user: FZUser(id: "1234", name: "Error", username: "error"), postDate: DateTime.fromMicrosecondsSinceEpoch(0));
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is Flash && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

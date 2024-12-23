@@ -3,6 +3,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlashCellView extends ConsumerStatefulWidget {
@@ -30,6 +31,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     
     // }
   }
+
   @override
   Widget build(BuildContext context) {
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
@@ -40,11 +42,11 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildUserPanel(collapse),
-            vertical(6),
-            FZText(text: widget.flash.content, style: FZTextStyle.paragraph),
-            vertical(),
-            if(!widget.compact)
-              buildInteractionsView(),
+            vertical(2),
+            FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate,),
+            vertical(2),
+            //if(!widget.compact)
+              buildInteractionsView(collapse),
             
             
           ],
@@ -53,18 +55,18 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     );
   }
 
-  Widget buildInteractionsView() {
-    return Column(
+  Widget buildInteractionsView(bool collapse) {
+    return Column(mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(),
+        const Divider(height: 1,),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.thumb_up_off_alt), iconSize: 30, color: Constants.secondaryColor(),),
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.chat_bubble_outline), iconSize: 30, color: Constants.secondaryColor(),),
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.favorite_border), iconSize: 30, color: Constants.secondaryColor(),),
+            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.thumb_up_off_alt), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            IconButton(onPressed: flashNavigate, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
-        const Divider(),
+        const Divider(height: 5, thickness: 5,),
         vertical(2),
         const FZText(text: "Comments", style: FZTextStyle.paragraph),
         Container(
@@ -94,7 +96,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
         // ignore: avoid_print
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.more_vert)),
+        IconButton(onPressed:() => share(context), icon: const Icon(Icons.share)),
         horizontal(collapse? 1: 3),
       ],
     );
@@ -131,6 +133,17 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
 
   profileNavigate() {
     print("user profile clicked");
-    widget.profileClicked(widget.flash.user);
+    Navigator.pushReplacementNamed(context, "user/${widget.flash.user.id}");
+    //widget.profileClicked(widget.flash.user);
+  }
+
+  flashNavigate() {
+    Navigator.pushReplacementNamed(context, "flash/${widget.flash.id}");
+  }
+
+  share(BuildContext ctx) {
+    final url = "${Uri.base}#flash/${widget.flash.id}";
+    Clipboard.setData(ClipboardData(text: url));
+    Helpers.showDialogWithMessage(ctx: ctx, msg: "Link to this flash has been copied to clipboard");
   }
 }

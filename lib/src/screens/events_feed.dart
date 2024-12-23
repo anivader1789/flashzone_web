@@ -156,13 +156,8 @@ class _AllEventFeedViewState extends ConsumerState<AllEventFeedView> {
       );
   }
 
-  vertical([double multiple = 1]) {
-    return SizedBox(height: 5 * multiple,);
-  }
-
-  horizontal([double multiple = 1]) {
-    return SizedBox(width: 5 * multiple,);
-  }
+  vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
+  horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 }
 
 class TodayEventFeedView extends ConsumerStatefulWidget {

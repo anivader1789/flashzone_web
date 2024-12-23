@@ -160,4 +160,30 @@ class FZSymbol extends StatelessWidget {
     
     return Icon(icon, size: compact? 16: 22,);
   }
+
+  
 }
+
+class FZLoadingIndicator extends StatelessWidget {
+    const FZLoadingIndicator({super.key, required this.text, required this.mobileSize});
+    final bool mobileSize; 
+    final String text;
+  
+    @override
+    Widget build(BuildContext context) {
+      return Center(
+        child: Column(
+          children: [
+            vertical(24),
+            SizedBox(width: 70, height: 70, child: CircularProgressIndicator(color: Constants.primaryColor(),)),
+            vertical(),
+            FZText(text: text, style: FZTextStyle.paragraph, color: Colors.grey,),
+          ],
+        ),
+      );
+    }
+
+    vertical([double multiple = 1]) {
+    return SizedBox(height: (mobileSize? 5: 15) * multiple,);
+  }
+  }

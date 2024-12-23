@@ -36,6 +36,7 @@ class BackendService {
   Future<Map<String, dynamic>?> fetchUserDetails(FZUser user) => firebase.fetchUserDetails(user);
   Future<FZResult> addNewUser(FZUser? fzUser) => firebase.addNewUser(fzUser);
   Future<FZResult> updateProfile(FZUser? fzUser) => firebase.updateProfile(fzUser);
+  Future<FZUser?> fetchRemoteUser(String userId) => firebase.fetchRemoteUser(userId);
 
   Future<void> requestPermissions() async {
     await LocationService.handleLocationPermission();
@@ -45,6 +46,7 @@ class BackendService {
 
   Future<FZResult> createNewFlash(Flash flash) => firebase.createNewFlash(flash);
   Future<List<Flash>> getFlashes(double radius) => firebase.getFlashes(radius);
+  Future<Flash?> fetchFlash(String flashId) => firebase.fetchFlash(flashId);
 
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
 }
