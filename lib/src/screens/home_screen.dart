@@ -138,7 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             foregroundColor: MaterialStatePropertyAll(Colors.grey),
             padding: MaterialStatePropertyAll(EdgeInsets.zero)),
           child: CircleAvatar(
-            backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png"),
+            foregroundImage: Helpers.loadImageProvider(ref.read(currentuser).avatar), radius: 18,
             child: OverlayPortal(
               controller: _accountPopupController, 
               overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),

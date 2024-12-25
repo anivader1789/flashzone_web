@@ -43,6 +43,7 @@ class BackendService {
   } 
 
   void signInWithCredential(dynamic creds) => firebase.signInWithCredential(creds);
+  Future<void> signOut() => firebase.signOut();
 
   Future<FZResult> createNewFlash(Flash flash) => firebase.createNewFlash(flash);
   Future<List<Flash>> getFlashes(double radius) => firebase.getFlashes(radius);

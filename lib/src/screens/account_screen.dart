@@ -183,6 +183,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   FZText(text: _user.username, style: FZTextStyle.paragraph)
                 ],
               ),
+              const Expanded(child: SizedBox()),
+              IconButton(onPressed: () => ref.read(backend).signOut(), icon: const Icon(Icons.logout)),
             ],
           ),
           const Divider(),

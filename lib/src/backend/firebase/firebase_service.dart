@@ -38,6 +38,11 @@ class FirebaseService {
     _firebaseAuth.signInWithCredential(creds);
   }
 
+  Future<void> signOut() {
+    
+    return _firebaseAuth.signOut();
+  }
+
   void authStatusChanged(User? newUser) {
     if (newUser == null) {
       print('User is signed out!');
