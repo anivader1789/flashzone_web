@@ -22,6 +22,7 @@ class AccountScreen extends ConsumerStatefulWidget {
 
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   late AccountInputState state;
+  bool _loading = false, _finished = false;
   final usernameController = TextEditingController();
   final bioController = TextEditingController();
 
@@ -39,7 +40,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     _user = ref.watch(currentuser);
     
-    if(_user.id == "dummy") {
+    if(_loading || _user.id == "interim") {
+      state = AccountInputState.loading;
+    } else if(_finished) {
+      state = AccountInputState.finished;
+    } else if(_user.id == "dummy") {
       state = AccountInputState.signup;
     } else if(_user.username == null) {
       state = AccountInputState.username;
@@ -72,8 +77,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 AccountInputState.signup => signinForm(),
                 AccountInputState.username => usernameField(),
                 AccountInputState.bio => bioField(),
-                AccountInputState.loading => const CircularProgressIndicator(),
-                AccountInputState.finished => const Icon(Icons.check_circle, color: Colors.green, size: 32,),
+                AccountInputState.loading =>  CircularProgressIndicator(),
+                AccountInputState.finished =>  Icon(Icons.check_circle, color: Colors.green, size: 32,),
                 AccountInputState.account => accountEdit()
               },
             ) ,
@@ -179,12 +184,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               Column(crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FZText(text: _user.name, style: FZTextStyle.headline),
-                  vertical(),
-                  FZText(text: _user.username, style: FZTextStyle.paragraph)
+                  FZText(text: "@${_user.username}", style: FZTextStyle.paragraph)
                 ],
               ),
               const Expanded(child: SizedBox()),
-              IconButton(onPressed: () => ref.read(backend).signOut(), icon: const Icon(Icons.logout)),
+              IconButton(onPressed: () => ref.read(backend).signOut(), icon: const Icon(Icons.logout, color: Colors.black,)),
             ],
           ),
           const Divider(),
@@ -229,7 +233,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     }
 
     setState(() {
-      state = AccountInputState.loading;
+      _loading = true;
     });
 
     final user = ref.read(currentuser);
@@ -239,10 +243,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
     if(res.code == SuccessCode.successful) {
       setState(() {
+        _loading = false;
         if(_user.bio == null) {
           state = AccountInputState.bio;
         } else {
-          state = AccountInputState.finished;
+          _finished = true;
           Timer(const Duration(seconds: 1), () { widget.onDismiss(); });
         }
         
@@ -255,7 +260,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   _bioSubmitted() async {
     setState(() {
-      state = AccountInputState.loading;
+      _loading = true;
     });
 
     final user = ref.read(currentuser);
@@ -265,7 +270,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
     if(res.code == SuccessCode.successful) {
       setState(() {
-        state = AccountInputState.finished;
+        _loading = false;
+        _finished = true;
       });
 
       Timer(const Duration(seconds: 1), () { widget.onDismiss(); });

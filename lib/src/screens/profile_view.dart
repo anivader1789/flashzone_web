@@ -67,7 +67,7 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
       padding: const EdgeInsets.all(8),
       child: Column(
         children: [
-          backButtonRow(),
+          //backButtonRow(),
           vertical(widget.mobileSize? 4: 2),
           Row(
             children: [

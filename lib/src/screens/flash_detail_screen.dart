@@ -37,7 +37,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
         color: Colors.white70,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            backButtonRow(),
+            //backButtonRow(),
             vertical(3),
             buildUserPanel(collapse),
             vertical(6),

@@ -35,11 +35,12 @@ class FirebaseService {
   } 
 
   void signInWithCredential(dynamic creds) {
+    ref.read(currentuser.notifier).update((state) => FZUser.interim());
     _firebaseAuth.signInWithCredential(creds);
   }
 
   Future<void> signOut() {
-    
+
     return _firebaseAuth.signOut();
   }
 
@@ -74,7 +75,7 @@ class FirebaseService {
     //   fzUser.token = userToken;
     // }
     
-    ref.read(currentuser.notifier).update((state) => fzUser);
+    //ref.read(currentuser.notifier).update((state) => fzUser);
     
     //Fetch authenticated user details from server
     fetchUserDetails(fzUser)
@@ -90,6 +91,7 @@ class FirebaseService {
         } else if(value.code == SuccessCode.successful) {
           print("New User is created");
         }
+        ref.read(currentuser.notifier).update((state) => fzUser);
       })
       .catchError((e) {
         print("Exception while updating user after auth: ${e.toString()}");

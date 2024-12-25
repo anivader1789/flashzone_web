@@ -17,6 +17,13 @@ class FZUser {
       username: "dummy");
   } 
 
+  static FZUser interim() {
+    return FZUser(
+      id: "interim", 
+      name: "Loading", 
+      username: "loading");
+  } 
+
   Map<String,String> profileUpdateObject() {
     final Map<String,String> obj = {};
     if(name != null) obj.addEntries({nameKey : name!}.entries);

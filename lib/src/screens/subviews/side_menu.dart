@@ -48,7 +48,8 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     items.add(SideMenuItem(
       title: 'Home',
       onTap: (index, _) {
-        widget.menuClicked(HomeView.flashes);
+        //widget.menuClicked(HomeView.flashes);
+        Navigator.pushReplacementNamed(context, "");
       },
       icon: const Icon(Icons.home),
       // badgeContent: const Text(
@@ -65,7 +66,8 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
         title: 'Events Today',
         onTap: (index, _) {
           sideMenu.changePage(index);
-          widget.menuClicked(HomeView.eventToday);
+          //widget.menuClicked(HomeView.eventToday);
+          Navigator.pushReplacementNamed(context, "eventstoday");
         },
         icon: const Icon(Icons.stream),
         badgeContent: const Text(
@@ -77,7 +79,8 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
         title: 'Upcoming Events',
         onTap: (index, _) {
           sideMenu.changePage(index);
-          widget.menuClicked(HomeView.events);
+          //widget.menuClicked(HomeView.events);
+          Navigator.pushReplacementNamed(context, "eventsall");
         },
         icon: const Icon(Icons.upcoming),
         badgeContent: const Text(

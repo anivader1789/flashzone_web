@@ -71,7 +71,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _profileId = route.substring(5);
 
       _currentView = HomeView.profile;
-    }
+    } else if(route.contains("eventstoday")) {
+
+      _currentView = HomeView.eventToday;
+    } else if(route.contains("eventsall")) {
+
+      _currentView = HomeView.events;
+    } 
 
     setState(() {
       _initDone = true;
@@ -87,6 +93,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     _setScreenScale(width,height);
+
+    final _user = ref.watch(currentuser);
 
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +120,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   top: 60,
                   child: OverlayPortal(
                     controller: _menuPopupController, 
-                    overlayChildBuilder: (context) => menuViewMobile(context),
+                    overlayChildBuilder: (context) => menuViewMobile(context, _user),
                   ),
                 ),
                 SizedBox(
@@ -138,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             foregroundColor: MaterialStatePropertyAll(Colors.grey),
             padding: MaterialStatePropertyAll(EdgeInsets.zero)),
           child: CircleAvatar(
-            foregroundImage: Helpers.loadImageProvider(ref.read(currentuser).avatar), radius: 18,
+            foregroundImage: Helpers.loadImageProvider(_user.avatar), radius: 18,
             child: OverlayPortal(
               controller: _accountPopupController, 
               overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
@@ -230,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  menuViewMobile(BuildContext ctx) {
+  menuViewMobile(BuildContext ctx, FZUser user) {
     
     return Stack(
       children: [ 
@@ -285,7 +293,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _menuPopupController.hide();
                     _accountPopupController.show(); 
                   }, 
-                  child: const Row(children: [Icon(Icons.person), FZText(text: "Account", style: FZTextStyle.paragraph)],)),
+                  child: (user.id == "dummy" || user.id == "interim")
+                    ? const Row(children: [Icon(Icons.person), FZText(text: "Account", style: FZTextStyle.paragraph)],)
+                    : Row(
+                      children: [
+                        CircleAvatar(foregroundImage: Helpers.loadImageProvider(user.avatar), radius: 11,), 
+                        const SizedBox(width: 3,),
+                        FZText(text: user.name, style: FZTextStyle.paragraph)],)),
               ],
             ),
           ),
