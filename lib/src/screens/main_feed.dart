@@ -65,6 +65,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
         
         _flashes.addAll(ref.read(flashes));
         _filterFlashes.addAll(_flashes);
+        _filterFlashes.sort((Flash a, Flash b) => b.postDate.compareTo(a.postDate));
         _flashesLoading = false;
       });
       return;
@@ -79,6 +80,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
     //ref.read(flashes).addAll(_flashes);
 
     _filterFlashes.addAll(_flashes);
+    _filterFlashes.sort((Flash a, Flash b) => b.postDate.compareTo(a.postDate));
     setState(() {
       _flashesLoading = false;
       
@@ -108,6 +110,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
       ),
       );
     }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column( crossAxisAlignment: CrossAxisAlignment.start,

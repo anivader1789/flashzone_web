@@ -41,7 +41,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
             vertical(3),
             buildUserPanel(collapse),
             vertical(6),
-            FZText(text: widget.flash!.content, style: FZTextStyle.paragraph,),
+            FZText(text: widget.flash!.content, flashtagContent: true, style: FZTextStyle.paragraph,),
             vertical(),
             //if(!widget.compact)
               buildInteractionsView(collapse),

@@ -43,7 +43,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
           children: [
             buildUserPanel(collapse),
             vertical(2),
-            FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate,),
+            FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate, flashtagContent: true,),
             vertical(2),
             //if(!widget.compact)
               buildInteractionsView(collapse),

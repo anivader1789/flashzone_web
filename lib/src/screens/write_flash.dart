@@ -1,3 +1,4 @@
+import 'package:detectable_text_field/detectable_text_field.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
@@ -21,6 +22,10 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
   final inputController = TextEditingController();
   bool _flashSubmitting = false;
   bool _errorSubmitting = false;
+  final detectableController = DetectableTextEditingController(
+    detectedStyle:  TextStyle(fontSize: 18, color: Constants.fillColor()),
+      regExp: hashTagAtSignRegExp,
+    );
 
   @override
   Widget build(BuildContext context) {
@@ -42,19 +47,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
           const SizedBox(height: 15,),
           SizedBox(
             height: 200,
-            child: TextField(
-              controller: inputController,
-                      maxLines: 5,
-                      cursorColor: Constants.secondaryColor(),
-                      style: const TextStyle(fontSize: 18),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18.0),),
-                        hintText: 'post a flash',
-                        fillColor: Colors.white70,
-                        filled: true,
-                        
-                      ),
-            ),
+            child: inputField(),
           ),
           const SizedBox(height: 15,),
           if(_errorSubmitting) Row(
@@ -96,6 +89,39 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       ),);
   }
 
+  inputField() {
+    return DetectableTextField(
+      controller: detectableController,
+      style: const TextStyle(fontSize: 18),
+      
+      maxLines: 5,
+      cursorColor: Constants.secondaryColor(),
+      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18.0),),
+                        hintText: 'post a flash',
+                        fillColor: Colors.white70,
+                        filled: true,
+                        
+                      ),
+    );
+  }
+
+  normalInputField() {
+    return TextField(
+              controller: inputController,
+                      maxLines: 5,
+                      cursorColor: Constants.secondaryColor(),
+                      style: const TextStyle(fontSize: 18),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18.0),),
+                        hintText: 'post a flash',
+                        fillColor: Colors.white70,
+                        filled: true,
+                        
+                      ),
+            );
+  }
+
   infoView() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -113,19 +139,23 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
   void postFlash() async {
     if(validate() == false) return;
 
+    //final List<String> fts = Helpers.getAllFlashTags(detectableController.text);
+   // detectableController.text = detectableController.text.replaceAll(RegExp(r'#'), fzSymbol);
+
+
     setState(() {
       _flashSubmitting = true;
 
     });
 
-    print("Posting a flash: ${inputController.text}");
+    print("Posting a flash: ${detectableController.text}");
     final GeoFirePoint geoFirePoint = GeoFirePoint(ref.read(userCurrentLocation));
     final postAddress = await LocationService.getAddressFromLatLng(ref);
 
     print("posting address with: $postAddress");
     //Create a new flash object
     final flash = Flash(
-      content: inputController.text,
+      content: detectableController.text,
       user: ref.read(currentuser),
       postDate: DateTime.now(),
       postLocation: FZLocation(address: postAddress, geoData: geoFirePoint.data)
@@ -149,7 +179,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
   }
 
   bool validate() {
-    if(inputController.text.isEmpty) {
+    if(detectableController.text.isEmpty) {
       return false;
     }
 
