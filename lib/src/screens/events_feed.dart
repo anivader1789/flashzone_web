@@ -1,4 +1,5 @@
 import 'package:calendar_view/calendar_view.dart';
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,20 @@ class _AllEventFeedViewState extends ConsumerState<AllEventFeedView> {
   void initState() {
     super.initState();
     
-    for(int i=0; i< 20; i++) {
-      _events.add(Event.dummy(DateTime.now().add(Duration(hours: i*3))));
-    }
-
+    // for(int i=0; i< 20; i++) {
+    //   _events.add(Event.dummy(DateTime.now().add(Duration(hours: i*3))));
+    // }
+    loadEvents();
     
+  }
+
+  loadEvents() async {
+    final loadedEvents = await ref.read(backend).getEvents(700000);
+
+    _events.addAll(loadedEvents);
+    setState(() {
+      
+    });
   }
 
   viewModeToggle(Event? e) {
@@ -177,12 +187,29 @@ class _TodayEventFeedViewState extends ConsumerState<TodayEventFeedView> {
   void initState() {
     super.initState();
     
-    for(int i=0; i< 3; i++) {
-      _events.add(Event.dummy(DateTime.now().add(Duration(hours: i*3))));
-    }
+    
+    
+    // for(int i=0; i< 20; i++) {
+    //   _events.add(Event.dummy(DateTime.now().add(Duration(hours: i*3))));
+    // }
+    loadEvents();
+    
+  }
+
+  loadEvents() async {
     final today = DateTime.now();
     todayLabel = "Events Today (${today.month}/${today.day})";
-    
+
+    final loadedEvents = await ref.read(backend).getEvents(700000);
+
+    for(Event e in loadedEvents) {
+      if(e.time.year == today.year && e.time.month == today.month && e.time.day == today.day) {
+        _events.add(e);
+      }
+    }
+    setState(() {
+      
+    });
   }
 
   @override

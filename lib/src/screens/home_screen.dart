@@ -5,6 +5,7 @@ import 'package:flashzone_web/src/model/chat.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/account_screen.dart';
+import 'package:flashzone_web/src/screens/admin_eventcreationscreen.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/flash_detail_screen.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
@@ -28,7 +29,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 enum HomeView {
-  flashes, post, chat, eventToday, events, profile, notifications, flashDetail, loading
+  flashes, post, chat, eventToday, events, profile, notifications, flashDetail, loading, admineventcreate
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
@@ -77,6 +78,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if(route.contains("eventsall")) {
 
       _currentView = HomeView.events;
+    } else if(route.contains(AdminEventCreation.routeName)) {
+
+      _currentView = HomeView.admineventcreate;
     } 
 
     setState(() {
@@ -176,6 +180,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               HomeView.notifications => _initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
               HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
               HomeView.flashDetail => FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+              HomeView.admineventcreate => const AdminEventCreation(),
               HomeView.loading => showLoading()
             }),
         ],

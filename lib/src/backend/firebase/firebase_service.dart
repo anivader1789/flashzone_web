@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -203,10 +205,20 @@ class FirebaseService {
   //   }
   // }
 
+  Future<FZResult> createNewEvent(Event event) async {
+    try {
+      final doc = await _db.collection(Event.collectionName).add(event.creationObj());
+      event.id = doc.id;
+      return FZResult(code: SuccessCode.successful, message: "Created a new event}", returnedObject: event);
+    }  catch(e) {
+      throw FirebaseError(message: "Adding new event: ${e.toString()}");
+    }
+  }
+
   Future<List<Event>> getEvents(double radius) async {
     try {
       final userLocation = GeoFirePoint(ref.read(userCurrentLocation));
-      final querySnapshot = await GeoCollectionReference(_db.collection(Flash.collectionName))
+      final querySnapshot = await GeoCollectionReference(_db.collection(Event.collectionName))
                 .fetchWithin(
                   center: userLocation, 
                   radiusInKm: radius, 
@@ -267,9 +279,29 @@ class FirebaseService {
     try {
       final doc = await _db.collection(Flash.collectionName).add(flash.creationObj());
       flash.id = doc.id;
-      return FZResult(code: SuccessCode.successful, message: "Created a new session}", returnedObject: flash);
+      return FZResult(code: SuccessCode.successful, message: "Created a new flash}", returnedObject: flash);
     }  catch(e) {
-      throw FirebaseError(message: "Adding new session: ${e.toString()}");
+      throw FirebaseError(message: "Adding new flash: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> uploadImage(String filePath, String fileName) async {
+    try {
+      final file = File(filePath);
+      final storageRef = FirebaseStorage.instance.ref().child("img/$fileName");
+      final uploadTask = storageRef.putFile(file);
+      final TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+      final url = await snapshot.ref.getDownloadURL();
+
+      if(snapshot.state == TaskState.error) {
+        return FZResult(code: SuccessCode.failed, message: "Firebase error while uploading $filePath");
+      } else if(snapshot.state == TaskState.success) {
+        return FZResult(code: SuccessCode.successful, message: "Upload complete", returnedObject: url);
+      } else {
+        return FZResult(code: SuccessCode.withdrawn, message: "Operation was cancelled while uploading $filePath");
+      }
+    } catch(e) {
+      throw FirebaseError(message: "While uploading clip $filePath: ${e.toString()}");
     }
   }
 

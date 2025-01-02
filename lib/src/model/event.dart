@@ -4,14 +4,15 @@ import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/model/user.dart';
 
 class Event {
-  String id, title, description;
+  String title, description;
+  String? id;
   DateTime time;
   FZUser? user;
   String pic;
   bool donation;
   double price;
   FZLocation? location;
-  Event({required this.id, required this.title, required this.description, this.location, required this.time, this.user, this.pic = "assets/event_placeholder.jpeg", this.donation = false, this.price = 10});
+  Event({this.id, required this.title, required this.description, this.location, required this.time, this.user, this.pic = "assets/event_placeholder.jpeg", this.donation = false, this.price = 0});
 
   static dummy(DateTime when) => Event(
     id: "12345esefs", 
@@ -36,8 +37,25 @@ class Event {
         user: FZUser(id: data[userIdKey], name: data[nameKey], username: data[userhandleKey], avatar: data[userPicKey]),
         time: DateTime.parse(data[dateKey]),
         location: FZLocation(address: data[addressKey], geoData: data[geoKey]),
-        price: double.parse(data[priceKey]),
-        donation: bool.parse(data[donationKey])
+        price: data[priceKey],
+        donation: data[donationKey]
         );
     }
+
+    Map<String, dynamic> creationObj() {
+    return {
+      titleKey: title,
+      descriptionKey: description,
+      imageKey: pic,
+      userIdKey: user!.id,
+      nameKey: user!.name,
+      userhandleKey: user!.username,
+      userPicKey: user!.avatar,
+      dateKey: time.toString(),
+      addressKey: location?.address,
+      geoKey: location?.geoData,
+      priceKey: price,
+      donationKey: donation
+    };
+  }
 }

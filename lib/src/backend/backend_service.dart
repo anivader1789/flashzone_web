@@ -49,5 +49,8 @@ class BackendService {
   Future<List<Flash>> getFlashes(double radius) => firebase.getFlashes(radius);
   Future<Flash?> fetchFlash(String flashId) => firebase.fetchFlash(flashId);
 
+  Future<FZResult> uploadImage(String filePath, String fileName) => firebase.uploadImage(filePath, fileName);
+
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
+  Future<FZResult> createNewEvent(Event event) => firebase.createNewEvent(event);
 }

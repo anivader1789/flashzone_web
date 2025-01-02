@@ -9,6 +9,7 @@ import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:image_picker/image_picker.dart';
 
 class WriteFlashView extends ConsumerStatefulWidget {
   const WriteFlashView({super.key, required this.onFinished});
@@ -26,12 +27,15 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     detectedStyle:  TextStyle(fontSize: 18, color: Constants.fillColor()),
       regExp: hashTagAtSignRegExp,
     );
+    
+  bool _imageUploading = false;
+  String? _imageUrl;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Column(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -46,8 +50,15 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
           ),
           const SizedBox(height: 15,),
           SizedBox(
-            height: 200,
+            //height: 200,
             child: inputField(),
+          ),
+          Row(
+            children: [
+              Icon(Icons.attachment, color: Constants.primaryColor(), size: 32,),
+              const SizedBox(height: 2,),
+              FZText(text: "Attach Image", style: FZTextStyle.headline, color: Constants.primaryColor(), onTap: () => uploadImage(context),),
+            ],
           ),
           const SizedBox(height: 15,),
           if(_errorSubmitting) Row(
@@ -62,6 +73,8 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
             children: [
               Expanded(child: Container()),
               const CircularProgressIndicator(),
+              const SizedBox(width: 10,),
+              FZText(text: _imageUploading? "Uploading image..": "Posting Flash..", style: FZTextStyle.paragraph,),
               const SizedBox(width: 15,),
             ],
           )
@@ -77,7 +90,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
               const SizedBox(width: 10,),
               FZButton(
                 onPressed: () {
-                  postFlash();
+                  postFlash(context);
                 }, 
                 bgColor: Constants.primaryColor(),
                 text: "Flash")
@@ -136,12 +149,13 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     );
   }
 
-  void postFlash() async {
+  void postFlash(BuildContext ctx) async {
     if(validate() == false) return;
 
     //final List<String> fts = Helpers.getAllFlashTags(detectableController.text);
    // detectableController.text = detectableController.text.replaceAll(RegExp(r'#'), fzSymbol);
 
+    await uploadImage(ctx);
 
     setState(() {
       _flashSubmitting = true;
@@ -156,6 +170,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     //Create a new flash object
     final flash = Flash(
       content: detectableController.text,
+      imageUrl: _imageUrl,
       user: ref.read(currentuser),
       postDate: DateTime.now(),
       postLocation: FZLocation(address: postAddress, geoData: geoFirePoint.data)
@@ -174,6 +189,60 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       setState(() {
         _flashSubmitting = false;
         _errorSubmitting = true;
+      });
+    }
+  }
+
+  uploadImage(BuildContext ctx) async {
+    setState(() {
+      _imageUploading = true;
+      _flashSubmitting = true;
+    });
+    final selectedImage = await ImagePicker().pickImage(source: ImageSource.gallery, maxHeight: 800);
+    if(selectedImage == null) {
+      print("no image selected");
+      setState(() {
+        _imageUploading = false;
+        _imageUploading = false;
+        _flashSubmitting = false;
+      });
+      return;
+    }
+
+    int size = await selectedImage.length();
+    print("size of image $size");
+    if(size > 1000000) {
+      print("size exceeds");
+      setState(() {
+        _imageUploading = false;
+        _flashSubmitting = false;
+      });
+      return;
+    }
+
+    try {
+      final res = await ref.read(backend).uploadImage(selectedImage.path, selectedImage.name);
+      if(res.code == SuccessCode.successful) {
+        setState(() {
+          _imageUrl = res.returnedObject;
+          _imageUploading = false;
+          _flashSubmitting = false;
+        });
+      } else {
+        
+        setState(() {
+          Helpers.showDialogWithMessage(ctx: ctx, msg: res.message!);
+          _imageUploading = false;
+          _flashSubmitting = false;
+      });
+      }
+      
+    } catch (e) {
+      print(e.toString());
+      setState(() {
+        Helpers.showDialogWithMessage(ctx: ctx, msg: "Error uploading avatar image");
+        _imageUploading = false;
+        _flashSubmitting = false;
       });
     }
   }

@@ -43,6 +43,8 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
             vertical(6),
             FZText(text: widget.flash!.content, flashtagContent: true, style: FZTextStyle.paragraph,),
             vertical(),
+            if(widget.flash!.imageUrl != null) Image(image: Helpers.loadImageProvider(widget.flash!.imageUrl)),
+            vertical(),
             //if(!widget.compact)
               buildInteractionsView(collapse),
             vertical(),
@@ -125,7 +127,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
           child: GestureDetector(
             onTap: profileNavigate, 
             child: CircleAvatar(
-              backgroundImage: Helpers.loadImageProvider(widget.flash!.imageUrl), 
+              backgroundImage: Helpers.loadImageProvider(widget.flash!.user.avatar), 
               radius: collapse? 24: 30,)
           ),
         ),

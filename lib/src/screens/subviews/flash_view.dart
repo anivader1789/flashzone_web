@@ -44,6 +44,8 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             buildUserPanel(collapse),
             vertical(2),
             FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate, flashtagContent: true,),
+            vertical(),
+            if(widget.flash.imageUrl != null) Image(image: Helpers.loadImageProvider(widget.flash.imageUrl)),
             vertical(2),
             //if(!widget.compact)
               buildInteractionsView(collapse),
@@ -88,7 +90,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
           child: GestureDetector(
             onTap: profileNavigate, 
             child: CircleAvatar(
-              backgroundImage: Helpers.loadImageProvider(widget.flash.imageUrl), 
+              backgroundImage: Helpers.loadImageProvider(widget.flash.user.avatar), 
               radius: collapse? 24: 30,)
           ),
         ),
