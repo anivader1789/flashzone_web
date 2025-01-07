@@ -1,9 +1,13 @@
+import 'package:context_menus/context_menus.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Helpers {
   static const _symbols = '·・ー_';
@@ -77,6 +81,32 @@ class Helpers {
 
   static ImageProvider ftIcon() => const AssetImage('assets/logo.png');
 
+  static Widget flashEngagementText(Flash flash, [Function ()? onTapped]) {
+    if(flash.likes == 0 && flash.comments == 0) {
+      return Container();
+    } else {
+      String text = "";
+      final pluralLike = (flash.likes > 1)? "s": ""; 
+      final pluralComment = (flash.comments > 1)? "s": "";
+      if(flash.likes > 0 && flash.comments == 0) {
+        text = "${flash.likes} like$pluralLike";
+      } else if(flash.likes == 0 && flash.comments > 0){
+        text = "${flash.comments} comment$pluralComment";
+      } else {
+        text = "${flash.likes} like$pluralLike   🔸   ${flash.comments} comment$pluralComment";
+      }
+
+      return Container(
+        padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
+        decoration: BoxDecoration(
+          border: Border.all(strokeAlign: BorderSide.strokeAlignCenter, color: Constants.primaryColor(), width: 2),
+          borderRadius: const BorderRadius.all(Radius.circular(11))
+        ),
+        child: FZText(text: text, style: FZTextStyle.headline, onTap: onTapped,),
+      );
+    } 
+  }
+
   static String getDisplayDate(DateTime dateTime) {
     String day = DateFormat('d MMM y').format(dateTime);
     String time = DateFormat('h:mm a').format(dateTime);
@@ -143,7 +173,78 @@ enum FZTextStyle {
   headline, subheading, paragraph, largeHeadline, smallsubheading
 }
 
+class FZLocalImage extends StatelessWidget {
+  const FZLocalImage({super.key, required this.path});
+  final String path;
 
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(path);
+  }
+}
+
+enum FZImageSize {
+    small, medium, large
+  }
+
+class FZNetworkImage extends StatelessWidget {
+  const FZNetworkImage({super.key, required this.url, required this.maxWidth});
+  final String? url;
+  final double maxWidth;
+
+  ImageProvider loadImageProvider(String? url) {
+    if(url == null) {
+      return const AssetImage('assets/profile_pic_placeholder.png');
+    } else {
+      return NetworkImage(url);
+    }
+  }
+
+  Future<void> launch({bool isNewTab = true}) async {
+    await launchUrl(
+      Uri.parse(url!),
+      webOnlyWindowName: isNewTab ? '_blank' : '_self',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(url == null) {
+      return Image(image: loadImageProvider(url), width: maxWidth,);
+    }
+
+    return ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Image(image: loadImageProvider(url)));
+
+    // return ContextMenuRegion(
+    //   contextMenu: GenericContextMenu(
+    //     buttonConfigs: [
+    //               ContextMenuButtonConfig(
+    //                 "Open image in new tab",
+    //                 onPressed: () {
+    //                   // Implement your logic here
+    //                   launch(isNewTab: true);
+    //                 },
+    //               ),
+    //               ContextMenuButtonConfig(
+    //                 "Open image",
+    //                 onPressed: () {
+    //                   // Implement your logic here
+    //                   launch(isNewTab: false);
+    //                 },
+    //               ),
+    //               ContextMenuButtonConfig(
+    //                 "Copy image path",
+    //                 onPressed: () {
+    //                   // Implement your logic here
+    //                   Clipboard.setData(ClipboardData(text: url!));
+    //                 },
+    //               ),
+    //             ]),
+    //     child: Image(image: loadImageProvider(url)), 
+    //   );
+  }
+}
 
 class FZText extends StatelessWidget {
   const FZText({super.key, required this.text, required this.style, this.color = Colors.black, this.onTap, this.flashtagContent = false});

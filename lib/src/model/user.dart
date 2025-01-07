@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flashzone_web/src/model/location.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,10 +7,11 @@ class FZUser {
   String? id;
   String? name;
   String? avatar, email, bio, username;
+  List<String> likes;
   FZLocation? fzLocation;
-  FZUser({this.id, this.name, this.username, this.avatar, this.fzLocation, this.email, this.bio});
+  FZUser({this.id, this.name, this.username, this.avatar, this.fzLocation, this.email, this.bio, List<String>? likesList}) : likes = likesList ?? [] ;
 
-  static String collection = "user", nameKey = "name", usernameKey = "username", 
+  static String collection = "user", nameKey = "name", usernameKey = "username", likesKey = "likes",
     avatarKey = "avatar", idKey = "id", bioKey = "bio", emailKey = "email";
   static FZUser dummy() {
     return FZUser(
@@ -31,6 +34,7 @@ class FZUser {
     if(username != null) obj.addEntries({usernameKey : username!}.entries);
     if(bio != null)  obj.addEntries({bioKey : bio!}.entries);
     if(avatar != null) obj.addEntries({avatarKey : avatar!}.entries);
+    obj.addEntries({likesKey : jsonEncode(likes)}.entries);
 
     return obj;
   }
@@ -43,6 +47,7 @@ class FZUser {
     if(username != null) obj.addEntries({usernameKey : username!}.entries);
     if(bio != null)  obj.addEntries({bioKey : bio!}.entries);
     if(avatar != null) obj.addEntries({avatarKey : avatar!}.entries);
+    obj.addEntries({likesKey : jsonEncode(likes)}.entries);
 
     return obj;
   }
@@ -58,6 +63,7 @@ class FZUser {
     if(data[emailKey] != null) email = data[emailKey];
     if(data[avatarKey] != null) avatar = data[avatarKey];
     if(data[bioKey] != null) bio = data[bioKey];
+    likes = getLikes(data[likesKey]);
     
 
     //For logic on update, see firebase_auth_service.dart
@@ -101,8 +107,22 @@ class FZUser {
     if(data[bioKey] != null) user.bio = data[bioKey];
     if(data[usernameKey] != null) user.username = data[usernameKey];
     if(data[avatarKey] != null) user.avatar = data[avatarKey];
+    user.likes = getLikes(data[likesKey]);
 
     return user;
+  }
+
+  static List<String> getLikes(String? data) {
+    if(data == null || data.isEmpty) return List<String>.empty(growable: true);
+
+    final array = jsonDecode(data);
+    final result = List<String>.empty(growable: true);
+    for(dynamic like in array) {
+      if(like.runtimeType == String) {
+        result.add(like);
+      }
+    }
+    return result;
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flashzone_web/firebase_options.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
@@ -170,10 +172,11 @@ class FirebaseService {
         final result = await _db.collection(FZUser.collection).add(fzUser.profileUpdateObject());
         fzUser.id = result.id;
         ref.read(currentuser.notifier).update((state) => fzUser);
-        return FZResult(code: SuccessCode.successful, message: "New user created with id: ${fzUser.id}");
+        return FZResult(code: SuccessCode.successful, message: "New user created with id: ${fzUser.id}", returnedObject: fzUser);
       } else {
         await _db.collection(FZUser.collection).doc(fzUser.id).update(fzUser.profileUpdateObject());
-        return FZResult(code: SuccessCode.successful, message: "User updated with id: ${fzUser.id}");
+        ref.read(currentuser.notifier).update((state) => fzUser);
+        return FZResult(code: SuccessCode.successful, message: "User updated with id: ${fzUser.id}", returnedObject: fzUser);
       }
 
     } catch(e) {
@@ -275,6 +278,49 @@ class FirebaseService {
     }
   }
 
+  Future<FZResult> updateFlash(Flash flash) async {
+    try {
+      await _db.collection(Flash.collectionName).doc(flash.id).set(flash.updateObj());
+      return FZResult(code: SuccessCode.successful, returnedObject: flash);
+    } catch(e) {
+      print("Error in update flash data (likes and comment): ${e.toString()}");
+      throw FZResult(code: SuccessCode.failed, message: "Error with flash update: ${e.toString()}");
+    }
+  }
+
+  Future<CommentsList?> fetchFlashComments(String flashId) async {
+    try {
+      final docRef = _db.collection(CommentsList.collection).where(CommentsList.flashKey, isEqualTo: flashId);
+      final result = await docRef.get();
+      if(result.docs.isEmpty) {
+        print("no comment list available to fetch");
+        return null;
+      } else {
+        final data = result.docs.first;
+        print("flash comments fetched with id: ${data.id}");
+        return CommentsList.fromDocSnapshot(data.id, data.data());
+      }
+    } catch(e) {
+      print("Error in Fetch flash comments data: ${e.toString()}");
+      throw FirebaseError(message: "Fetch flash comments data: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> setFlashComments(CommentsList commentsList) async {
+    try {
+      if(commentsList.id == null) {
+        await _db.collection(CommentsList.collection).add(commentsList.creationObj());
+      } else {
+        await _db.collection(CommentsList.collection).doc(commentsList.id).set(commentsList.updateObject());
+      }
+      
+      return FZResult(code: SuccessCode.successful, returnedObject: commentsList);
+    } catch(e) {
+      print("Error in Fetch flash comments data: ${e.toString()}");
+      throw FZResult(code: SuccessCode.failed, message: "Fetch flash comments failed with error: ${e.toString()}");
+    }
+  }
+
   Future<FZResult> createNewFlash(Flash flash) async {
     try {
       final doc = await _db.collection(Flash.collectionName).add(flash.creationObj());
@@ -285,23 +331,23 @@ class FirebaseService {
     }
   }
 
-  Future<FZResult> uploadImage(String filePath, String fileName) async {
+  Future<FZResult> uploadImage(Uint8List data, String fileName) async {
     try {
-      final file = File(filePath);
       final storageRef = FirebaseStorage.instance.ref().child("img/$fileName");
-      final uploadTask = storageRef.putFile(file);
+      final uploadTask = storageRef.putData(data, SettableMetadata(contentType: "image/jpeg"));
       final TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
       final url = await snapshot.ref.getDownloadURL();
 
       if(snapshot.state == TaskState.error) {
-        return FZResult(code: SuccessCode.failed, message: "Firebase error while uploading $filePath");
+        return FZResult(code: SuccessCode.failed, message: "Firebase error while uploading $fileName");
       } else if(snapshot.state == TaskState.success) {
+        print("File uploaded here: $url");
         return FZResult(code: SuccessCode.successful, message: "Upload complete", returnedObject: url);
       } else {
-        return FZResult(code: SuccessCode.withdrawn, message: "Operation was cancelled while uploading $filePath");
+        return FZResult(code: SuccessCode.withdrawn, message: "Operation was cancelled while uploading $fileName");
       }
     } catch(e) {
-      throw FirebaseError(message: "While uploading clip $filePath: ${e.toString()}");
+      throw FirebaseError(message: "While uploading clip $fileName: ${e.toString()}");
     }
   }
 

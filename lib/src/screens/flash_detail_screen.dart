@@ -1,6 +1,10 @@
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/screens/subviews/comment_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +20,30 @@ class FlashDetailScreen extends ConsumerStatefulWidget {
 
 class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   final commentInputController = TextEditingController();
+  CommentsList? _commentsList;
+  Flash? _flash;
+  bool _commentPosting = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _flash = widget.flash;
+    
+    loadComments();
+  }
+
+  loadComments() async {
+    if(_flash == null) return;
+
+    final res = await ref.read(backend).fetchFlashComments(_flash!.id!);
+    if(res != null) {
+      setState(() {
+        _commentsList = res;
+      });
+      
+    }
+  }
   
 
   @override
@@ -31,25 +59,33 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
     }
 
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
-    return Padding(
-      padding: collapse? const EdgeInsets.fromLTRB(8, 5, 8, 5):  const EdgeInsets.fromLTRB(30, 15, 30, 15),
+    return SingleChildScrollView(
       child: Container(
         color: Colors.white70,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        padding: collapse? const EdgeInsets.fromLTRB(8, 5, 8, 5):  const EdgeInsets.fromLTRB(30, 15, 30, 15),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
           children: [
             //backButtonRow(),
             vertical(3),
             buildUserPanel(collapse),
             vertical(6),
-            FZText(text: widget.flash!.content, flashtagContent: true, style: FZTextStyle.paragraph,),
+            FZText(text: _flash!.content, flashtagContent: true, style: FZTextStyle.paragraph,),
             vertical(),
-            if(widget.flash!.imageUrl != null) Image(image: Helpers.loadImageProvider(widget.flash!.imageUrl)),
-            vertical(),
+            if(_flash!.imageUrl != null) FZNetworkImage(url: _flash!.imageUrl, maxWidth: MediaQuery.of(context).size.width * (collapse? 0.8: 0.5),),
+            vertical(2),
+            Helpers.flashEngagementText(_flash!),
+            vertical(2),
             //if(!widget.compact)
-              buildInteractionsView(collapse),
-            vertical(),
+            buildInteractionsView(collapse),
+            vertical(2),
             commentInputView(),
-
+            vertical(2),
+            const Divider(thickness: 2,),
+            vertical(),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+              child: commentListView(),),
+            
             
           ],
         ),
@@ -81,10 +117,11 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                 ),
               ),
             horizontal(),
-            IconButton(
+            _commentPosting? const CircularProgressIndicator()
+            : IconButton(
               onPressed: () {
                 // Implement the logic to send the message
-                _addComment(commentInputController.text);
+                _addComment();
                 commentInputController.clear();
               },
               //color: Constants.primaryColor(),
@@ -94,20 +131,38 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
         );
   }
 
+  commentListView() {
+    if(_commentsList == null) return Container();
+
+    return ListView.separated(
+                  separatorBuilder: (context, index) => const SizedBox(height: 5,),
+                        itemCount: _commentsList!.comments.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            //onTap: () => ,
+                            child: CommentView(
+                                comment: _commentsList!.comments[index],
+                            ),
+                          );
+                        },
+                      );
+  }
+
   Widget buildInteractionsView(bool collapse) {
+    final isLiked = ref.read(currentuser).likes.contains(widget.flash!.id);
+    final likeIcon = isLiked? Icons.thumb_up_alt: Icons.thumb_up_off_alt;
     return Column(
       children: [
          const Divider(height: 1,),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.thumb_up_off_alt), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            IconButton(onPressed: _addLikeNumber, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.primaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
             IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
         const Divider(height: 5, thickness: 5,),
         vertical(2),
-        const FZText(text: "Comments", style: FZTextStyle.paragraph),
         Container(
           decoration: const BoxDecoration(
             color: Color.fromARGB(26, 255, 255, 255),
@@ -186,8 +241,61 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
             ],);
   }
 
-  void _addComment(String text) {
+  void _addComment() async {
+    String text = commentInputController.text;
+    if(text.isEmpty) return;
 
+    setState(() {
+      _commentPosting = true;
+    });
+
+    final commentsList = _commentsList ?? CommentsList.newFrom(widget.flash!.id!);
+
+    commentsList.comments.add(Comment.newFromContent(text, ref.read(currentuser)));
+    final res = await ref.read(backend).setFlashComments(commentsList);
+    if(res.code == SuccessCode.successful) {
+      _commentsList = res.returnedObject;
+      _addCommentNumber();
+    }
+
+    setState(() {
+      _commentPosting = false;
+    });
+  }
+
+  _addCommentNumber() async {
+    if(_flash == null) return;
+
+    _flash!.comments += 1;
+    setState(() { });
+
+    final res = await ref.read(backend).updateFlash(_flash!);
+    if(res.code != SuccessCode.successful) {
+      _flash!.comments -= 1;
+      setState(() { });
+    }
+  }
+
+  _addLikeNumber() async {
+    if(_flash == null) return;
+
+    if(ref.read(currentuser).likes.contains(_flash!.id)) {
+      return;
+    }
+
+    _flash!.likes += 1;
+    ref.read(currentuser).likes.add(_flash!.id!);
+    setState(() { });
+
+    final res = await ref.read(backend).updateFlash(_flash!);
+    if(res.code != SuccessCode.successful) {
+      _flash!.likes -= 1;
+      setState(() { });
+    } else {
+      final user = ref.read(currentuser);
+      user.likes.add(_flash!.id!);
+      await ref.read(backend).updateProfile(user);
+    }
   }
 
   profileNavigate() {

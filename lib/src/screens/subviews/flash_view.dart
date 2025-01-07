@@ -1,6 +1,8 @@
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +20,7 @@ class FlashCellView extends ConsumerStatefulWidget {
 
 class _FlashCellViewState extends ConsumerState<FlashCellView> {
   late Map<String, bool> textsToDisplay;
+  late Flash _flash;
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     //   _list.add(m[1].toString());
     
     // }
+    _flash = widget.flash;
   }
 
   @override
@@ -45,8 +49,10 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             vertical(2),
             FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate, flashtagContent: true,),
             vertical(),
-            if(widget.flash.imageUrl != null) Image(image: Helpers.loadImageProvider(widget.flash.imageUrl)),
+            if(widget.flash.imageUrl != null) FZNetworkImage(url: widget.flash.imageUrl, maxWidth: MediaQuery.of(context).size.width * 0.5,),
             vertical(2),
+            Helpers.flashEngagementText(_flash, flashNavigate),
+            vertical(),
             //if(!widget.compact)
               buildInteractionsView(collapse),
             
@@ -58,19 +64,20 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   }
 
   Widget buildInteractionsView(bool collapse) {
+    final isLiked = ref.read(currentuser).likes.contains(widget.flash.id);
+    final likeIcon = isLiked? Icons.thumb_up_alt: Icons.thumb_up_off_alt;
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
         const Divider(height: 1,),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.thumb_up_off_alt), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            IconButton(onPressed: addLike, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.primaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: flashNavigate, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
             IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
         const Divider(height: 5, thickness: 5,),
         vertical(2),
-        const FZText(text: "Comments", style: FZTextStyle.paragraph),
         Container(
           decoration: const BoxDecoration(
             color: Color.fromARGB(26, 255, 255, 255),
@@ -90,8 +97,9 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
           child: GestureDetector(
             onTap: profileNavigate, 
             child: CircleAvatar(
-              backgroundImage: Helpers.loadImageProvider(widget.flash.user.avatar), 
-              radius: collapse? 24: 30,)
+              foregroundImage: Helpers.loadImageProvider(widget.flash.user.avatar),
+              radius: collapse? 24: 30,
+            )
           ),
         ),
         horizontal(collapse? 1: 2),
@@ -128,6 +136,26 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             )
           ], 
         );
+  }
+
+  addLike() async {
+    if(ref.read(currentuser).likes.contains(_flash.id)) {
+          return;
+        }
+
+    _flash.likes += 1;
+    ref.read(currentuser).likes.add(_flash!.id!);
+    setState(() { });
+
+    final res = await ref.read(backend).updateFlash(_flash);
+    if(res.code != SuccessCode.successful) {
+      _flash.likes -= 1;
+      setState(() { });
+    } else {
+      final user = ref.read(currentuser);
+      user.likes.add(_flash!.id!);
+      await ref.read(backend).updateProfile(user);
+    }
   }
 
   Widget vertical([int multiplier = 1]) => SizedBox(height: 5 * multiplier.toDouble(),);

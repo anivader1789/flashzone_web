@@ -71,7 +71,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
       return;
     }
     
-    _flashes.addAll(await ref.read(backend).getFlashes(30));
+    _flashes.addAll(await ref.read(backend).getFlashes(30, false));
     
 
     //await populateFakeFlashes();
@@ -230,6 +230,8 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
         searchTerm = val;
       });
   }
+
+  
 
   _filterssDropDown() {
     return DropdownMenu(width: 300,

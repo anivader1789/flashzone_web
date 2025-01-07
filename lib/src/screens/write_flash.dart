@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:detectable_text_field/detectable_text_field.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
@@ -10,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 
 class WriteFlashView extends ConsumerStatefulWidget {
   const WriteFlashView({super.key, required this.onFinished});
@@ -53,7 +57,9 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
             //height: 200,
             child: inputField(),
           ),
-          Row(
+          (_imageUrl != null)? 
+                const FZText(text: "Image attachment success", style: FZTextStyle.headline, color: Colors.green,)
+          : Row(
             children: [
               Icon(Icons.attachment, color: Constants.primaryColor(), size: 32,),
               const SizedBox(height: 2,),
@@ -155,7 +161,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     //final List<String> fts = Helpers.getAllFlashTags(detectableController.text);
    // detectableController.text = detectableController.text.replaceAll(RegExp(r'#'), fzSymbol);
 
-    await uploadImage(ctx);
+    //await uploadImage(ctx);
 
     setState(() {
       _flashSubmitting = true;
@@ -183,7 +189,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
         _flashSubmitting = false;
       });
 
-      ref.read(flashes).insert(0, res.returnedObject);
+      //ref.read(flashes).insert(0, res.returnedObject);
       widget.onFinished();
     } else {
       setState(() {
@@ -203,25 +209,59 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       print("no image selected");
       setState(() {
         _imageUploading = false;
-        _imageUploading = false;
         _flashSubmitting = false;
       });
       return;
     }
+
+    //final bytes = await selectedImage.readAsBytes();
+    //final docPath = await getApplicationDocumentsDirectory();
+    final id = DateTime.now().toString();
+    final fileName = "flashimg${ref.read(currentuser).id}$id.jpg";
+    //File imgFile = File("${docPath.path}/$fileName");
+    //File imgFile = File(fileName);
+    
+
+    //final fileName = selectedImage.path.split("/").last;
+    //final fileExt = fileName.split(".").last;
+    //print("File path: ${imgFile.path}  ");
 
     int size = await selectedImage.length();
     print("size of image $size");
-    if(size > 1000000) {
-      print("size exceeds");
-      setState(() {
-        _imageUploading = false;
-        _flashSubmitting = false;
-      });
-      return;
+
+    var quality = 90;
+    if(size > 2000000) {
+      //Greater than 1 MB
+      quality = 55;
+    } else if(size > 1000000) {
+      //Greater than 1 MB
+      quality = 70;
     }
 
+    img.Image? image = img.decodeImage(await selectedImage.readAsBytes());
+    // Resize the image to have the longer side be 800 pixels
+    // int width;
+    // int height;
+
+    // if (image!.width > image.height) {
+    //   width = 800;
+    //   height = (image.height / image.width * 800).round();
+    // } else {
+    //   height = 800;
+    //   width = (image.width / image.height * 800).round();
+    // }
+
+    // img.Image resizedImage = img.copyResize(image, width: width, height: height);
+
+    final compressed =
+      img.encodeJpg(image!, quality: quality);
+
+
+    print("size of image after compression ${compressed.length}");
+    //imgFile.writeAsBytesSync(compressed);
+
     try {
-      final res = await ref.read(backend).uploadImage(selectedImage.path, selectedImage.name);
+      final res = await ref.read(backend).uploadImage(compressed, fileName);
       if(res.code == SuccessCode.successful) {
         setState(() {
           _imageUrl = res.returnedObject;
