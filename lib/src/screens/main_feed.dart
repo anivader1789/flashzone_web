@@ -97,17 +97,20 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
     }
 
     if(_flashes.isEmpty) {
-      return Padding(padding: const EdgeInsets.all(8),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          vertical(2),
-          const FZText(text: "No one has posted in your area. It means you can be the first! So go ahead and post a flash.", style: FZTextStyle.headline, color: Colors.grey,),
-          vertical(),
-          const Divider(),
-          vertical(),
-          const FZText(text: "If you would like to check out what's happening in our home location, press below..", style: FZTextStyle.headline, color: Colors.grey,),
-
-        ],
+      return Padding(padding: const EdgeInsets.all(18),
+      child: Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.travel_explore, color: Colors.grey, size: 62,),
+            vertical(2),
+            const FZText(text: "No one has posted in your area. It means you can be the first! So go ahead and post a flash.", style: FZTextStyle.headline, color: Colors.grey,),
+            //vertical(),
+            //const Divider(),
+            //vertical(),
+            //const FZText(text: "If you would like to check out what's happening in our home location, press below..", style: FZTextStyle.headline, color: Colors.grey,),
+        
+          ],
+        ),
       ),
       );
     }

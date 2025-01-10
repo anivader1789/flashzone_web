@@ -138,18 +138,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ]
         : [
         RoundedBadge(onClick: () {}, title: 'Get Started', icon: const Icon(Icons.help),),
-        const SizedBox(width:5),
+        const SizedBox(width:10),
         RoundedBadge(onClick: _chatClicked, title: 'Messages', icon: const Icon(Icons.forum),),
-        const SizedBox(width:5),
+        const SizedBox(width:10),
         //IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
         RoundedBadge(onClick: () => _postClicked(context), title: 'New flash', icon: const Icon(Icons.add_circle),),
-        const SizedBox(width:5),
+        const SizedBox(width:10),
         // IconButton(
         //   onPressed:() => _postClicked(context), 
         //   icon: const Icon(Icons.add_circle), 
         //   iconSize: 35,),
         RoundedBadge(onClick: _notificationsClicked, title: 'Notification', icon: const Icon(Icons.notifications),),
-        const SizedBox(width:5),
         //IconButton(onPressed: _notificationsClicked, icon: const Icon(Icons.notifications), iconSize: 30,),
         ElevatedButton(
           onPressed: _accountPopupController.toggle, 
