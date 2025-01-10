@@ -1,5 +1,6 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/helpers/cool_widgets.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/chat.dart';
 import 'package:flashzone_web/src/model/flash.dart';
@@ -104,7 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
       centerTitle: false,
       iconTheme: IconThemeData(
-        color: Constants.lightColor(),
+        color: Constants.primaryColor(),
       ),
       title: Row(
         children: [
@@ -136,19 +137,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ]
         : [
-        IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.room), iconSize: 30,),
-        IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
-        IconButton(
-          onPressed:() => _postClicked(context), 
-          icon: const Icon(Icons.add_circle), 
-          iconSize: 35,),
-        IconButton(onPressed: _notificationsClicked, icon: const Icon(Icons.notifications), iconSize: 30,),
+        RoundedBadge(onClick: () {}, title: 'Get Started', icon: const Icon(Icons.help),),
+        const SizedBox(width:5),
+        RoundedBadge(onClick: _chatClicked, title: 'Messages', icon: const Icon(Icons.forum),),
+        const SizedBox(width:5),
+        //IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
+        RoundedBadge(onClick: () => _postClicked(context), title: 'New flash', icon: const Icon(Icons.add_circle),),
+        const SizedBox(width:5),
+        // IconButton(
+        //   onPressed:() => _postClicked(context), 
+        //   icon: const Icon(Icons.add_circle), 
+        //   iconSize: 35,),
+        RoundedBadge(onClick: _notificationsClicked, title: 'Notification', icon: const Icon(Icons.notifications),),
+        const SizedBox(width:5),
+        //IconButton(onPressed: _notificationsClicked, icon: const Icon(Icons.notifications), iconSize: 30,),
         ElevatedButton(
           onPressed: _accountPopupController.toggle, 
-          style: const ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(Colors.grey),
-            foregroundColor: MaterialStatePropertyAll(Colors.grey),
-            padding: MaterialStatePropertyAll(EdgeInsets.zero)),
+          style: ButtonStyle(elevation: const MaterialStatePropertyAll(0),
+            backgroundColor: MaterialStatePropertyAll(Constants.bgColor()),
+            foregroundColor: MaterialStatePropertyAll(Constants.bgColor()),
+            //padding: MaterialStatePropertyAll(EdgeInsets.zero)
+            ),
           child: CircleAvatar(
             foregroundImage: Helpers.loadImageProvider(_user.avatar), radius: 18,
             child: OverlayPortal(
@@ -158,7 +167,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         //CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
       ],
-      backgroundColor: Colors.grey,
+      backgroundColor: Constants.bgColor(),
       ),
       body: 
       Row(mainAxisAlignment: MainAxisAlignment.start,
@@ -207,7 +216,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   _postClicked(BuildContext ctx) {
     final user = ref.read(currentuser);
 
-    if(user.id == "dummy" || user.username == null) {
+    if(user.id == FZUser.signedOutUserId || user.username == null) {
       Helpers.showDialogWithMessage(ctx: ctx, msg: "Please finish creating your profile first");
       return;
     }
@@ -274,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _menuPopupController.hide();
                     _postClicked(ctx); 
                   }, 
-                  child: const Row(children: [Icon(Icons.add_circle), FZText(text: "Post", style: FZTextStyle.paragraph)],)),
+                  child: Row(children: [Icon(Icons.add_circle, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Post", style: FZTextStyle.paragraph)],)),
                 const Divider(),
                 ElevatedButton(
                   style: menuButtonStyle(),
@@ -282,7 +291,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _menuPopupController.hide();
                     _chatClicked(); 
                   }, 
-                  child: const Row(children: [Icon(Icons.forum), FZText(text: "Messages", style: FZTextStyle.paragraph)],)),
+                  child:  Row(children: [Icon(Icons.forum, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Messages", style: FZTextStyle.paragraph)],)),
                 const Divider(),
                 ElevatedButton(
                   style: menuButtonStyle(),
@@ -290,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _menuPopupController.hide();
                     _notificationsClicked(); 
                   }, 
-                  child: const Row(children: [Icon(Icons.notifications), FZText(text: "Notifications", style: FZTextStyle.paragraph)],)),
+                  child:  Row(children: [Icon(Icons.notifications, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Notifications", style: FZTextStyle.paragraph)],)),
                 const Divider(),
                 ElevatedButton(
                   style: menuButtonStyle(),
@@ -298,12 +307,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _menuPopupController.hide();
                     _accountPopupController.show(); 
                   }, 
-                  child: (user.id == "dummy" || user.id == "interim")
-                    ? const Row(children: [Icon(Icons.person), FZText(text: "Account", style: FZTextStyle.paragraph)],)
+                  child: (user.id == FZUser.signedOutUserId || user.id == FZUser.interimUserId)
+                    ?  Row(children: [Icon(Icons.person, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Account", style: FZTextStyle.paragraph)],)
                     : Row(
                       children: [
                         CircleAvatar(foregroundImage: Helpers.loadImageProvider(user.avatar), radius: 11,), 
-                        const SizedBox(width: 3,),
+                        const SizedBox(width: 5,),
                         FZText(text: user.name, style: FZTextStyle.paragraph)],)),
               ],
             ),

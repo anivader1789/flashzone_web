@@ -52,7 +52,7 @@ class FirebaseService {
     if (newUser == null) {
       print('User is signed out!');
       ref.read(authLoaded.notifier).update((state) => true);
-      ref.read(currentuser.notifier).update((state) => FZUser.dummy());
+      ref.read(currentuser.notifier).update((state) => FZUser.signedOut());
     } else {
       print('User is signed in!');
       ref.read(authLoaded.notifier).update((state) => true);

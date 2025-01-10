@@ -4,6 +4,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/subviews/comment_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,11 +107,13 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                   border: Border.all(color: Colors.grey),
                 ),
                 child: TextField(
+                    enabled: isSignedOut()? false: true,
+                    textCapitalization: TextCapitalization.sentences,
                     controller: commentInputController,
                     cursorColor: Constants.primaryColor(),
                     textAlignVertical: TextAlignVertical.center,
-                    decoration: const InputDecoration(
-                      hintText: 'Type your comment',
+                    decoration: InputDecoration(
+                      hintText: isSignedOut()? 'Please sign in to comment': 'Type your comment',
                       border: InputBorder.none,
                     ),
                   ),
@@ -153,10 +156,10 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
     final likeIcon = isLiked? Icons.thumb_up_alt: Icons.thumb_up_off_alt;
     return Column(
       children: [
-         const Divider(height: 1,),
+         //const Divider(height: 1,),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
-            IconButton(onPressed: _addLikeNumber, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.primaryColor(): Constants.secondaryColor(),),
+            IconButton(onPressed: _addLikeNumber, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.altPrimaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
             IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
@@ -203,7 +206,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
               children: [
                 FZText(text: widget.flash!.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: widget.flash!.user.username, style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: "@${widget.flash!.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
             vertical(),
@@ -242,6 +245,8 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   }
 
   void _addComment() async {
+    if(isSignedOut()) return;
+
     String text = commentInputController.text;
     if(text.isEmpty) return;
 
@@ -265,6 +270,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
 
   _addCommentNumber() async {
     if(_flash == null) return;
+    
 
     _flash!.comments += 1;
     setState(() { });
@@ -278,6 +284,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
 
   _addLikeNumber() async {
     if(_flash == null) return;
+    if(isSignedOut()) return;
 
     if(ref.read(currentuser).likes.contains(_flash!.id)) {
       return;
@@ -297,6 +304,8 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
       await ref.read(backend).updateProfile(user);
     }
   }
+
+  bool isSignedOut() => ref.read(currentuser).id == FZUser.signedOutUserId;
 
   profileNavigate() {
     print("user profile clicked");

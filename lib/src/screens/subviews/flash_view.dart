@@ -68,12 +68,12 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     final likeIcon = isLiked? Icons.thumb_up_alt: Icons.thumb_up_off_alt;
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(height: 1,),
+        //const Divider(height: 1,),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
-            IconButton(onPressed: addLike, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.primaryColor(): Constants.secondaryColor(),),
+            IconButton(onPressed: addLike, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.altPrimaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: flashNavigate, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
-            IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            IconButton(onPressed: () => {}, icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
         const Divider(height: 5, thickness: 5,),
@@ -105,7 +105,6 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
         horizontal(collapse? 1: 2),
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
-        // ignore: avoid_print
         IconButton(onPressed:() => share(context), icon: const Icon(Icons.share)),
         horizontal(collapse? 1: 3),
       ],
@@ -119,7 +118,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: widget.flash.user.username, style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
             vertical(),
@@ -139,9 +138,11 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   }
 
   addLike() async {
+    
     if(ref.read(currentuser).likes.contains(_flash.id)) {
           return;
         }
+    if(isSignedOut()) return;
 
     _flash.likes += 1;
     ref.read(currentuser).likes.add(_flash!.id!);
@@ -157,6 +158,8 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
       await ref.read(backend).updateProfile(user);
     }
   }
+
+  bool isSignedOut() => ref.read(currentuser).id == FZUser.signedOutUserId;
 
   Widget vertical([int multiplier = 1]) => SizedBox(height: 5 * multiplier.toDouble(),);
   Widget horizontal([int multiplier = 1]) => SizedBox(width: 5 * multiplier.toDouble(),);

@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final backend = Provider((ref) => BackendService(ref));
-final currentuser = StateProvider<FZUser>((ref) => FZUser.dummy());
+final currentuser = StateProvider<FZUser>((ref) => FZUser.signedOut());
 final flashes = StateProvider((ref) => List<Flash>.empty(growable: true));
 final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,List<ChatMessage>>{});
 final authLoaded = StateProvider<bool>((ref) => false);
@@ -39,7 +39,16 @@ class BackendService {
 
   Future<Map<String, dynamic>?> fetchUserDetails(FZUser user) => firebase.fetchUserDetails(user);
   Future<FZResult> addNewUser(FZUser? fzUser) => firebase.addNewUser(fzUser);
-  Future<FZResult> updateProfile(FZUser? fzUser) => firebase.updateProfile(fzUser);
+
+  Future<FZResult> updateProfile(FZUser? fzUser) async {
+    if(fzUser == null) return Future.value(FZResult(code: SuccessCode.failed, message: "While updating user, no user obj provided")) ;
+
+    final res = await firebase.updateProfile(fzUser);
+    if(res.code == SuccessCode.successful) {
+      ref.read(currentuser.notifier).update((state) => fzUser);
+    }
+    return res;
+  } 
   Future<FZUser?> fetchRemoteUser(String userId) => firebase.fetchRemoteUser(userId);
 
   Future<void> requestPermissions() async {

@@ -13,16 +13,18 @@ class FZUser {
 
   static String collection = "user", nameKey = "name", usernameKey = "username", likesKey = "likes",
     avatarKey = "avatar", idKey = "id", bioKey = "bio", emailKey = "email";
-  static FZUser dummy() {
+
+  static const String interimUserId = "interim", signedOutUserId = "signedOut";
+  static FZUser signedOut() {
     return FZUser(
-      id: "dummy", 
-      name: "Dummy User", 
-      username: "dummy");
+      id: signedOutUserId, 
+      name: "Guest User", 
+      username: "guest");
   } 
 
   static FZUser interim() {
     return FZUser(
-      id: "interim", 
+      id: interimUserId, 
       name: "Loading", 
       username: "loading");
   } 

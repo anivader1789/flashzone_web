@@ -1,5 +1,6 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/helpers/cool_widgets.dart';
 import 'package:flashzone_web/src/helpers/fakes_generator.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
@@ -133,19 +134,22 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                 child: SizedBox(
                     //width: MediaQuery.of(context).size.width / 3,
                     height: 45,
-                    child: TextField(
-                            //onChanged: _search,
-                            controller: searchController,
-                            cursorColor: Constants.primaryColor(),
-                            style: const TextStyle(fontSize: 12),
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
-                              hintText: 'search FlashZone',
-                              fillColor: Colors.white70,
-                              filled: true,
+                    child: RoundedSearchInput(
+                      textController: searchController, 
+                      hintText: "search Flashzone")
+                    //  TextField(
+                    //         //onChanged: _search,
+                    //         controller: searchController,
+                    //         cursorColor: Constants.primaryColor(),
+                    //         style: const TextStyle(fontSize: 12),
+                    //         decoration: InputDecoration(
+                    //           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
+                    //           hintText: 'search FlashZone',
+                    //           fillColor: Colors.white70,
+                    //           filled: true,
                               
-                            ),
-                          ),
+                    //         ),
+                    //       ),
                   ),
               ),
                 horizontal(),
@@ -164,7 +168,8 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                       //usernameController.clear();
                     },
                     text: "Search",
-                    bgColor: Constants.primaryColor(),
+                    textColor: Colors.white,
+                    bgColor: Constants.altPrimaryColor(),
                   ),
                 horizontal(),
                 widget.mobileSize?
@@ -190,7 +195,8 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                       //usernameController.clear();
                     },
                     text: "Clear",
-                    bgColor: Colors.grey,
+                    textColor: Colors.white,
+                    bgColor: Constants.bgColor(),
                   ),
             ],
           ),

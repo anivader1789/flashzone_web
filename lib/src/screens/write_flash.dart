@@ -63,7 +63,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
             children: [
               Icon(Icons.attachment, color: Constants.primaryColor(), size: 32,),
               const SizedBox(height: 2,),
-              FZText(text: "Attach Image", style: FZTextStyle.headline, color: Constants.primaryColor(), onTap: () => uploadImage(context),),
+              FZText(text: "Attach Image", style: FZTextStyle.headline, color: Constants.altPrimaryColor(), onTap: () => uploadImage(context),),
             ],
           ),
           const SizedBox(height: 15,),
@@ -91,14 +91,14 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
                 onPressed: () {
                   widget.onFinished();
                 }, 
-                bgColor: Constants.primaryColor(),
+                //bgColor: Constants.primaryColor(),
                 text: "Cancel"),
               const SizedBox(width: 10,),
               FZButton(
                 onPressed: () {
                   postFlash(context);
                 }, 
-                bgColor: Constants.primaryColor(),
+                //bgColor: Constants.primaryColor(),
                 text: "Flash")
             ],
           ),

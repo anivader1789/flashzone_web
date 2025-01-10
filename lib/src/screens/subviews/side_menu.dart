@@ -153,10 +153,10 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
           hoverColor: Constants.lightColor(),
           selectedColor: Constants.primaryColor(),
           selectedIconColor: Colors.white,
-          unselectedIconColor: Colors.black54,
-          backgroundColor: Colors.grey,
+          unselectedIconColor: Colors.white,
+          backgroundColor: Constants.bgColor(),
           selectedTitleTextStyle: const TextStyle(color: Colors.white),
-          unselectedTitleTextStyle: const TextStyle(color: Colors.black54),
+          unselectedTitleTextStyle: const TextStyle(color: Colors.white),
           iconSize: 20,
           itemBorderRadius: const BorderRadius.all(
             Radius.circular(5.0),
@@ -170,9 +170,9 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
 
           // Additional properties for expandable items
           selectedTitleTextStyleExpandable: const TextStyle(color: Colors.white), // Adjust the style as needed
-          unselectedTitleTextStyleExpandable: const TextStyle(color: Colors.black54), // Adjust the style as needed
+          unselectedTitleTextStyleExpandable: const TextStyle(color: Colors.white), // Adjust the style as needed
           selectedIconColorExpandable: Colors.white, // Adjust the color as needed
-          unselectedIconColorExpandable: Colors.black54, // Adjust the color as needed
+          unselectedIconColorExpandable: Colors.white, // Adjust the color as needed
           arrowCollapse: Colors.blueGrey, // Adjust the color as needed
           arrowOpen: Colors.lightBlueAccent, // Adjust the color as needed
           iconSizeExpandable: 24.0, // Adjust the size as needed

@@ -40,11 +40,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     _user = ref.watch(currentuser);
     
-    if(_loading || _user.id == "interim") {
+    if(_loading || _user.id == FZUser.interimUserId) {
       state = AccountInputState.loading;
     } else if(_finished) {
       state = AccountInputState.finished;
-    } else if(_user.id == "dummy") {
+    } else if(_user.id == FZUser.signedOutUserId) {
       state = AccountInputState.signup;
     } else if(_user.username == null) {
       state = AccountInputState.username;
@@ -77,8 +77,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 AccountInputState.signup => signinForm(),
                 AccountInputState.username => usernameField(),
                 AccountInputState.bio => bioField(),
-                AccountInputState.loading =>  CircularProgressIndicator(),
-                AccountInputState.finished =>  Icon(Icons.check_circle, color: Colors.green, size: 32,),
+                AccountInputState.loading => const CircularProgressIndicator(),
+                AccountInputState.finished => const Icon(Icons.check_circle, color: Colors.green, size: 32,),
                 AccountInputState.account => accountEdit()
               },
             ) ,

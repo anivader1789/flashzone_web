@@ -4,6 +4,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -283,9 +284,11 @@ class FZText extends StatelessWidget {
   }
   
   flashtagContentView(String content, TextStyle style) {
-    Color color = Constants.primaryColor();
+    final clr = Constants.altPrimaryColor();
     List<InlineSpan> spans = List.empty(growable: true);
     final chunks = highlightTexts(content);
+    const regularStyle = TextStyle(fontSize: 24,);
+    final highlightedStyle = TextStyle(fontSize: 24, color: clr);
     print(chunks);
     for(int i=0; i<chunks.length; i++) {
       final str = chunks[i];
@@ -308,11 +311,11 @@ class FZText extends StatelessWidget {
         // );
         spans.add(const TextSpan(text: " "));
         spans.add(WidgetSpan(alignment: PlaceholderAlignment.bottom,
-          child: Image(image: Helpers.ftIcon(), color: color, width: 26,))
+          child: Image(image: Helpers.ftIcon(), color: clr, width: 32,))
         );
-        spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: TextStyle(color: color),));
+        spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: highlightedStyle,));
       } else {
-        spans.add(TextSpan(text: str, style: style,));
+        spans.add(TextSpan(text: str, style: regularStyle,));
       }
     }
 
@@ -354,8 +357,8 @@ class FZButton extends StatelessWidget {
   const FZButton({super.key, 
   required this.onPressed,
   required this.text, 
-  this.textColor = Colors.black,
-  this.bgColor = Colors.transparent, 
+  this.textColor = Colors.white,
+  this.bgColor = const Color.fromARGB(255, 182, 130, 27), 
   this.compact = false});
   final String text;
   final Color bgColor;
