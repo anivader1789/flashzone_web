@@ -57,41 +57,58 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
       //   style: TextStyle(color: Colors.white),
       // ),
     ));
-    final supermenu = SideMenuExpansionItem(
-    title: "Events Now",
-    icon: const Icon(Icons.kitchen),
-    
-    children: [
-      SideMenuItem(
-        title: 'Events Today',
-        onTap: (index, _) {
-          sideMenu.changePage(index);
-          //widget.menuClicked(HomeView.eventToday);
-          Navigator.pushReplacementNamed(context, "eventstoday");
-        },
-        icon: const Icon(Icons.stream),
-        badgeContent: const Text(
-          '2',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      SideMenuItem(
-        title: 'Upcoming Events',
-        onTap: (index, _) {
-          sideMenu.changePage(index);
-          //widget.menuClicked(HomeView.events);
-          Navigator.pushReplacementNamed(context, "eventsall");
-        },
-        icon: const Icon(Icons.upcoming),
-        badgeContent: const Text(
-          '9',
-          style: TextStyle(color: Colors.white),
-        ),
-      )
-    ],
-  );
 
-    items.add(supermenu);
+    items.add(SideMenuItem(
+          title: 'Events',
+          onTap: (index, _) {
+            sideMenu.changePage(index);
+            //widget.menuClicked(HomeView.eventToday);
+            Navigator.pushReplacementNamed(context, "events");
+          },
+          icon: const Icon(Icons.event),
+          // badgeContent: const Text(
+          //   '2',
+          //   style: TextStyle(color: Colors.white),
+          // ),
+        ));
+
+    // final supermenu = SideMenuExpansionItem(
+    //   title: "Events Now",
+    //   icon: const Icon(Icons.kitchen),
+      
+    //   children: [
+    //     SideMenuItem(
+    //       title: 'Events Today',
+    //       onTap: (index, _) {
+    //         sideMenu.changePage(index);
+    //         //widget.menuClicked(HomeView.eventToday);
+    //         Navigator.pushReplacementNamed(context, "eventstoday");
+    //       },
+    //       icon: const Icon(Icons.stream),
+    //       badgeContent: const Text(
+    //         '2',
+    //         style: TextStyle(color: Colors.white),
+    //       ),
+    //     ),
+    //     SideMenuItem(
+    //       title: 'Upcoming Events',
+    //       onTap: (index, _) {
+    //         sideMenu.changePage(index);
+    //         //widget.menuClicked(HomeView.events);
+    //         Navigator.pushReplacementNamed(context, "eventsall");
+    //       },
+    //       icon: const Icon(Icons.upcoming),
+    //       badgeContent: const Text(
+    //         '9',
+    //         style: TextStyle(color: Colors.white),
+    //       ),
+    //     )
+    //   ],
+    // );
+
+    // items.add(supermenu);
+
+
     items.add(SideMenuItem(
       title: 'My FlashTags',
       onTap: (index, _) {

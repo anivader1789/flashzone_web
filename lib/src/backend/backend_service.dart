@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flashzone_web/src/backend/aws/aws_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_service.dart';
@@ -107,5 +106,6 @@ class BackendService {
   Future<FZResult> uploadImage(Uint8List data, String fileName) => firebase.uploadImage(data, fileName);
 
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
+  Future<Event?> fetchEvent(String eventId) => firebase.fetchEvent(eventId);
   Future<FZResult> createNewEvent(Event event) => firebase.createNewEvent(event);
 }

@@ -7,6 +7,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/admin_eventcreationscreen.dart';
+import 'package:flashzone_web/src/screens/event_detail_view.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/flash_detail_screen.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
@@ -30,14 +31,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 enum HomeView {
-  flashes, post, chat, eventToday, events, profile, notifications, flashDetail, loading, admineventcreate
+  flashes, post, chat, eventToday, events, eventDetails, profile, notifications, flashDetail, loading, admineventcreate
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _smallScreenSize = false;
   HomeView _currentView = HomeView.loading;
   FZUser? _userToView;
-  String? _flashId, _profileId;
+  String? _flashId, _profileId, _eventId;
   Flash? _flashtoView;
   bool _initDone = false;
   final _accountPopupController = OverlayPortalController();
@@ -66,9 +67,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
 
         _flashtoView ??= await ref.read(backend).fetchFlash(_flashId!);
+        _currentView = HomeView.flashDetail;
+      } else {
+        _currentView = HomeView.flashes;
       }
-
-      _currentView = HomeView.flashDetail;
     } else if(route.contains("user")) {
       _profileId = route.substring(5);
 
@@ -76,9 +78,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if(route.contains("eventstoday")) {
 
       _currentView = HomeView.eventToday;
-    } else if(route.contains("eventsall")) {
+    } else if(route.contains("events")) {
+      if(route.length > 7) {
+        _eventId = route.substring(7);
+        print("Trying to load event: $_eventId");
+        if(_eventId != null && _eventId!.isNotEmpty) {
 
-      _currentView = HomeView.events;
+          _currentView = HomeView.eventDetails;
+        } else {
+          _currentView = HomeView.events;
+        }
+      } else {
+        _currentView = HomeView.events;
+      }
+      
     } else if(route.contains(AdminEventCreation.routeName)) {
 
       _currentView = HomeView.admineventcreate;
@@ -184,10 +197,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
               HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
               HomeView.eventToday => _initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
-              HomeView.events => _initDone == false? showLoading() :   AllEventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.events => _initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
               HomeView.notifications => _initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
               HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
-              HomeView.flashDetail => FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+              HomeView.flashDetail => _initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+              HomeView.eventDetails => _initDone == false? showLoading() : EventDetailsView(eventId: _eventId, mobileSize: _smallScreenSize),
               HomeView.admineventcreate => const AdminEventCreation(),
               HomeView.loading => showLoading()
             }),

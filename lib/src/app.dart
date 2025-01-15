@@ -63,10 +63,10 @@ class App extends ConsumerWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: ThemeData(
-            primaryColor: Constants.primaryColor(),
-            secondaryHeaderColor: Constants.secondaryColor()
-          ),
+          // theme: ThemeData(
+          //   primaryColor: Constants.primaryColor(),
+          //   secondaryHeaderColor: Constants.secondaryColor()
+          // ),
           //darkTheme: ThemeData.dark(),
           //themeMode: settingsController.themeMode,
 

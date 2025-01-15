@@ -2,8 +2,77 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
+import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class EventFeedView extends ConsumerStatefulWidget {
+  const EventFeedView({super.key, required this.mobileSize});
+  final bool mobileSize;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _EventFeedViewState();
+}
+
+class _EventFeedViewState extends ConsumerState<EventFeedView> {
+  final List<Event> _upcomingEvents = List.empty(growable: true);
+  final List<Event> _todayEvents = List.empty(growable: true);
+  late String todayLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    loadEvents();
+  }
+
+  loadEvents() async {
+    final today = DateTime.now();
+    todayLabel = "Events Today (${today.month}/${today.day})";
+
+    final loadedEvents = await ref.read(backend).getEvents(7000000000);
+
+    for(Event e in loadedEvents) {
+      if(e.time.year == today.year && e.time.month == today.month && e.time.day == today.day) {
+        _todayEvents.add(e);
+      } else if(e.time.isBefore(DateTime.now())) {
+        _upcomingEvents.add(e);
+      }
+    }
+    setState(() { });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.all(12),
+    child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          vertical(),
+          FZText(text: todayLabel, style: FZTextStyle.headline, color: Colors.grey,),
+          const Divider(),
+          vertical(),
+          eventsGridView(_todayEvents),
+          vertical(),
+          const FZText(text: "Upcoming events", style: FZTextStyle.headline, color: Colors.grey,),
+          const Divider(),
+          vertical(),
+          eventsGridView(_upcomingEvents),
+        ],
+      ),
+    )  ;
+  }
+
+  eventsGridView(List<Event> events) {
+    return GridView.count(shrinkWrap: true,
+      crossAxisCount: widget.mobileSize? 1: 3,
+      children: List.generate(events.length, (index) {
+                    return EventCellView(event: events[index]);
+                  },
+    ));
+  } 
+
+  vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
+  horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
+}
 
 class AllEventFeedView extends ConsumerStatefulWidget {
   const AllEventFeedView({super.key, required this.mobileSize});
@@ -315,13 +384,8 @@ class _TodayEventFeedViewState extends ConsumerState<TodayEventFeedView> {
         );
   }
 
-  vertical([double multiple = 1]) {
-    return SizedBox(height: 5 * multiple,);
-  }
-
-  horizontal([double multiple = 1]) {
-    return SizedBox(width: 5 * multiple,);
-  }
+  vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
+  horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 }
 
 // eventsDisplayViews() {

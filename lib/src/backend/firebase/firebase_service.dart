@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -239,6 +238,24 @@ class FirebaseService {
     }
   }
 
+  Future<Event?> fetchEvent(String eventId) async {
+    try {
+      final docRef = _db.collection(Event.collectionName).doc(eventId);
+      final result = await docRef.get();
+      if(result.data() == null) {
+        print("event fetched but is null");
+        return null;
+      } else {
+        print("event fetched with id: ${result.id}");
+        final data = result.data() as Map<String, dynamic>;
+        return Event.fromDocSnapshot(result.id, data);
+      }
+    } catch(e) {
+      print("Error in Fetch event data: ${e.toString()}");
+      throw FirebaseError(message: "Fetch event data: ${e.toString()}");
+    }
+  }
+
   Future<List<Flash>> getFlashes(double radius) async {
     try {
       final userLocation = GeoFirePoint(ref.read(userCurrentLocation));
@@ -333,7 +350,7 @@ class FirebaseService {
 
   Future<FZResult> uploadImage(Uint8List data, String fileName) async {
     try {
-      final storageRef = FirebaseStorage.instance.ref().child("img/$fileName");
+      final storageRef = _firebaseStorage.ref().child("img/$fileName");
       final uploadTask = storageRef.putData(data, SettableMetadata(contentType: "image/jpeg"));
       final TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
       final url = await snapshot.ref.getDownloadURL();

@@ -7,6 +7,8 @@ class Constants {
   static Color lightColor() => const Color.fromARGB(188, 242, 241, 188);
   static Color fillColor() => const Color.fromARGB(255, 112, 10, 130);
   static Color bgColor() => const Color.fromARGB(255, 88, 71, 53);
+  static Color cardColor() => const Color.fromARGB(210, 255, 234, 212);
+
 
   static const List<String> flashtags = [
     "UFO", "Spirituality", "Paranormal" , "NDE"

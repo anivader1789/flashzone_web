@@ -50,13 +50,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if(widget.flash == null) {
-      return Column(
-        children: [
-            backButtonRow(),
-            vertical(3),
-            const FZText(text: "Flash not found", style: FZTextStyle.largeHeadline, color: Colors.grey,),
-        ],
-      );
+      return FZErrorIndicator(text: "Flash not found", mobileSize: widget.compact);
     }
 
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;

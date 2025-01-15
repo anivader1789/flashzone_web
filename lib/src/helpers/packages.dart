@@ -114,6 +114,14 @@ class Helpers {
     return "$time on $day";
   }
 
+  static String getDisplayTime(DateTime dateTime) {
+    return DateFormat('h:mm a').format(dateTime);
+  }
+
+  static String getDisplayDay(DateTime dateTime) {
+    return DateFormat('d MMM y').format(dateTime);
+  }
+
   static showDialogWithMessage({required BuildContext ctx, required String msg, String title = "FlashZone"}) {
     showDialog(context: ctx, 
           builder: (ctx) => AlertDialog(
@@ -171,7 +179,7 @@ class Helpers {
 const fzSymbol = "\u2021";
 
 enum FZTextStyle {
-  headline, subheading, paragraph, largeHeadline, smallsubheading
+  headline, subheading, paragraph, largeHeadline, xlargeHeadline, tooLargeHeadline, smallsubheading
 }
 
 class FZLocalImage extends StatelessWidget {
@@ -263,6 +271,8 @@ class FZText extends StatelessWidget {
     TextStyle textStyle = switch (style) {
       FZTextStyle.headline =>  TextStyle(color: color, fontWeight: FontWeight.bold),
       FZTextStyle.largeHeadline =>  TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+      FZTextStyle.xlargeHeadline =>  TextStyle(color: color, fontSize: 19, fontWeight: FontWeight.bold),
+      FZTextStyle.tooLargeHeadline =>  TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold),
       FZTextStyle.subheading =>  TextStyle(color: color, fontWeight: FontWeight.w300),
       FZTextStyle.smallsubheading =>  TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w200),
       FZTextStyle.paragraph =>  TextStyle(color: color, fontWeight: FontWeight.normal),
@@ -273,14 +283,14 @@ class FZText extends StatelessWidget {
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: onTap,
-          child: flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle,softWrap: true,),
+          child: flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true),
         )
       );
     }
 
 
 
-    return flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle,softWrap: true,);
+    return flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true);
   }
   
   flashtagContentView(String content, TextStyle style) {
@@ -455,4 +465,27 @@ class FZLoadingIndicator extends StatelessWidget {
     vertical([double multiple = 1]) {
     return SizedBox(height: (mobileSize? 5: 15) * multiple,);
   }
-  }
+}
+
+class FZErrorIndicator extends StatelessWidget {
+    const FZErrorIndicator({super.key, required this.text, required this.mobileSize});
+    final bool mobileSize; 
+    final String text;
+  
+    @override
+    Widget build(BuildContext context) {
+      return Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error, size: 70, color: Colors.grey,),
+            vertical(),
+            FZText(text: text, style: FZTextStyle.largeHeadline, color: Colors.grey,),
+          ],
+        ),
+      );
+    }
+
+    vertical([double multiple = 1]) {
+      return SizedBox(height: (mobileSize? 5: 15) * multiple,);
+    }
+}
