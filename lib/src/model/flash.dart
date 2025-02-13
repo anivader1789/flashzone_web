@@ -9,6 +9,7 @@ class Flash {
   DateTime postDate;
   FZLocation? postLocation;
   int likes, comments;
+  bool deleted;
 
   Flash({this.id, 
   required this.content, 
@@ -17,7 +18,8 @@ class Flash {
   this.imageUrl, 
   this.postLocation,
   this.likes = 0,
-  this.comments = 0}
+  this.comments = 0,
+  this.deleted = false}
   );
 
   static String collectionName = "flash";

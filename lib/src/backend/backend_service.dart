@@ -1,10 +1,14 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/aws/aws_service.dart';
+import 'package:flashzone_web/src/backend/firebase/firebase_auth_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_service.dart';
+import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flashzone_web/src/model/chat.dart';
 import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/model/invitation.dart';
+import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
@@ -17,17 +21,23 @@ final flashes = StateProvider((ref) => List<Flash>.empty(growable: true));
 final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,List<ChatMessage>>{});
 final authLoaded = StateProvider<bool>((ref) => false);
 
+final invitationCode = StateProvider<String?>((ref) => null);
+final invitationCodeError = StateProvider<String?>((ref) => null);
+final userToVerify = StateProvider<FZUser?>((ref) => null);
+
 class BackendService {
   final Ref ref;
   late AwsService aws;
   late FirebaseService firebase;
+  late FirebaseAuthService firebaseAuth;
   BackendService(this.ref) {
     aws = AwsService(ref);
     firebase = FirebaseService(ref: ref);
+    firebaseAuth = FirebaseAuthService(ref: ref);
   }
 
   Future<void> init() async {
-    await requestPermissions();
+    //await requestPermissions();
     await LocationService.updateCurrentLocation(ref);
     return firebase.init();
   }
@@ -38,6 +48,38 @@ class BackendService {
 
   Future<Map<String, dynamic>?> fetchUserDetails(FZUser user) => firebase.fetchUserDetails(user);
   Future<FZResult> addNewUser(FZUser? fzUser) => firebase.addNewUser(fzUser);
+
+  Future<FZResult> createEmailAccount(String email, String password) => firebaseAuth.createEmailAccount(email, password);
+  Future<FZResult> signinEmail(String email, String password) => firebaseAuth.signinEmail(email, password);
+  Future<void> sendVerificationEmail() => firebaseAuth.sendVerificationEmail();
+  Future<void> sendPasswordResetEmail() => firebaseAuth.sendPasswordResetEmail();
+  Future<bool> loadUserVerificationStatus() => firebaseAuth.isUserVerified();
+
+  Future<void> verifyPhoneNumber({required String phoneNumber, 
+                      required Function (String) failureCallback, 
+                      required Function successCallback, 
+                      required Function instantVerificationCallback, 
+                      required Function timeoutCallback}) => firebaseAuth.verifyPhoneNumber(phoneNumber: phoneNumber, failureCallback: failureCallback, successCallback: successCallback, instantVerificationCallback: instantVerificationCallback, timeoutCallback: timeoutCallback);
+
+  Future<void> submitOTP({required String smsCode, 
+                      required Function failureCallback, 
+                      required Function successCallback}) => firebaseAuth.submitOTP(smsCode: smsCode, failureCallback: failureCallback, successCallback: successCallback);
+
+  Future<FZResult> deleteFlash(Flash flash) async {
+    try {
+      await firebase.deleteFlash(flash);
+      flash.deleted = true;
+      return FZResult(code: SuccessCode.successful);
+    } catch (e) {
+      return FZResult(code: SuccessCode.failed, message: e.toString());
+    }
+
+  }
+
+  Future<FZResult> deleteComment(Flash flash, String fromUserId, String content) async { 
+    final res = await firebase.deleteComment(flash, fromUserId, content);
+    return res;
+  }
 
   Future<FZResult> updateProfile(FZUser? fzUser) async {
     if(fzUser == null) return Future.value(FZResult(code: SuccessCode.failed, message: "While updating user, no user obj provided")) ;
@@ -54,8 +96,10 @@ class BackendService {
     await LocationService.handleLocationPermission();
   } 
 
-  void signInWithCredential(dynamic creds) => firebase.signInWithCredential(creds);
+  FirebaseAuth getAuthInstance() => firebase.getAuthInstance();
+  void signInWithCredential(AuthCreds creds) => firebaseAuth.signInWithCredential(creds);
   Future<void> signOut() => firebase.signOut();
+
 
   Future<FZResult> createNewFlash(Flash flash) async {
     final flashesRef = ref.read(flashes);
@@ -100,6 +144,8 @@ class BackendService {
     return res;
   } 
 
+  Future<InvitationCode?> fetchInvitationCode(String? email) => firebase.fetchInvitationCode(email);
+
   Future<CommentsList?> fetchFlashComments(String flashId) => firebase.fetchFlashComments(flashId);
   Future<FZResult> setFlashComments(CommentsList commentsList) => firebase.setFlashComments(commentsList);
 
@@ -108,4 +154,5 @@ class BackendService {
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
   Future<Event?> fetchEvent(String eventId) => firebase.fetchEvent(eventId);
   Future<FZResult> createNewEvent(Event event) => firebase.createNewEvent(event);
+  Future<List<FZNotification>> fetchNotifications(String email) => firebase.fetchNotifications(email);
 }

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-final userCurrentLocation = StateProvider<GeoPoint>((ref) => const GeoPoint(41.014412, 73.752798));
+final userCurrentLocation = StateProvider<GeoPoint>((ref) => const GeoPoint(41.054514, -73.814637));
 
 class LocationService {
 
@@ -36,7 +36,7 @@ class LocationService {
     final hasPermission = await handleLocationPermission();
     if (!hasPermission) return;
     await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high)
+            desiredAccuracy: LocationAccuracy.lowest)
         .then((Position position) {
           print("Updated current location to: $position");
           ref.read(userCurrentLocation.notifier).update((state) => GeoPoint(position.latitude, position.longitude));

@@ -4,6 +4,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ class FlashCellView extends ConsumerStatefulWidget {
   final Flash flash;
   final Function (FZUser) profileClicked;
   final bool compact;
+  
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _FlashCellViewState();
@@ -21,6 +23,8 @@ class FlashCellView extends ConsumerStatefulWidget {
 class _FlashCellViewState extends ConsumerState<FlashCellView> {
   late Map<String, bool> textsToDisplay;
   late Flash _flash;
+  bool _loading = false;
+  bool _ownFlash = false;
 
   @override
   void initState() {
@@ -33,11 +37,16 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     //   _list.add(m[1].toString());
     
     // }
+    
     _flash = widget.flash;
+    _ownFlash = _flash.user.id == ref.read(currentuser).id;
   }
 
   @override
   Widget build(BuildContext context) {
+    if(_flash.deleted) {
+      return const Center(child: FZText(text: "Flash deleted", style: FZTextStyle.paragraph),);
+    }
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
     return Padding(
       padding: collapse? const EdgeInsets.fromLTRB(8, 5, 8, 5):  const EdgeInsets.fromLTRB(30, 15, 30, 15),
@@ -69,11 +78,13 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
         //const Divider(height: 1,),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+        _loading? const CircularProgressIndicator()
+        : Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
           children: [
             IconButton(onPressed: addLike, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.altPrimaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: flashNavigate, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
             IconButton(onPressed: () => {}, icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            if(_ownFlash) IconButton(onPressed: _deleteFlash, icon: const Icon(Icons.delete), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
         const Divider(height: 5, thickness: 5,),
@@ -92,16 +103,17 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget buildUserPanel(bool collapse) {
     return Row(mainAxisSize: MainAxisSize.max,
       children: [
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: profileNavigate, 
-            child: CircleAvatar(
-              foregroundImage: Helpers.loadImageProvider(widget.flash.user.avatar),
-              radius: collapse? 24: 30,
-            )
-          ),
-        ),
+        ThumbnailView(link: widget.flash.user.avatar, mobileSize: collapse),
+        // MouseRegion(
+        //   cursor: SystemMouseCursors.click,
+        //   child: GestureDetector(
+        //     onTap: profileNavigate, 
+        //     child: CircleAvatar(
+        //       foregroundImage: Helpers.loadImageProvider(widget.flash.user.avatar),
+        //       radius: collapse? 24: 30,
+        //     )
+        //   ),
+        // ),
         horizontal(collapse? 1: 2),
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
@@ -135,6 +147,17 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
             )
           ], 
         );
+  }
+
+  _deleteFlash() async {
+    setState(() {
+      _loading = true;
+    });
+
+    await ref.read(backend).deleteFlash(_flash);
+    setState(() {
+      _loading = false;
+    });
   }
 
   addLike() async {

@@ -8,8 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //https://pub.dev/packages/easy_sidemenu
 
 class SideMenuView extends ConsumerStatefulWidget {
-  const SideMenuView({super.key, required this.menuClicked});
+  const SideMenuView({super.key, required this.menuClicked, required this.selectedIndex});
   final Function (HomeView) menuClicked;
+  final int selectedIndex;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _SideMenuViewState();
@@ -18,7 +19,7 @@ class SideMenuView extends ConsumerStatefulWidget {
 class _SideMenuViewState extends ConsumerState<SideMenuView> {
 
   PageController pageController = PageController();
-  SideMenuController sideMenu = SideMenuController();
+  late SideMenuController sideMenu = SideMenuController();
   List items = List.empty(growable: true);
 
   @override
@@ -28,6 +29,8 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     //   //pageController.jumpToPage(index);
     // });
     super.initState();
+    print("side menu loading with: ${widget.selectedIndex}");
+    //sideMenu = SideMenuController(initialPage: widget.selectedIndex);
 
     populateMenuItems();
   }
@@ -151,7 +154,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
         // Will shows on top of all items, it can be a logo or a Title text
         //title: const Icon(Icons.menu, size: 30,),
         // Will show on bottom of SideMenu when displayMode was SideMenuDisplayMode.open
-        footer: const FZText(text: 'FlashZone Inc.', style: FZTextStyle.subheading,),
+        footer: const FZText(text: 'FlashZone Inc.', style: FZTextStyle.subheading, color: Colors.white,),
         // Notify when display mode changed
         onDisplayModeChanged: (mode) {
           //print(mode);

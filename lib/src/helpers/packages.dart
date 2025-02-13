@@ -82,6 +82,12 @@ class Helpers {
 
   static ImageProvider ftIcon() => const AssetImage('assets/logo.png');
 
+  static List<String?> allFlashTagsInText(String text) {
+    RegExp reg = Helpers.hashTagRegExp;
+  
+    return reg.allMatches(text).map((e) => e.group(0)).toList();
+  }
+
   static Widget flashEngagementText(Flash flash, [Function ()? onTapped]) {
     if(flash.likes == 0 && flash.comments == 0) {
       return Container();
@@ -451,9 +457,8 @@ class FZLoadingIndicator extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
       return Center(
-        child: Column(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            vertical(24),
             SizedBox(width: 70, height: 70, child: CircularProgressIndicator(color: Constants.primaryColor(),)),
             vertical(),
             FZText(text: text, style: FZTextStyle.paragraph, color: Colors.grey,),

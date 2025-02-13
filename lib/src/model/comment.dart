@@ -55,6 +55,8 @@ class Comment {
   Comment({required this.userName, required this.userId, required this.userHandle, required this.userAvatar,
   required this.content, required this.time});
 
+  bool deleted = false;
+
   static Comment? newFromData(Map<String, dynamic>? data) {
     if(data == null) return null;
 

@@ -5,12 +5,13 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/modules/email_auth/email_auth.dart';
 import 'package:flashzone_web/src/modules/google_auth/google_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AccountInputState {
-  signup, username, bio, loading, finished, account
+  signup, username, bio, loading, finished, account, code, verificationPending, name
 }
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key, required this.onDismiss});
@@ -24,7 +25,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   late AccountInputState state;
   bool _loading = false, _finished = false;
   final usernameController = TextEditingController();
+  final nameController = TextEditingController();
+  final codeController = TextEditingController();
   final bioController = TextEditingController();
+  bool _emailVerificationPending = false;
+  bool _invitationCodeError = false;
 
   late FZUser _user;
 
@@ -32,28 +37,43 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   void initState() {
     super.initState();
 
-    
-    
+  }
+
+  loadEmailVerificationStatus() async {
+    final res = await ref.read(backend).loadUserVerificationStatus();
+    if(res == false) {
+      setState(() {
+        _emailVerificationPending = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     _user = ref.watch(currentuser);
-    
-    if(_loading || _user.id == FZUser.interimUserId) {
-      state = AccountInputState.loading;
-    } else if(_finished) {
-      state = AccountInputState.finished;
-    } else if(_user.id == FZUser.signedOutUserId) {
-      state = AccountInputState.signup;
-    } else if(_user.username == null) {
-      state = AccountInputState.username;
-    } else if(_user.bio == null) {
-      state = AccountInputState.bio;
+
+    if(ref.read(invitationCode) != null || ref.read(invitationCodeError) != null) {
+        state = AccountInputState.code;
     } else {
-      //Profile complete
-      bioController.text = _user.bio ?? "";
-      state = AccountInputState.account;
+      if(_loading || _user.id == FZUser.interimUserId) {
+        state = AccountInputState.loading;
+      } else if(_finished) {
+        state = AccountInputState.finished;
+      } else if(_user.id == FZUser.signedOutUserId) {
+        state = AccountInputState.signup;
+      } else if(_emailVerificationPending) {
+        state = AccountInputState.verificationPending;
+      } else if(_user.username == null) {
+        state = AccountInputState.username;
+      } else if(_user.name == null) {
+        state = AccountInputState.name;
+      } else if(_user.bio == null) {
+        state = AccountInputState.bio;
+      } else {
+        //Profile complete
+        bioController.text = _user.bio ?? "";
+        state = AccountInputState.account;
+      }
     }
 
     return Stack(
@@ -76,10 +96,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             child: switch (state) {
                 AccountInputState.signup => signinForm(),
                 AccountInputState.username => usernameField(),
+                AccountInputState.name => nameField(),
                 AccountInputState.bio => bioField(),
                 AccountInputState.loading => const CircularProgressIndicator(),
                 AccountInputState.finished => const Icon(Icons.check_circle, color: Colors.green, size: 32,),
-                AccountInputState.account => accountEdit()
+                AccountInputState.account => accountEdit(),
+                AccountInputState.verificationPending => emailVerificationPending(),
+                AccountInputState.code => codeField()
               },
             ) ,
         ),]
@@ -87,12 +110,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   signinForm() {
-    return Column(mainAxisSize: MainAxisSize.min,
-      children: [
-        label("Signin/Signup"),
-        vertical(3),
-        const GoogleSignInBtn()
-      ],
+    return IntrinsicWidth(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          label("Signin/Signup"),
+          vertical(3),
+          const GoogleSignInBtn(),
+          vertical(),
+          const Divider(),
+          vertical(),
+          EmailSignInModule(ctx: context)
+        ],
+      ),
     );
   }
 
@@ -102,12 +131,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         children: [
           label("Let's pick a nice username"),
           vertical(3),
-          Row(mainAxisSize: MainAxisSize.min,
+          Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: 250,
                 child: TextField(
                   controller: usernameController,
+                  maxLength: 15,
                   decoration: const InputDecoration(
                     prefix: FZText(text: "@", style: FZTextStyle.paragraph),
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -117,14 +147,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ),
               const SizedBox(width: 5,),
-              FZIconButton(
+              FZButton(
                     onPressed: () {
                       // Implement the logic to send the message
                       _usernameSubmitted(context);
                       //usernameController.clear();
                     },
-                    tint: Constants.primaryColor(),
-                    icon: Icons.send
+                    text: "Save",
                   ),
             ],
           ),
@@ -137,35 +166,87 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
+  nameField() {
+    return IntrinsicWidth(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          label("Your display name on the app"),
+          vertical(3),
+          Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 250,
+                child: TextField(
+                  controller: nameController,
+                  maxLength: 15,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                    hintText: 'Name',
+                  ),
+                  cursorColor: Constants.primaryColor(),
+                ),
+              ),
+              const SizedBox(width: 5,),
+              FZButton(
+                    onPressed: () {
+                      // Implement the logic to send the message
+                      _nameSubmitted(context);
+                      //usernameController.clear();
+                    },
+                    text: "Save",
+                  ),
+            ],
+          ),
+          vertical(2),
+          const Divider(),
+          const FZText(text: "Must be between 4 and 30 characters", style: FZTextStyle.smallsubheading, color: Colors.red,),
+          const FZText(text: "Allowed characters: a-z, A-Z, 0-9 and _", style: FZTextStyle.smallsubheading, color: Colors.red,),
+        ],
+      ),
+    );
+  }
+
+  bool _verificationLoading = false;
+
+  codeField() {
+    String? error = ref.read(invitationCodeError);
+    return IntrinsicWidth(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          label("Your invitation code"),
+          vertical(3),
+          _verificationLoading? const CircularProgressIndicator()
+          : error != null? 
+            FZText(text: error, style: FZTextStyle.paragraph, color: Colors.red,)
+          : Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              inputField(controller: codeController, hint: "Invitation Code", maxChar: 6),
+              const SizedBox(width: 5,),
+              FZButton(
+                    onPressed: _beginVerification,
+                    text: "Save",
+                  ),
+            ],
+          ),
+          if(_invitationCodeError) const FZText(text: "Wrong code", style: FZTextStyle.smallsubheading, color: Colors.red,),
+        ],
+      ),
+    );
+  }
+
   bioField() {
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
         label("A bio that other users will see on your profile"),
         vertical(3),
-        Row(mainAxisSize: MainAxisSize.min,
+        Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 250,
-              child: TextField(
-                controller: bioController,
-                cursorColor: Constants.primaryColor(),
-                        textAlignVertical: TextAlignVertical.center,
-                        decoration: const InputDecoration(
-                          hintText: 'Bio',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                        ),
-              ),
-            ),
+            inputField(controller: bioController, hint: "Bio", maxChar: 400),
             const SizedBox(width: 5,),
-            FZIconButton(
-                  onPressed: () {
-                    // Implement the logic to send the message
-                    _bioSubmitted();
-                    //bioController.clear();
-                  },
-                  tint: Constants.primaryColor(),
-                  icon: Icons.send
-                ),
+            FZButton(
+                    onPressed: _bioSubmitted,
+                    text: "Save",
+                  ),
           ],
         ),
       ],
@@ -176,6 +257,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return IntrinsicWidth(
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const FZText(text: "Signed in as:", style: FZTextStyle.headline),
+          vertical(),
           Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.start,
             children: [
               horizontal(),
@@ -188,41 +271,55 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ),
               const Expanded(child: SizedBox()),
-              IconButton(onPressed: () => ref.read(backend).signOut(), icon: const Icon(Icons.logout, color: Colors.black,)),
+              FZText(onTap: () => ref.read(backend).signOut(), text: "Sign Out", style: FZTextStyle.paragraph, color: Colors.red,),
             ],
           ),
           const Divider(),
           vertical(3),
           const FZText(text: "Edit Bio", style: FZTextStyle.paragraph),
-          Row(mainAxisSize: MainAxisSize.min,
+          Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 250,
-                child: TextField(
-                  controller: bioController,
-                  cursorColor: Constants.primaryColor(),
-                          textAlignVertical: TextAlignVertical.center,
-                          decoration: const InputDecoration(
-                            hintText: 'Bio',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                          ),
-                ),
-              ),
+              inputField(controller: bioController, hint: "Bio", maxChar: 400),
               const SizedBox(width: 5,),
-              FZIconButton(
-                    onPressed: () {
-                      // Implement the logic to send the message
-                      _bioSubmitted();
-                      //bioController.clear();
-                    },
-                    tint: Constants.primaryColor(),
-                    icon: Icons.send
+              FZButton(
+                    onPressed: _bioSubmitted,
+                    text: "Save",
                   ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  emailVerificationPending() {
+
+    return const FZText(text: "Email verification is pending", style: FZTextStyle.paragraph);
+  }
+
+  _beginVerification() async {
+    if(codeController.text == ref.read(invitationCode)) {
+      //Code was correct
+      setState(() {
+        _verificationLoading = true;
+        _invitationCodeError = false;
+      });
+      try {
+        await ref.read(backend).addNewUser(ref.read(userToVerify));
+        setState(() {
+          _verificationLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _verificationLoading = false;
+        });
+      }
+      
+    } else {
+      setState(() {
+        _invitationCodeError = true;
+      });
+    }
   }
 
   _usernameSubmitted(BuildContext ctx) async {
@@ -238,6 +335,33 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
     final user = ref.read(currentuser);
     user.username = usernameController.text;
+
+    final res = await ref.read(backend).updateProfile(user);
+
+    if(res.code == SuccessCode.successful) {
+      setState(() {
+        _loading = false;
+        if(_user.bio == null) {
+          state = AccountInputState.bio;
+        } else {
+          _finished = true;
+          Timer(const Duration(seconds: 1), () { widget.onDismiss(); });
+        }
+        
+      });
+    } else {
+
+    }
+    
+  }
+
+  _nameSubmitted(BuildContext ctx) async {
+    setState(() {
+      _loading = true;
+    });
+
+    final user = ref.read(currentuser);
+    user.name = nameController.text;
 
     final res = await ref.read(backend).updateProfile(user);
 
@@ -296,6 +420,20 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return null;
   }
 
+  inputField({required TextEditingController controller, required String hint, int maxChar = 100}) {
+    return SizedBox(width: 250,
+      child: TextField(
+                    controller: controller,
+                    maxLength: maxChar,
+                    cursorColor: Constants.primaryColor(),
+                            textAlignVertical: TextAlignVertical.center,
+                            decoration: InputDecoration(
+                              hintText: hint,
+                              border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                            ),
+                  ),
+    );
+  }
   label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);

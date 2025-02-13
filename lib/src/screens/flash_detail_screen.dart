@@ -6,6 +6,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/subviews/comment_view.dart';
+import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,12 +25,21 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   CommentsList? _commentsList;
   Flash? _flash;
   bool _commentPosting = false;
+  bool _loading = false;
+  bool _ownFlash = false;
 
   @override
   void initState() {
     super.initState();
 
     _flash = widget.flash;
+
+    if(_flash != null) {
+      _ownFlash = _flash!.user.id == ref.read(currentuser).id;
+    } else {
+      _ownFlash = false;
+    }
+    
     
     loadComments();
   }
@@ -51,6 +61,14 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   Widget build(BuildContext context) {
     if(widget.flash == null) {
       return FZErrorIndicator(text: "Flash not found", mobileSize: widget.compact);
+    }
+
+    if(widget.flash!.deleted) {
+      return const Center(child: FZText(text: "Flash deleted", style: FZTextStyle.paragraph),);
+    }
+
+    if(_loading) {
+      return const Center(child: CircularProgressIndicator(),);
     }
 
     bool collapse = MediaQuery.of(context).size.width < 900? true: false;
@@ -139,6 +157,12 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                             //onTap: () => ,
                             child: CommentView(
                                 comment: _commentsList!.comments[index],
+                                flash: widget.flash!,
+                                onDelete: () {
+                                  setState(() {
+                                    _commentsList!.comments.removeAt(index);
+                                  });
+                                },
                             ),
                           );
                         },
@@ -156,6 +180,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
             IconButton(onPressed: _addLikeNumber, icon: Icon(likeIcon), iconSize: collapse? 18: 26, color: isLiked? Constants.altPrimaryColor(): Constants.secondaryColor(),),
             IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
             IconButton(onPressed: () => print("3 dots pressed"), icon: const Icon(Icons.repeat), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
+            if(_ownFlash) IconButton(onPressed: _deleteFlash, icon: const Icon(Icons.delete), iconSize: collapse? 18: 26, color: Constants.secondaryColor(),),
           ],
         ),
         const Divider(height: 5, thickness: 5,),
@@ -174,15 +199,16 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   Widget buildUserPanel(bool collapse) {
     return Row(mainAxisSize: MainAxisSize.max,
       children: [
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: profileNavigate, 
-            child: CircleAvatar(
-              backgroundImage: Helpers.loadImageProvider(widget.flash!.user.avatar), 
-              radius: collapse? 24: 30,)
-          ),
-        ),
+        ThumbnailView(link: widget.flash!.user.avatar, mobileSize: collapse),
+        // MouseRegion(
+        //   cursor: SystemMouseCursors.click,
+        //   child: GestureDetector(
+        //     onTap: profileNavigate, 
+        //     child: CircleAvatar(
+        //       backgroundImage: Helpers.loadImageProvider(widget.flash!.user.avatar), 
+        //       radius: collapse? 24: 30,)
+        //   ),
+        // ),
         horizontal(collapse? 1: 2),
         flashInfoView(collapse),
         const Expanded(child: SizedBox(width: double.infinity,)),
@@ -236,6 +262,17 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
               horizontal(),
               const FZText(text: "Flash List", style: FZTextStyle.paragraph)
             ],);
+  }
+
+  _deleteFlash() async {
+    setState(() {
+      _loading = true;
+    });
+
+    await ref.read(backend).deleteFlash(widget.flash!);
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _addComment() async {

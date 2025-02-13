@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,18 +45,20 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
       print("Google auth state changed with status: $isAuthorized");
 
       if(isAuthorized) {
-        print("After calling google signin with guser: ${account?.displayName}");
+        print("After calling google signin with guser: ${account.displayName}");
 
         // Obtain the auth details from the request
-        final GoogleSignInAuthentication? googleAuth = await account?.authentication;
+        final GoogleSignInAuthentication googleAuth = await account.authentication;
 
         // Create a new credential
         final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
         );
 
-        ref.read(backend).signInWithCredential(credential);
+        
+
+        ref.read(backend).signInWithCredential(AuthCreds(creds: credential, isVerified: true));
       }
 
       
@@ -142,7 +145,7 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
         idToken: googleAuth?.idToken,
       );
 
-      ref.read(backend).signInWithCredential(credential);
+      ref.read(backend).signInWithCredential(AuthCreds(creds: credential, isVerified: false));
     } catch (e) {
       print("Error with google signin: $e");
     }

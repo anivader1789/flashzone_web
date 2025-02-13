@@ -34,6 +34,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     
   bool _imageUploading = false;
   String? _imageUrl;
+  final int kMaxChars = 200;
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +111,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
   inputField() {
     return DetectableTextField(
+      maxLength: kMaxChars,
       controller: detectableController,
       style: const TextStyle(fontSize: 18),
       
@@ -148,9 +150,13 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
         vertical(),
         label("Rules of posting:"),
         vertical(2),
-        label("1. Be Kind. Do not post rude remarks"),
+        label("1. 200 max characters allowed"),
         vertical(),
-        label("2. Adhere to one topic in each post"),
+        label("2. At least 1 flashtag is required"),
+        vertical(),
+        label("3. Be Kind. Do not post rude remarks"),
+        vertical(),
+        label("4. Adhere to one topic in each post"),
       ],
     );
   }
@@ -289,6 +295,10 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
   bool validate() {
     if(detectableController.text.isEmpty) {
+      return false;
+    } else if(detectableController.text.length > kMaxChars) {
+      return false;
+    } else if(Helpers.allFlashTagsInText(detectableController.text).isEmpty) {
       return false;
     }
 

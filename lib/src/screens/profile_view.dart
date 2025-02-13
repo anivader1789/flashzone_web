@@ -88,13 +88,13 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
                   ],
                 ),
               ),
-              widget.mobileSize?
-                IconButton(onPressed: widget.messageClicked, icon: const Icon(Icons.chat_bubble,))
-              : FZButton(
-                onPressed: widget.messageClicked, 
-                text: "Message", 
-                bgColor: Constants.primaryColor(),
-                textColor: Colors.white,),
+              // widget.mobileSize?
+              //   IconButton(onPressed: widget.messageClicked, icon: const Icon(Icons.chat_bubble,))
+              // : FZButton(
+              //   onPressed: widget.messageClicked, 
+              //   text: "Message", 
+              //   bgColor: Constants.primaryColor(),
+              //   textColor: Colors.white,),
               horizontal()
             ],
           ),

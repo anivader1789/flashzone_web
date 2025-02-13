@@ -1,4 +1,6 @@
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/screens/subviews/notification_cell_view.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +16,28 @@ class NotificationsListView extends ConsumerStatefulWidget {
 
 class _NotificationsListViewState extends ConsumerState<NotificationsListView> {
   final List<FZNotification> _notifications = List.empty(growable: true);
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
     
-    fakesGenerate();
+    loadNotifications();
+  }
+
+  loadNotifications() async {
+    final user = ref.read(currentuser);
+    if(user.email == null) return;
+
+    setState(() {
+      _loading = true;
+    });
+
+    _notifications.clear();
+    _notifications.addAll(await ref.read(backend).fetchNotifications(user.email!));
+    setState(() {
+      _loading = false;
+    });
   }
 
   fakesGenerate() {
@@ -32,6 +50,8 @@ class _NotificationsListViewState extends ConsumerState<NotificationsListView> {
 
   @override
   Widget build(BuildContext context) {
+    if(_loading) return FZLoadingIndicator(text: "Loading new notifications..", mobileSize: widget.mobileSize);
+    if(_notifications.isEmpty) return const Center(child: FZText(text: "No Notifications", style: FZTextStyle.headline),);
     return Padding(
       padding: const EdgeInsets.all(8),
       child: ListView.separated(

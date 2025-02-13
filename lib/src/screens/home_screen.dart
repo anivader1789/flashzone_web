@@ -41,6 +41,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _flashId, _profileId, _eventId;
   Flash? _flashtoView;
   bool _initDone = false;
+  int _sideMenuDefaultSelected = 0;
   final _accountPopupController = OverlayPortalController();
   final _menuPopupController = OverlayPortalController();
 
@@ -91,6 +92,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       } else {
         _currentView = HomeView.events;
       }
+
+      _sideMenuDefaultSelected = 1;
+      print("changed side menu index to: $_sideMenuDefaultSelected");
       
     } else if(route.contains(AdminEventCreation.routeName)) {
 
@@ -151,8 +155,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ]
         : [
         RoundedBadge(onClick: () {}, title: 'Get Started', icon: const Icon(Icons.help),),
-        const SizedBox(width:10),
-        RoundedBadge(onClick: _chatClicked, title: 'Messages', icon: const Icon(Icons.forum),),
+        //const SizedBox(width:10),
+        //RoundedBadge(onClick: _chatClicked, title: 'Messages', icon: const Icon(Icons.forum),),
         const SizedBox(width:10),
         //IconButton(onPressed: () => _chatClicked(), icon: const Icon(Icons.forum), iconSize: 35,),
         RoundedBadge(onClick: () => _postClicked(context), title: 'New flash', icon: const Icon(Icons.add_circle),),
@@ -190,6 +194,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _currentView = view;
               });
             },
+            selectedIndex: _sideMenuDefaultSelected,
           ),
           Expanded(
             child: switch (_currentView) {
@@ -297,14 +302,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _postClicked(ctx); 
                   }, 
                   child: Row(children: [Icon(Icons.add_circle, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Post", style: FZTextStyle.paragraph)],)),
-                const Divider(),
-                ElevatedButton(
-                  style: menuButtonStyle(),
-                  onPressed: () { 
-                    _menuPopupController.hide();
-                    _chatClicked(); 
-                  }, 
-                  child:  Row(children: [Icon(Icons.forum, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Messages", style: FZTextStyle.paragraph)],)),
+                // const Divider(),
+                // ElevatedButton(
+                //   style: menuButtonStyle(),
+                //   onPressed: () { 
+                //     _menuPopupController.hide();
+                //     _chatClicked(); 
+                //   }, 
+                //   child:  Row(children: [Icon(Icons.forum, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Messages", style: FZTextStyle.paragraph)],)),
                 const Divider(),
                 ElevatedButton(
                   style: menuButtonStyle(),

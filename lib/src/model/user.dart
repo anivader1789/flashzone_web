@@ -14,7 +14,7 @@ class FZUser {
   static String collection = "user", nameKey = "name", usernameKey = "username", likesKey = "likes",
     avatarKey = "avatar", idKey = "id", bioKey = "bio", emailKey = "email";
 
-  static const String interimUserId = "interim", signedOutUserId = "signedOut";
+  static const String interimUserId = "interim", signedOutUserId = "signedOut", awaitCodeId = "code";
   static FZUser signedOut() {
     return FZUser(
       id: signedOutUserId, 
@@ -28,6 +28,8 @@ class FZUser {
       name: "Loading", 
       username: "loading");
   } 
+
+  
 
   Map<String,String> profileUpdateObject() {
     final Map<String,String> obj = {};

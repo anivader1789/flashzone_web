@@ -3,8 +3,11 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventFeedView extends ConsumerStatefulWidget {
   const EventFeedView({super.key, required this.mobileSize});
@@ -18,11 +21,18 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
   final List<Event> _upcomingEvents = List.empty(growable: true);
   final List<Event> _todayEvents = List.empty(growable: true);
   late String todayLabel;
-
+  late TapGestureRecognizer _tapGestureForEventCreationForm;
   @override
   void initState() {
     super.initState();
+
+    _tapGestureForEventCreationForm = TapGestureRecognizer()..onTap = eventCreationFormTapped;
     loadEvents();
+
+  }
+
+  eventCreationFormTapped() {
+    launchUrl(Uri.parse('https://google.com'), webOnlyWindowName: '_blank');
   }
 
   loadEvents() async {
@@ -46,6 +56,16 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
     return Padding(padding: const EdgeInsets.all(12),
     child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          vertical(),
+          Text.rich(
+            TextSpan(children: [
+              const TextSpan(text: "To register your own event, please fill up this form: "),
+              TextSpan(
+                text: "'Event Registration Form'.", 
+                style: const TextStyle(color: Colors.blue),
+                recognizer: _tapGestureForEventCreationForm,
+                mouseCursor: SystemMouseCursors.click)
+          ])),
           vertical(),
           FZText(text: todayLabel, style: FZTextStyle.headline, color: Colors.grey,),
           const Divider(),

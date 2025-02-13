@@ -98,7 +98,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
 
     if(_flashes.isEmpty) {
       return Padding(padding: const EdgeInsets.all(18),
-      child: Expanded(
+      child: Center(
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.travel_explore, color: Colors.grey, size: 62,),
@@ -227,13 +227,13 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
 
   searchFlashes(String val) {
     
-      _filterFlashes.clear();
-      for(final flash in _flashes) {
-        if(flash.content.toLowerCase().contains(val.toLowerCase())) {
-          _filterFlashes.add(flash);
-          continue;
-        }
+    _filterFlashes.clear();
+    for(final flash in _flashes) {
+      if(flash.content.toLowerCase().contains(val.toLowerCase())) {
+        _filterFlashes.add(flash);
+        continue;
       }
+    }
       
     setState(() {
         searchTerm = val;
