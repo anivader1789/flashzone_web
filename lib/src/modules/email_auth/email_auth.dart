@@ -75,6 +75,8 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
             _emailSignupMode = false;
           });
         },),
+        vertical(),
+        pwInfoView()
       ],
     );
   }
@@ -132,10 +134,10 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
       return;
     }
 
-    if(!pwValidate()) {
-      Helpers.showDialogWithMessage(ctx: widget.ctx, msg: "Password is invalid");
-      return;
-    }
+    // if(!pwValidate()) {
+    //   Helpers.showDialogWithMessage(ctx: widget.ctx, msg: "Password is invalid");
+    //   return;
+    // }
 
     if(!pwMatch()) {
       Helpers.showDialogWithMessage(ctx: widget.ctx, msg: "Passwords don't match");
@@ -176,6 +178,22 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
 
   pwMatch() => pwController.text == pwAgainController.text;
 
+  pwInfoView() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        vertical(),
+        note("Password rules:"),
+        vertical(2),
+        note("1. Minimum 8 characters"),
+        vertical(),
+        note("2. At least one uppercase letter and one lowercase letter"),
+        vertical(),
+        note("3. At least one number and one symbol"),
+      ],
+    );
+  }
+
   inputField({required TextEditingController controller, required String hint, required TextInputType keyboardType}) {
     return SizedBox(width: 250,
       child: TextField(
@@ -191,6 +209,8 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
                   ),
     );
   }
+
+  note(String str) => FZText(text: str, style: FZTextStyle.smallsubheading, color: Colors.grey,);
   label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);

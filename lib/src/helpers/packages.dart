@@ -128,6 +128,36 @@ class Helpers {
     return DateFormat('d MMM y').format(dateTime);
   }
 
+  static bool isDateToday(DateTime date) {
+    final DateTime localDate = date.isUtc ? date.toLocal() : date;
+    final now = DateTime.now();
+    return now.day == localDate.day && now.month == localDate.month && now.year == localDate.year;
+  }
+
+  static bool isDateTomorrow(DateTime date) {
+    final DateTime localDate = date.isUtc ? date.toLocal() : date;
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    return tomorrow.day == localDate.day && tomorrow.month == localDate.month && tomorrow.year == localDate.year;
+  }
+
+  static bool isDateNextWeek(DateTime date) {
+    final DateTime localDate = date.isUtc ? date.toLocal() : date;
+    
+    // Get the current date
+    DateTime now = DateTime.now();
+    
+    // Calculate the start and end of next week
+    DateTime startOfNextWeek = now.add(Duration(days: 7 - now.weekday));
+    DateTime endOfNextWeek = startOfNextWeek.add(const Duration(days: 6));
+
+    // Check if the input date is within the next week
+    if (localDate.isAfter(startOfNextWeek) && localDate.isBefore(endOfNextWeek.add(const Duration(days: 1)))) {
+      return true;
+    }
+
+    return false;
+  }
+
   static showDialogWithMessage({required BuildContext ctx, required String msg, String title = "FlashZone"}) {
     showDialog(context: ctx, 
           builder: (ctx) => AlertDialog(

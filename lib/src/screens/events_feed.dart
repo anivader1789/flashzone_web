@@ -20,6 +20,8 @@ class EventFeedView extends ConsumerStatefulWidget {
 class _EventFeedViewState extends ConsumerState<EventFeedView> {
   final List<Event> _upcomingEvents = List.empty(growable: true);
   final List<Event> _todayEvents = List.empty(growable: true);
+  final List<Event> _tomorrowEvents = List.empty(growable: true);
+  final List<Event> _nextWeekEvents = List.empty(growable: true);
   late String todayLabel;
   late TapGestureRecognizer _tapGestureForEventCreationForm;
   @override
@@ -42,9 +44,13 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
     final loadedEvents = await ref.read(backend).getEvents(7000000000);
 
     for(Event e in loadedEvents) {
-      if(e.time.year == today.year && e.time.month == today.month && e.time.day == today.day) {
+      if(Helpers.isDateToday(e.time)) {
         _todayEvents.add(e);
-      } else if(e.time.isBefore(DateTime.now())) {
+      } else if(Helpers.isDateTomorrow(e.time)) {
+        _tomorrowEvents.add(e);
+      } else if(Helpers.isDateNextWeek(e.time)) {
+        _nextWeekEvents.add(e);
+      } else if(e.time.isAfter(DateTime.now())) {
         _upcomingEvents.add(e);
       }
     }
@@ -71,6 +77,16 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
           const Divider(),
           vertical(),
           eventsGridView(_todayEvents),
+          vertical(),
+          const FZText(text: "Tomorrow events", style: FZTextStyle.headline, color: Colors.grey,),
+          const Divider(),
+          vertical(),
+          eventsGridView(_tomorrowEvents),
+          vertical(),
+          const FZText(text: "Events next week", style: FZTextStyle.headline, color: Colors.grey,),
+          const Divider(),
+          vertical(),
+          eventsGridView(_nextWeekEvents),
           vertical(),
           const FZText(text: "Upcoming events", style: FZTextStyle.headline, color: Colors.grey,),
           const Divider(),

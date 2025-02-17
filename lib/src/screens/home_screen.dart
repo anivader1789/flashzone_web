@@ -234,8 +234,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   _postClicked(BuildContext ctx) {
     final user = ref.read(currentuser);
 
-    if(user.id == FZUser.signedOutUserId || user.username == null) {
-      Helpers.showDialogWithMessage(ctx: ctx, msg: "Please finish creating your profile first");
+    if(user.id == FZUser.signedOutUserId) {
+      Helpers.showDialogWithMessage(ctx: ctx, msg: "You have to sign into an account to post a flash");
+      return;
+    }
+
+    if(user.username == null) {
+      Helpers.showDialogWithMessage(ctx: ctx, msg: "Please finish creating your profile by clicking on the account button on top right");
       return;
     }
 
