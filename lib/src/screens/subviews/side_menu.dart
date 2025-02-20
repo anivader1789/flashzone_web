@@ -52,7 +52,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
       title: 'Home',
       onTap: (index, _) {
         //widget.menuClicked(HomeView.flashes);
-        Navigator.pushReplacementNamed(context, "");
+        Navigator.pushNamed(context, "");
       },
       icon: const Icon(Icons.home),
       // badgeContent: const Text(
@@ -66,7 +66,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
           onTap: (index, _) {
             sideMenu.changePage(index);
             //widget.menuClicked(HomeView.eventToday);
-            Navigator.pushReplacementNamed(context, "events");
+            Navigator.pushNamed(context, "events");
           },
           icon: const Icon(Icons.event),
           // badgeContent: const Text(
@@ -112,21 +112,21 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     // items.add(supermenu);
 
 
-    items.add(SideMenuItem(
-      title: 'My FlashTags',
-      onTap: (index, _) {
+    // items.add(SideMenuItem(
+    //   title: 'My FlashTags',
+    //   onTap: (index, _) {
         
-      },
-      icon: const Icon(Icons.electric_bolt),
-    ));
+    //   },
+    //   icon: const Icon(Icons.electric_bolt),
+    // ));
 
-    items.add(SideMenuItem(
-      title: 'Settings',
-      onTap: (index, _) {
+    // items.add(SideMenuItem(
+    //   title: 'Settings',
+    //   onTap: (index, _) {
         
-      },
-      icon: const Icon(Icons.settings),
-    ));
+    //   },
+    //   icon: const Icon(Icons.settings),
+    // ));
 
     items.add(SideMenuItem(
       title: 'Terms & Conditions',
@@ -137,7 +137,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     ));
 
     items.add(SideMenuItem(
-      title: 'Support',
+      title: 'About',
       onTap: (index, _) {
         
       },

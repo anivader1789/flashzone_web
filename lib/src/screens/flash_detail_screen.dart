@@ -255,7 +255,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                 icon: const Icon(Icons.arrow_back), 
                 onPressed: () {
                   setState(() {
-                    Navigator.pushReplacementNamed(context, "");
+                    Navigator.pushNamed(context, "");
                   });
                 }
               ),
@@ -339,8 +339,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   bool isSignedOut() => ref.read(currentuser).id == FZUser.signedOutUserId;
 
   profileNavigate() {
-    print("user profile clicked");
-    Navigator.pushReplacementNamed(context, "user/${widget.flash!.user.id}");
+    Navigator.pushNamed(context, "user/${widget.flash!.user.id}");
     //widget.profileClicked(widget.flash.user);
   }
 

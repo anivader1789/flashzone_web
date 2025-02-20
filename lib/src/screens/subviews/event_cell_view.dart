@@ -18,7 +18,7 @@ class EventCellView extends StatelessWidget {
             //   borderRadius: BorderRadius.all(Radius.circular(8)),
             // ),
             child: GestureDetector(
-              onTap: () => Navigator.pushReplacementNamed(context, "events/${event.id}"),
+              onTap: () => Navigator.pushNamed(context, "events/${event.id}"),
               child: SizedBox(width: double.infinity,
                 child: Stack(
                   children: [

@@ -87,7 +87,7 @@ class _CommentViewState extends ConsumerState<CommentView> {
 
   profileNavigate(BuildContext context) {
     print("user profile clicked");
-    Navigator.pushReplacementNamed(context, "user/${widget.comment!.userId}");
+    Navigator.pushNamed(context, "user/${widget.comment!.userId}");
     //widget.profileClicked(widget.flash.user);
   }
 }

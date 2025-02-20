@@ -62,9 +62,9 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
         vertical(),
         inputField(controller: emailController, hint: "Email", keyboardType: TextInputType.emailAddress),
         vertical(),
-        inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.visiblePassword),
+        inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.visiblePassword, maxChars: 20),
         vertical(),
-        inputField(controller: pwAgainController, hint: "Repeat Password", keyboardType: TextInputType.visiblePassword),
+        inputField(controller: pwAgainController, hint: "Repeat Password", keyboardType: TextInputType.visiblePassword, maxChars: 20),
         vertical(),
         if(_error != null) FZText(text: _error, style: FZTextStyle.smallsubheading, color: Colors.red,),
         FZButton(text: "Submit", onPressed: _signup,),
@@ -185,7 +185,7 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
         vertical(),
         note("Password rules:"),
         vertical(2),
-        note("1. Minimum 8 characters"),
+        note("1. Minimum 8 characters and maximum 20 characters"),
         vertical(),
         note("2. At least one uppercase letter and one lowercase letter"),
         vertical(),
@@ -194,11 +194,12 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
     );
   }
 
-  inputField({required TextEditingController controller, required String hint, required TextInputType keyboardType}) {
+  inputField({required TextEditingController controller, required String hint, required TextInputType keyboardType, int? maxChars}) {
     return SizedBox(width: 250,
       child: TextField(
                     controller: controller,
                     keyboardType: keyboardType,
+                    maxLength: maxChars,
                     cursorColor: Constants.primaryColor(),
                             textAlignVertical: TextAlignVertical.center,
                             decoration: InputDecoration(

@@ -81,7 +81,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
                   vertical(),
                   InkWell(
                     child: FZText(text: _event!.user!.name, style: FZTextStyle.paragraph, color: Colors.blue,),
-                    onTap: () => Navigator.pushReplacementNamed(context, "user/${_event!.user!.id}"),),
+                    onTap: () => Navigator.pushNamed(context, "user/${_event!.user!.id}"),),
                   ],
                 )
             ],),

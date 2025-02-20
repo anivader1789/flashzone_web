@@ -19,6 +19,8 @@ class WriteFlashView extends ConsumerStatefulWidget {
   const WriteFlashView({super.key, required this.onFinished});
   final Function () onFinished;
 
+  static const routeName = 'post';
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _WriteFlashViewState();
 }

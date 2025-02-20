@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final userCurrentLocation = StateProvider<GeoPoint>((ref) => const GeoPoint(41.054514, -73.814637));
 
@@ -33,6 +34,18 @@ class LocationService {
   }
 
   static Future<void> updateCurrentLocation(dynamic ref) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final lat = prefs.getDouble("lat");
+    final lon = prefs.getDouble("lon");
+    if(lat != null && lon != null) {
+      ref.read(userCurrentLocation.notifier).update((state) => GeoPoint(lat, lon));
+      pullCurrentLocationFromDevice(ref, prefs);
+    } else {
+      await pullCurrentLocationFromDevice(ref, prefs);
+    }
+  }
+
+  static Future<void> pullCurrentLocationFromDevice(dynamic ref, SharedPreferences prefs) async {
     final hasPermission = await handleLocationPermission();
     if (!hasPermission) return;
     await Geolocator.getCurrentPosition(
@@ -40,6 +53,8 @@ class LocationService {
         .then((Position position) {
           print("Updated current location to: $position");
           ref.read(userCurrentLocation.notifier).update((state) => GeoPoint(position.latitude, position.longitude));
+          prefs.setDouble("lat", position.latitude);
+          prefs.setDouble("lon", position.longitude);
         }).catchError((e) {
           debugPrint(e);
         });

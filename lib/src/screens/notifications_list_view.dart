@@ -10,6 +10,8 @@ class NotificationsListView extends ConsumerStatefulWidget {
   const NotificationsListView({super.key, required this.mobileSize});
   final bool mobileSize;
 
+  static const routeName = 'notifications';
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _NotificationsListViewState();
 }

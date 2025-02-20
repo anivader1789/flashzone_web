@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
@@ -34,7 +35,7 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
   }
 
   eventCreationFormTapped() {
-    launchUrl(Uri.parse('https://google.com'), webOnlyWindowName: '_blank');
+    launchUrl(Uri.parse('https://docs.google.com/forms/d/1BNL_2lR26mvI2KdAZMWKv5Oshf3Ykrmk-ExMZpGgwi4'), webOnlyWindowName: '_blank');
   }
 
   loadEvents() async {
@@ -72,13 +73,13 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
                 recognizer: _tapGestureForEventCreationForm,
                 mouseCursor: SystemMouseCursors.click)
           ])),
-          vertical(),
-          FZText(text: todayLabel, style: FZTextStyle.headline, color: Colors.grey,),
+          vertical(6),
+          FZText(text: todayLabel, style: FZTextStyle.headline, color: Constants.fillColor(),),
           const Divider(),
           vertical(),
           eventsGridView(_todayEvents),
           vertical(),
-          const FZText(text: "Tomorrow events", style: FZTextStyle.headline, color: Colors.grey,),
+          FZText(text: "Tomorrow events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
           const Divider(),
           vertical(),
           eventsGridView(_tomorrowEvents),

@@ -19,6 +19,8 @@ import 'package:flashzone_web/src/screens/write_flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final initialised = StateProvider<bool>((ref) => false);
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.route});
   final String? route;
@@ -40,7 +42,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   FZUser? _userToView;
   String? _flashId, _profileId, _eventId;
   Flash? _flashtoView;
-  bool _initDone = false;
   int _sideMenuDefaultSelected = 0;
   final _accountPopupController = OverlayPortalController();
   final _menuPopupController = OverlayPortalController();
@@ -50,11 +51,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     
     setup();
+    goToRoute();
   }
 
   void setup() async {
-    await ref.read(backend).init();
-    
+    if(ref.read(initialised) == false) {
+      await ref.read(backend).init();
+      ref.read(initialised.notifier).update((state) => true);
+    }
+  }
+
+  void goToRoute() async {
     final route = widget.route;
     if(route == null || route == "") {
       _currentView = HomeView.flashes;
@@ -96,22 +103,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _sideMenuDefaultSelected = 1;
       print("changed side menu index to: $_sideMenuDefaultSelected");
       
+    } else if(route.contains(NotificationsListView.routeName)) {
+
+      _currentView = HomeView.notifications;
+    } else if(route.contains(WriteFlashView.routeName)) {
+
+      _currentView = HomeView.post;
     } else if(route.contains(AdminEventCreation.routeName)) {
 
       _currentView = HomeView.admineventcreate;
     } 
-
-    setState(() {
-      _initDone = true;
-    });
-  }
-
-  void goToRoute() {
-
   }
  
   @override
   Widget build(BuildContext context) {
+    bool initDone = ref.watch(initialised);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     _setScreenScale(width,height);
@@ -120,6 +126,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
       centerTitle: false,
       iconTheme: IconThemeData(
         color: Constants.primaryColor(),
@@ -198,15 +205,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           Expanded(
             child: switch (_currentView) {
-              HomeView.flashes => _initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user), mobileSize: _smallScreenSize,),
+              HomeView.flashes => initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user), mobileSize: _smallScreenSize,),
               HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
               HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
-              HomeView.eventToday => _initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
-              HomeView.events => _initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
-              HomeView.notifications => _initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
+              HomeView.eventToday => initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.events => initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.notifications => initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
               HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
-              HomeView.flashDetail => _initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
-              HomeView.eventDetails => _initDone == false? showLoading() : EventDetailsView(eventId: _eventId, mobileSize: _smallScreenSize),
+              HomeView.flashDetail => initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+              HomeView.eventDetails => initDone == false? showLoading() : EventDetailsView(eventId: _eventId, mobileSize: _smallScreenSize),
               HomeView.admineventcreate => const AdminEventCreation(),
               HomeView.loading => showLoading()
             }),
@@ -244,9 +251,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
 
-    setState(() {
-      _currentView = HomeView.post;
-    });
+    Navigator.pushNamed(context, WriteFlashView.routeName);
+    
   }
 
   _profileClicked(FZUser user) {
@@ -264,9 +270,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   _notificationsClicked() {
-    setState(() {
-      _currentView = HomeView.notifications;
-    });
+    Navigator.pushNamed(context, NotificationsListView.routeName);
+    
   }
 
   _chatClicked() {

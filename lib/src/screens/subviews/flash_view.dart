@@ -188,13 +188,12 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget horizontal([int multiplier = 1]) => SizedBox(width: 5 * multiplier.toDouble(),);
 
   profileNavigate() {
-    print("user profile clicked");
-    Navigator.pushReplacementNamed(context, "user/${widget.flash.user.id}");
+    Navigator.pushNamed(context, "user/${widget.flash.user.id}");
     //widget.profileClicked(widget.flash.user);
   }
 
   flashNavigate() {
-    Navigator.pushReplacementNamed(context, "flash/${widget.flash.id}");
+    Navigator.pushNamed(context, "flash/${widget.flash.id}");
   }
 
   share(BuildContext ctx) {

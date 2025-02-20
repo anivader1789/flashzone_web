@@ -147,7 +147,7 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
                 icon: const Icon(Icons.arrow_back), 
                 onPressed: () {
                   setState(() {
-                    Navigator.pushReplacementNamed(context, "");
+                    Navigator.pushNamed(context, "");
                   });
                 }
               ),
