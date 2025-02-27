@@ -63,25 +63,27 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
   @override
   Widget build(BuildContext context) {
     return Padding(padding: const EdgeInsets.all(12),
-    child: Column(mainAxisSize: MainAxisSize.min,
-      children: [
-        stringRow("Title    ", titleCont),vertical(),
-        stringRow("Description ", descriptionCont),vertical(),
-        stringRow("Image    ", imgCont, TextInputType.url),vertical(),
-        stringRow("User's Name ", usernameCont),vertical(),
-        stringRow("Username ", userhandleCont),vertical(),
-        stringRow("Avatar    ", userpicCont, TextInputType.url),vertical(),
-        stringRow("Price    ", priceCont, TextInputType.number),vertical(),
-        stringRow("Lat:    ", latCont, TextInputType.number),vertical(),
-        stringRow("Lon:    ", lonCont, TextInputType.number),vertical(),
-        stringRow("Address:    ", addressCont, TextInputType.text),vertical(),
-        eventTimeRow(),
-        vertical(2),
-        if(_error != null) FZText(text: _error, style: FZTextStyle.headline, color: Colors.red,),
-        if(_success) const FZText(text: "Success", style: FZTextStyle.headline, color: Colors.green,),
-        _loading? const CircularProgressIndicator()
-        : FZButton(onPressed: () => submit() , text: "Submit", bgColor: Constants.primaryColor(),)
-      ],
+    child: SingleChildScrollView(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          stringRow("Title    ", titleCont),vertical(),
+          longStringRow("Description ", descriptionCont),vertical(),
+          stringRow("Image    ", imgCont, TextInputType.url),vertical(),
+          stringRow("User's Name ", usernameCont),vertical(),
+          stringRow("Username ", userhandleCont),vertical(),
+          stringRow("Avatar    ", userpicCont, TextInputType.url),vertical(),
+          stringRow("Price    ", priceCont, TextInputType.number),vertical(),
+          stringRow("Lat:    ", latCont, TextInputType.number),vertical(),
+          stringRow("Lon:    ", lonCont, TextInputType.number),vertical(),
+          stringRow("Address:    ", addressCont, TextInputType.text),vertical(),
+          eventTimeRow(),
+          vertical(2),
+          if(_error != null) FZText(text: _error, style: FZTextStyle.headline, color: Colors.red,),
+          if(_success) const FZText(text: "Success", style: FZTextStyle.headline, color: Colors.green,),
+          _loading? const CircularProgressIndicator()
+          : FZButton(onPressed: () => submit() , text: "Submit", bgColor: Constants.primaryColor(),)
+        ],
+      ),
     ),);
   }
 
@@ -97,6 +99,7 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
       final event = Event(
         title: titleCont.text, 
         description: descriptionCont.text, 
+        pic: imgCont.text,
         user: FZUser(name: usernameCont.text, username: userhandleCont.text, avatar: userpicCont.text),
         time: _eventTime!,
         location: FZLocation(address: addressCont.text, geoData: geoFirePoint.data)
@@ -142,6 +145,16 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
     );
   }
 
+  longStringRow(String text, TextEditingController controller, [TextInputType keyType = TextInputType.text]) {
+    return Row(
+      children: [
+        label(text),
+        horizontal(),
+        field(controller, keyType, true),
+      ],
+    );
+  }
+
   eventTimeRow() {
     return Row(
       children: [
@@ -153,12 +166,13 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
       ],
     );
   }
-  field(TextEditingController cont, [TextInputType keyType = TextInputType.text]) {
-    return SizedBox(width: 150,
+  field(TextEditingController cont, [TextInputType keyType = TextInputType.text, bool isLong = false]) {
+    return SizedBox(width: 550,
       child: TextField(
                               //onChanged: _search,
                               controller: cont,
                               keyboardType: keyType,
+                maxLines: isLong? 5: 1,
                               cursorColor: Constants.primaryColor(),
                               style: const TextStyle(fontSize: 12),
                               decoration: InputDecoration(
@@ -171,6 +185,6 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
     );
   }
   label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
-  vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
+  vertical([double multiple = 1]) => SizedBox(height: 15 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 }

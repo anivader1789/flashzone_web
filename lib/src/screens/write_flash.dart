@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:detectable_text_field/detectable_text_field.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
@@ -13,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
 
 class WriteFlashView extends ConsumerStatefulWidget {
   const WriteFlashView({super.key, required this.onFinished});

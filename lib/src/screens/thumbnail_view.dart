@@ -2,9 +2,11 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flutter/material.dart';
 
 class ThumbnailView extends StatefulWidget {
-  const ThumbnailView({super.key, required this.link, required this.mobileSize});
+  const ThumbnailView({super.key, required this.link, this.mobileSize = false, this.radius = 30, this.mobileRadius = 24});
   final String? link;
   final bool mobileSize;
+  final double radius;
+  final double mobileRadius;
 
   @override
   State<ThumbnailView> createState() => _ThumbnailViewState();
@@ -21,7 +23,7 @@ class _ThumbnailViewState extends State<ThumbnailView> {
             onTap: _popupController.toggle, 
             child: CircleAvatar(
               backgroundImage: Helpers.loadImageProvider(widget.link), 
-              radius: widget.mobileSize? 24: 30,
+              radius:  widget.mobileSize? widget.mobileRadius: widget.radius,
               child: OverlayPortal(
                           controller: _popupController, 
                           overlayChildBuilder:  (context) => overlayView(),),)

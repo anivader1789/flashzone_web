@@ -2,6 +2,7 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
+import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,7 +74,8 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
             FZText(text: _event!.title, style: FZTextStyle.tooLargeHeadline),
             vertical(2),
             Row(children: [
-              CircleAvatar(foregroundImage: Helpers.loadImageProvider(_event!.user?.avatar), radius: 24,),
+              ThumbnailView(link: _event!.user?.avatar, mobileSize: widget.mobileSize, radius: 42, mobileRadius: 32,),
+              //CircleAvatar(foregroundImage: Helpers.loadImageProvider(_event!.user?.avatar), radius: widget.mobileSize? 32: 48,),
               horizontal(2),
               Column(crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,9 +106,9 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
           vertical(),
           infoSection(),
           vertical(3),
-          const FZText(text: "About", style: FZTextStyle.xlargeHeadline),
-          vertical(),
-          FZText(text: _event!.description, style: FZTextStyle.paragraph),
+          //hasHtmlContent(_event!.description)?
+            htmlContentView(_event!.description)
+          //: FZText(text: _event!.description, style: FZTextStyle.paragraph),
         ],
       );
     }
@@ -120,9 +122,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
             children: [
               Image(image: Helpers.loadImageProvider(_event?.pic), width: double.infinity, fit: BoxFit.fill,),
               vertical(3),
-              const FZText(text: "About", style: FZTextStyle.xlargeHeadline),
-              vertical(),
-              FZText(text: _event!.description, style: FZTextStyle.paragraph),
+              htmlContentView(_event!.description),
             ],
           )
           ),
@@ -202,7 +202,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
   htmlContentView(String? data) {
     if(data == null) return Container();
     
-
+    print("Rendering html view");
     return SingleChildScrollView(//alignment: Alignment.center,
       padding: const EdgeInsets.all(8),
       child: HtmlWidget(
@@ -256,6 +256,8 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
         ),
     );
   }
+
+  bool hasHtmlContent(String str) => str.contains("<html>");
 
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
