@@ -21,9 +21,10 @@ class AdminEventCreation extends ConsumerStatefulWidget {
 
 class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
   bool _loading = false, _success = false;
+  bool _copyEventLoading = false;
   String? _error;
 
-  final titleCont = TextEditingController(),
+  final copyEventIdCont = TextEditingController(), titleCont = TextEditingController(),
         descriptionCont = TextEditingController(),
         usernameCont = TextEditingController(),
         userhandleCont = TextEditingController(),
@@ -33,7 +34,8 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
         donationCont = TextEditingController(),
         latCont = TextEditingController(),
         lonCont = TextEditingController(),
-        addressCont = TextEditingController();
+        addressCont = TextEditingController(),
+        mapCont = TextEditingController();
 
   DateTime? _eventTime;
 
@@ -66,6 +68,17 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
     child: SingleChildScrollView(
       child: Column(mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            children: [
+              label("Copy from:  "),
+              horizontal(),
+              field(copyEventIdCont)
+            ],
+          ),
+          vertical(),
+          _copyEventLoading? const LinearProgressIndicator():  FZButton(onPressed: populateFromEvent, text: "Fetch data"),
+          const Divider(),
+          vertical(2),
           stringRow("Title    ", titleCont),vertical(),
           longStringRow("Description ", descriptionCont),vertical(),
           stringRow("Image    ", imgCont, TextInputType.url),vertical(),
@@ -76,6 +89,7 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
           stringRow("Lat:    ", latCont, TextInputType.number),vertical(),
           stringRow("Lon:    ", lonCont, TextInputType.number),vertical(),
           stringRow("Address:    ", addressCont, TextInputType.text),vertical(),
+          longStringRow("Map Embed ", mapCont),vertical(),
           eventTimeRow(),
           vertical(2),
           if(_error != null) FZText(text: _error, style: FZTextStyle.headline, color: Colors.red,),
@@ -102,6 +116,7 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
         pic: imgCont.text,
         user: FZUser(name: usernameCont.text, username: userhandleCont.text, avatar: userpicCont.text),
         time: _eventTime!,
+        map: mapCont.text,
         location: FZLocation(address: addressCont.text, geoData: geoFirePoint.data)
       );
 
@@ -123,6 +138,35 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
           _error = "exception thrown";
         });
     }
+  }
+
+  populateFromEvent() async {
+    if(copyEventIdCont.text.isEmpty) return;
+
+    setState(() {
+      _copyEventLoading = true;
+    });
+    final event = await ref.read(backend).fetchEvent(copyEventIdCont.text);
+    
+
+    if(event != null) {
+      titleCont.text = event.title;
+      descriptionCont.text = event.description;
+      usernameCont.text = event.user?.name ?? "";
+      userhandleCont.text = event.user?.username ?? "";
+      userpicCont.text = event.user?.avatar ?? "";
+      imgCont.text = event.pic;
+      mapCont.text = event.map ?? "";
+      addressCont.text = event.location?.address ?? "";
+      priceCont.text = event.price.toString();
+      GeoPoint geoPoint = event.location?.geoData["geopoint"];
+
+      latCont.text = geoPoint.latitude.toString();
+      lonCont.text = geoPoint.longitude.toString();
+    }
+    setState(() {
+      _copyEventLoading = false;
+    });
   }
 
   validate() {
