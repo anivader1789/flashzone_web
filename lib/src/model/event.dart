@@ -11,9 +11,10 @@ class Event {
   String pic;
   bool donation;
   double price;
+  int duration;
   String? map;
   FZLocation? location;
-  Event({this.id, required this.title, required this.description, this.location, required this.time, this.user, this.pic = "assets/event_placeholder.jpeg", this.donation = false, this.price = 0, this.map});
+  Event({this.id, required this.title, required this.description, this.location, required this.time, this.user, this.pic = "assets/event_placeholder.jpeg", this.donation = false, this.price = 0, this.duration = 60, this.map});
 
   static dummy(DateTime when) => Event(
     id: "12345esefs", 
@@ -25,7 +26,7 @@ class Event {
     static String collectionName = "event";
     static String imageKey = "img", titleKey = "title", descriptionKey = "description", userIdKey = "userId", 
     userhandleKey = "userhandle", nameKey = "username", userPicKey = "userPic", donationKey = "donation",
-    dateKey = "date", priceKey = "price", geoKey = "geo", addressKey = "address", mapKey = "map";
+    dateKey = "date", durationKey = "duration", priceKey = "price", geoKey = "geo", addressKey = "address", mapKey = "map";
 
     static Event fromDocSnapshot(String id, Map<String, dynamic>? data) {
       if(data == null) return dummy(DateTime.now());
@@ -37,6 +38,7 @@ class Event {
         pic: data[imageKey],
         user: FZUser(id: data[userIdKey], name: data[nameKey], username: data[userhandleKey], avatar: data[userPicKey]),
         time: DateTime.parse(data[dateKey]),
+        duration: data[durationKey] ?? 60,
         location: FZLocation(address: data[addressKey], geoData: data[geoKey]),
         price: data[priceKey],
         map: data[mapKey],
@@ -54,6 +56,7 @@ class Event {
       userhandleKey: user!.username,
       userPicKey: user!.avatar,
       dateKey: time.toString(),
+      durationKey: duration,
       addressKey: location?.address,
       geoKey: location?.geoData,
       priceKey: price,

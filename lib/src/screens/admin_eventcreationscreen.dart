@@ -23,6 +23,7 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
   bool _loading = false, _success = false;
   bool _copyEventLoading = false;
   String? _error;
+  int _eventDuration = 60;
 
   final copyEventIdCont = TextEditingController(), titleCont = TextEditingController(),
         descriptionCont = TextEditingController(),
@@ -90,7 +91,8 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
           stringRow("Lon:    ", lonCont, TextInputType.number),vertical(),
           stringRow("Address:    ", addressCont, TextInputType.text),vertical(),
           longStringRow("Map Embed ", mapCont),vertical(),
-          eventTimeRow(),
+          eventTimeRow(),vertical(),
+          durationRow(context),
           vertical(2),
           if(_error != null) FZText(text: _error, style: FZTextStyle.headline, color: Colors.red,),
           if(_success) const FZText(text: "Success", style: FZTextStyle.headline, color: Colors.green,),
@@ -113,9 +115,11 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
       final event = Event(
         title: titleCont.text, 
         description: descriptionCont.text, 
+        price: double.parse(priceCont.text),
         pic: imgCont.text,
         user: FZUser(name: usernameCont.text, username: userhandleCont.text, avatar: userpicCont.text),
         time: _eventTime!,
+        duration: _eventDuration,
         map: mapCont.text,
         location: FZLocation(address: addressCont.text, geoData: geoFirePoint.data)
       );
@@ -210,6 +214,27 @@ class _AdminEventCreationState extends ConsumerState<AdminEventCreation> {
       ],
     );
   }
+
+  durationRow(BuildContext context) {
+    return Row(
+      children: [
+        label("Duration: "),
+        horizontal(),
+        FZButton(onPressed: () {
+          showTimePicker(context: context, initialTime: const TimeOfDay(hour: 1, minute: 0))
+          .then((time) {
+            if(time == null) return;
+            setState(() {
+              _eventDuration = (time.hour * 60) + time.minute;
+            });
+          });
+        }, text: "Set/Change", bgColor: Constants.primaryColor()),
+        horizontal(),
+        label("$_eventDuration minutes"),
+      ],
+    );
+  }
+
   field(TextEditingController cont, [TextInputType keyType = TextInputType.text, bool isLong = false]) {
     return SizedBox(width: 550,
       child: TextField(

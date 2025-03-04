@@ -38,7 +38,7 @@ class BackendService {
 
   Future<void> init() async {
     //await requestPermissions();
-    await LocationService.updateCurrentLocation(ref);
+    //await LocationService.updateCurrentLocation(ref);
     return firebase.init();
   }
 

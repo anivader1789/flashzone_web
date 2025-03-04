@@ -151,7 +151,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
           children: [
             rowLabel(Helpers.getDisplayDay(_event!.time), Icons.calendar_month),
             vertical(2),
-            rowLabel(Helpers.getDisplayTime(_event!.time), Icons.schedule),
+            rowLabel(Helpers.getDisplayTime(_event!.time, _event!.duration), Icons.schedule),
           ],
         ));
   }

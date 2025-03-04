@@ -120,12 +120,18 @@ class Helpers {
     return "$time on $day";
   }
 
-  static String getDisplayTime(DateTime dateTime) {
+  static String getDisplayTime(DateTime dateTime, [int? duration]) {
+    if(duration != null) {
+      DateTime endTime = dateTime.add(Duration(minutes: duration));
+      final startText = DateFormat('h:mm a').format(dateTime);
+      final endText = DateFormat('h:mm a').format(endTime);
+      return "$startText - $endText";
+    }
     return DateFormat('h:mm a').format(dateTime);
   }
 
   static String getDisplayDay(DateTime dateTime) {
-    return DateFormat('d MMM y').format(dateTime);
+    return DateFormat('MMM d y').format(dateTime);
   }
 
   static bool isDateToday(DateTime date) {
@@ -334,7 +340,7 @@ class FZText extends StatelessWidget {
     List<InlineSpan> spans = List.empty(growable: true);
     final chunks = highlightTexts(content);
     const regularStyle = TextStyle(fontSize: 24,);
-    final highlightedStyle = TextStyle(fontSize: 24, color: clr);
+    final highlightedStyle = TextStyle(fontSize: 24, color: clr, textBaseline: TextBaseline.alphabetic, height: 1);
     print(chunks);
     for(int i=0; i<chunks.length; i++) {
       final str = chunks[i];
@@ -356,10 +362,26 @@ class FZText extends StatelessWidget {
         //   )
         // );
         spans.add(const TextSpan(text: " "));
-        spans.add(WidgetSpan(alignment: PlaceholderAlignment.bottom,
-          child: Image(image: Helpers.ftIcon(), color: clr, width: 32,))
+        spans.add(WidgetSpan(//alignment: PlaceholderAlignment.baseline,
+          child: 
+          //Image(image: Helpers.ftIcon(), color: clr, width: 32,)
+          MouseRegion(cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                
+              },
+              child: Row(mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Image(image: Helpers.ftIcon(), color: clr, width: 32,),
+                Text(str.substring(str[0] == " "?2: 1),textAlign: TextAlign.end, style: highlightedStyle)
+              ],),
+            ),
+          )
+          )
         );
-        spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: highlightedStyle,));
+        //spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: highlightedStyle,));
       } else {
         spans.add(TextSpan(text: str, style: regularStyle,));
       }
