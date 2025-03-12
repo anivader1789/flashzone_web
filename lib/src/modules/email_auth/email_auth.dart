@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EmailSignInModule extends ConsumerStatefulWidget {
-  const EmailSignInModule({super.key, required this.ctx});
+  const EmailSignInModule({super.key, required this.ctx, required this.signupModeChanged, required this.signupMode});
   final BuildContext ctx;
+  final Function (bool) signupModeChanged;
+  final bool signupMode;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EmailSignInModuleState();
@@ -17,67 +19,74 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
   final emailController = TextEditingController();
   final pwController = TextEditingController();
   final pwAgainController = TextEditingController();
-  bool _emailSignupMode = false, _loading = false;
+  bool _loading = false;
   String? _error;
+
+
 
   @override
   Widget build(BuildContext context) {
     if(_loading) return const FZLoadingIndicator(text: "Please hold..", mobileSize: false);
-    if(_emailSignupMode) return signupView();
+    if(widget.signupMode) return signupView();
     return signinView();
   }
 
   signinView() {
     return Column(
       children: [
-        label("Signin"),
+        label("Sign in with email"),
         vertical(),
         inputField(controller: emailController, hint: "Email", keyboardType: TextInputType.emailAddress),
         vertical(),
-        inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.visiblePassword),
+        inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.text, passwordField: true),
         vertical(),
         if(_error != null) FZText(text: _error, style: FZTextStyle.smallsubheading, color: Colors.red,),
         FZButton(text: "Submit", onPressed: _signin,),
         vertical(2),
         FZText(text: "Forgot password", style: FZTextStyle.paragraph, onTap: () {
-          setState(() {
-            _error = null;
-            _emailSignupMode = true;
-          });
+          // setState(() {
+          //   _error = null;
+          //   _emailSignupMode = true;
+          // });
         },),
-        FZText(text: "Create new account", style: FZTextStyle.paragraph, onTap: () {
-          setState(() {
-            _error = null;
-            _emailSignupMode = true;
-          });
+        FZText(text: "Create new email account", style: FZTextStyle.paragraph, onTap: () {
+          // setState(() {
+          //   _error = null;
+          //   _emailSignupMode = true;
+          // });
+          widget.signupModeChanged(true);
         },),
       ],
     );
   }
 
   signupView() {
-    return Column(
-      children: [
-        label("Signup"),
-        vertical(),
-        inputField(controller: emailController, hint: "Email", keyboardType: TextInputType.emailAddress),
-        vertical(),
-        inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.visiblePassword, maxChars: 20),
-        vertical(),
-        inputField(controller: pwAgainController, hint: "Repeat Password", keyboardType: TextInputType.visiblePassword, maxChars: 20),
-        vertical(),
-        if(_error != null) FZText(text: _error, style: FZTextStyle.smallsubheading, color: Colors.red,),
-        FZButton(text: "Submit", onPressed: _signup,),
-        vertical(2),
-        FZText(text: "Sign in", style: FZTextStyle.paragraph, onTap: () {
-          setState(() {
-            _error = null;
-            _emailSignupMode = false;
-          });
-        },),
-        vertical(),
-        pwInfoView()
-      ],
+    return IntrinsicWidth(
+      child: Column(mainAxisSize: MainAxisSize.min,
+        children: [
+          label("Create a new email account"),
+          vertical(),
+          inputField(controller: emailController, hint: "Email", keyboardType: TextInputType.emailAddress),
+          vertical(),
+          inputField(controller: pwController, hint: "Password", keyboardType: TextInputType.text, maxChars: 20, passwordField: true),
+          vertical(),
+          inputField(controller: pwAgainController, hint: "Repeat Password", keyboardType: TextInputType.text, maxChars: 20, passwordField: true),
+          vertical(),
+          if(_error != null) SizedBox(width: 240, child: FZText(text: _error, style: FZTextStyle.smallsubheading, color: Colors.red,)),
+          FZButton(text: "Submit", onPressed: _signup,),
+          vertical(2),
+          FZText(text: "Switch to Sign in view", style: FZTextStyle.paragraph, onTap: () {
+            // setState(() {
+            //   _error = null;
+            //   _emailSignupMode = false;
+              
+            // });
+            widget.signupModeChanged(false);
+          },),
+          vertical(),
+          pwInfoView()
+        ],
+      ),
     );
   }
 
@@ -194,11 +203,12 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
     );
   }
 
-  inputField({required TextEditingController controller, required String hint, required TextInputType keyboardType, int? maxChars}) {
+  inputField({required TextEditingController controller, required String hint, required TextInputType keyboardType, int? maxChars, bool passwordField = false}) {
     return SizedBox(width: 250,
       child: TextField(
                     controller: controller,
                     keyboardType: keyboardType,
+                    obscureText: passwordField,
                     maxLength: maxChars,
                     cursorColor: Constants.primaryColor(),
                             textAlignVertical: TextAlignVertical.center,
@@ -211,8 +221,8 @@ class _EmailSignInModuleState extends ConsumerState<EmailSignInModule> {
     );
   }
 
-  note(String str) => FZText(text: str, style: FZTextStyle.smallsubheading, color: Colors.grey,);
-  label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
+  note(String str) => FZText(text: str, style: FZTextStyle.smallsubheading, color: Colors.black,);
+  label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.black,);
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 }

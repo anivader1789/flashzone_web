@@ -54,6 +54,7 @@ class BackendService {
   Future<void> sendVerificationEmail() => firebaseAuth.sendVerificationEmail();
   Future<void> sendPasswordResetEmail() => firebaseAuth.sendPasswordResetEmail();
   Future<bool> loadUserVerificationStatus() => firebaseAuth.isUserVerified();
+  Future<void> resetSignIn() => firebase.resetSignIn();
 
   Future<void> verifyPhoneNumber({required String phoneNumber, 
                       required Function (String) failureCallback, 

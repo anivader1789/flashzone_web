@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flutter/foundation.dart';
@@ -88,7 +89,16 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
 
   @override
   Widget build(BuildContext context) {
-    return buildSignInButton(onPressed: _handleSignIn);
+    return Container(
+      padding: const EdgeInsets.all(7),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+        border: Border.all(
+          color: Constants.bgColor(),
+          width: 2)
+      ),
+      child: buildSignInButton(onPressed: _handleSignIn));
     // return ElevatedButton(
     //   onPressed: signInWithGoogle,
     //   child: FittedBox(

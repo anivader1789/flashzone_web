@@ -30,6 +30,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   final bioController = TextEditingController();
   bool _emailVerificationPending = false;
   bool _invitationCodeError = false;
+  bool _showSignup = false;
 
   late FZUser _user;
 
@@ -51,8 +52,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     _user = ref.watch(currentuser);
+    final code = ref.watch(invitationCode);
+    final codeError = ref.watch(invitationCodeError);
 
-    if(ref.read(invitationCode) != null || ref.read(invitationCodeError) != null) {
+    if(code != null || codeError != null) {
         state = AccountInputState.code;
     } else {
       if(_loading || _user.id == FZUser.interimUserId) {
@@ -89,11 +92,27 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         Center(
           child: Container(
             padding: const EdgeInsets.fromLTRB(25, 45, 25, 45),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius:  BorderRadius.all(Radius.circular(12)),
+            decoration: BoxDecoration(
+              color: Constants.cardColor(),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
             ),
-            child: switch (state) {
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset("assets/flashzoneR.png", height: 21,),
+                vertical(9),
+                containerView()
+              ],),
+            ),
+            ) ,
+        ),]
+    );
+  }
+
+  containerView() {
+    return switch (state) {
                 AccountInputState.signup => signinForm(),
                 AccountInputState.username => usernameField(),
                 AccountInputState.name => nameField(),
@@ -103,23 +122,34 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 AccountInputState.account => accountEdit(),
                 AccountInputState.verificationPending => emailVerificationPending(),
                 AccountInputState.code => codeField()
-              },
-            ) ,
-        ),]
-    );
+              };
   }
 
   signinForm() {
+    if(_showSignup) {
+      return EmailSignInModule(ctx: context, signupMode: _showSignup, signupModeChanged: (val) {
+            setState(() {
+              _showSignup = val;
+            });
+          });
+    }
+
     return IntrinsicWidth(
       child: Column(mainAxisSize: MainAxisSize.min,
         children: [
-          label("Signin/Signup"),
-          vertical(3),
+          label("Sign in or Sign up with Google"),
+          vertical(),
           const GoogleSignInBtn(),
+          vertical(2),
+          //const Divider(thickness: 2,),
           vertical(),
-          const Divider(),
-          vertical(),
-          EmailSignInModule(ctx: context)
+          label("or"),
+          vertical(3),
+          EmailSignInModule(ctx: context, signupMode: _showSignup, signupModeChanged: (val) {
+            setState(() {
+              _showSignup = val;
+            });
+          })
         ],
       ),
     );
@@ -226,9 +256,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     onPressed: _beginVerification,
                     text: "Save",
                   ),
+            
             ],
           ),
           if(_invitationCodeError) const FZText(text: "Wrong code", style: FZTextStyle.smallsubheading, color: Colors.red,),
+          vertical(7),
+          FZText(text: "Sign in using another account", style: FZTextStyle.paragraph, onTap: () async {
+              await ref.read(backend).resetSignIn();
+              setState(() {
+                
+              });
+            },)
         ],
       ),
     );
@@ -434,7 +472,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
     );
   }
-  label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.grey,);
+  label(String str) => FZText(text: str, style: FZTextStyle.headline, color: Colors.black,);
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);
 

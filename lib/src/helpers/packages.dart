@@ -546,3 +546,34 @@ class FZErrorIndicator extends StatelessWidget {
       return SizedBox(height: (mobileSize? 5: 15) * multiple,);
     }
 }
+
+class FZRichHeadline extends StatelessWidget {
+  const FZRichHeadline({super.key, required this.text, this.smaller = false});
+  final String text;
+  final bool smaller;
+
+  @override
+  Widget build(BuildContext context) {
+    print(text);
+    if(text.contains("%lb%")) {
+      final chunks = text.split("%lb%");
+      
+      return Column(crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(chunks[0], 
+        style: TextStyle(color: Colors.black, fontSize: smaller? 21: 24, fontWeight: FontWeight.bold), 
+        overflow: TextOverflow.visible,
+        softWrap: true),
+        Text(chunks[1], 
+        style: TextStyle(color: Colors.black, fontSize: smaller? 16: 19, fontWeight: FontWeight.w200, fontStyle: FontStyle.italic), 
+        overflow: TextOverflow.visible,
+        softWrap: true)
+      ],);
+    } 
+
+    return Text(text, 
+    style: TextStyle(color: Colors.black, fontSize: smaller? 21: 24, fontWeight: FontWeight.bold), 
+    overflow: TextOverflow.visible,
+    softWrap: true);
+  }
+}

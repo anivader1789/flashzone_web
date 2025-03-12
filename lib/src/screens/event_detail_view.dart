@@ -71,7 +71,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisSize: MainAxisSize.min,
           children: [
             vertical(2),
-            FZText(text: _event!.title, style: FZTextStyle.tooLargeHeadline),
+            FZRichHeadline(text: _event!.title),
             vertical(2),
             Row(children: [
               ThumbnailView(link: _event!.user?.avatar, mobileSize: widget.mobileSize, radius: 42, mobileRadius: 32,),

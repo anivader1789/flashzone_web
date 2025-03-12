@@ -32,7 +32,7 @@ class EventCellView extends StatelessWidget {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
                           children: [
                             vertical(),
-                            FZText(text: event.title, style: FZTextStyle.xlargeHeadline),
+                            FZRichHeadline(text: event.title, smaller: true,),
                             vertical(),
                             rowLabel(Helpers.getDisplayDate(event.time), Icons.timer),
                             vertical(),

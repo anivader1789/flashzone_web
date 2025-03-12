@@ -116,6 +116,13 @@ class FirebaseService {
       } );
   }
 
+  Future<void> resetSignIn() async {
+    await signOut();
+    ref.read(userToVerify.notifier).update((state) => null);
+    ref.read(invitationCode.notifier).update((state) => null);
+    ref.read(invitationCodeError.notifier).update((state) => null);
+  }
+
   Future<Map<String, dynamic>?> fetchUserDetails(FZUser user) async {
     try {
       final docRef = _db.collection(FZUser.collection).doc(user.id);
