@@ -1,6 +1,7 @@
 import 'package:context_menus/context_menus.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/model/flash.dart';
+import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -298,11 +299,18 @@ class FZNetworkImage extends StatelessWidget {
 }
 
 class FZText extends StatelessWidget {
-  const FZText({super.key, required this.text, required this.style, this.color = Colors.black, this.onTap, this.flashtagContent = false});
+  const FZText({super.key, 
+  required this.text, 
+  required this.style, 
+  this.color = Colors.black, 
+  this.onTap, 
+  this.context,
+  this.flashtagContent = false});
   final String? text;
   final FZTextStyle style;
   final Color color;
   final bool flashtagContent;
+  final BuildContext? context;
   final Function ()? onTap;
 
   @override
@@ -325,28 +333,32 @@ class FZText extends StatelessWidget {
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: onTap,
-          child: flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true),
+          child: flashtagContent? flashtagContentView(enhancedText, context, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true),
         )
       );
     }
 
 
 
-    return flashtagContent? flashtagContentView(enhancedText, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true);
+    return flashtagContent? flashtagContentView(enhancedText, context, textStyle): Text(enhancedText, style: textStyle, overflow: TextOverflow.visible,softWrap: true);
   }
   
-  flashtagContentView(String content, TextStyle style) {
-    final clr = Constants.altPrimaryColor();
+  flashtagContentView(String content, BuildContext? context, TextStyle style) {
+    
+    
     List<InlineSpan> spans = List.empty(growable: true);
     final chunks = highlightTexts(content);
-    const regularStyle = TextStyle(fontSize: 24,);
-    final highlightedStyle = TextStyle(fontSize: 24, color: clr, textBaseline: TextBaseline.alphabetic, height: 1);
-    print(chunks);
+    //print(chunks);
     for(int i=0; i<chunks.length; i++) {
       final str = chunks[i];
       if(str == null || str.length < 3) continue;
       
       if(str[0] == "#" || (str[0] == " " && str[1] == "#")) {
+        final tagName = str.substring(str[0] == " "?2: 1);
+        String? famId = CachedDataManager().getFamId(tagName);
+        final clr = famId==null? Constants.altPrimaryColor(): Constants.fillColor();
+        final highlightedStyle = TextStyle(fontSize: 24, color: clr, textBaseline: TextBaseline.alphabetic, height: 1);
+
         //is a flashtag
         // spans.add(WidgetSpan(alignment: PlaceholderAlignment.bottom,
         //   child: Row(
@@ -368,14 +380,16 @@ class FZText extends StatelessWidget {
           MouseRegion(cursor: SystemMouseCursors.click,
             child: GestureDetector(
               onTap: () {
-                
+                if(famId != null && context != null) {
+                  Navigator.pushNamed(context, "fam/$famId");
+                }
               },
               child: Row(mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Image(image: Helpers.ftIcon(), color: clr, width: 32,),
-                Text(str.substring(str[0] == " "?2: 1),textAlign: TextAlign.end, style: highlightedStyle)
+                Text(tagName,textAlign: TextAlign.end, style: highlightedStyle)
               ],),
             ),
           )
@@ -383,7 +397,7 @@ class FZText extends StatelessWidget {
         );
         //spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: highlightedStyle,));
       } else {
-        spans.add(TextSpan(text: str, style: regularStyle,));
+        spans.add(TextSpan(text: str, style: const TextStyle(fontSize: 24,),));
       }
     }
 
@@ -393,6 +407,8 @@ class FZText extends StatelessWidget {
       ),
     );
   }
+
+
 
   List<String?> highlightTexts(String str) {
     RegExp reg = Helpers.hashTagRegExp;
@@ -480,7 +496,7 @@ class FZIconButton extends StatelessWidget {
 }
 
 enum FZSymbolType {
-  location, time
+  location, time, community
 }
 
 class FZSymbol extends StatelessWidget {
@@ -493,6 +509,7 @@ class FZSymbol extends StatelessWidget {
     IconData icon = switch (type) {
       FZSymbolType.location => Icons.pin_drop,
       FZSymbolType.time => Icons.watch_later,
+      FZSymbolType.community => Icons.group,
     };
     
     return Icon(icon, size: compact? 16: 22,);

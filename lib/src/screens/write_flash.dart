@@ -6,6 +6,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/modules/data/fz_data.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
   final inputController = TextEditingController();
   bool _flashSubmitting = false;
   bool _errorSubmitting = false;
+  String _selectedCommunity = "Spirituality";
   final detectableController = DetectableTextEditingController(
     detectedStyle:  TextStyle(fontSize: 18, color: Constants.fillColor()),
       regExp: hashTagAtSignRegExp,
@@ -46,14 +48,15 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
             children: [
               const FZText(text: "Write Flash", style: FZTextStyle.largeHeadline),
               Expanded(child: Container()),
-              FZButton(
-                onPressed: () {
-                  print("Draft clicked");
-                }, 
-                text: "Draft")
+              // FZButton(
+              //   onPressed: () {
+              //     print("Draft clicked");
+              //   }, 
+              //   text: "Draft")
             ],
           ),
           const SizedBox(height: 15,),
+          communitySelectorView(),
           SizedBox(
             //height: 200,
             child: inputField(),
@@ -161,6 +164,37 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     );
   }
 
+  communitySelectorView() {
+    return Row(
+      children: [
+        const FZText(text: "Community: ", style: FZTextStyle.headline, color: Colors.grey,),
+        const SizedBox(width: 10,),
+        //Dropdown menu with options for community from FZData.communities
+        DropdownButton<String>(
+          value: _selectedCommunity,
+          icon: const Icon(Icons.arrow_drop_down),
+          elevation: 16,
+          style: const TextStyle(color: Colors.black),
+          underline: Container(
+            height: 2,
+            color: Constants.primaryColor(),
+          ),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedCommunity = newValue!;
+            });
+          },
+          items: FZData.communities.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   void postFlash(BuildContext ctx) async {
     if(validate() == false) return;
 
@@ -185,6 +219,7 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       imageUrl: _imageUrl,
       user: ref.read(currentuser),
       postDate: DateTime.now(),
+      community: _selectedCommunity,
       postLocation: FZLocation(address: postAddress, geoData: geoFirePoint.data)
     );
 

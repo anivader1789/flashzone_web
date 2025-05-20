@@ -35,12 +35,12 @@ class Fakes {
     String username = "$firstName${randoms[0]}${randoms[1]}${randoms[2]}";
     LatLng randomCoords = LatLng(lat: randomDouble(randomIntce, -90, 90), lon: randomDouble(randomIntce, -180, 180));
 
-    final location = Position(longitude: randomCoords.lon, latitude: randomCoords.lat, timestamp: DateTime.now(), accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0);
+    //final location = Position(longitude: randomCoords.lon, latitude: randomCoords.lat, timestamp: DateTime.now(), accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0);
     final address = await _getAddressFromLatLng(randomCoords);
 
     print("Generated user: $firstName $lastName , $username , $address");
     return FZUser(
-      id: UniqueKey().toString(),
+      id: "dummy${UniqueKey().toString()}",
       name: "$firstName $lastName", 
       username: username,
       fzLocation: address != null? FZLocation(address: address, geoData: <String,dynamic>{}): null
@@ -59,7 +59,7 @@ class Fakes {
     String firstName = random(randomIntce, 0,2) == 0? NamesStore.maleFirstNames[randoms[1]] : NamesStore.maleFirstNames[randoms[2]];
     String lastName = NamesStore.lastNames[randoms[0]];
     String username = "$firstName${randoms[0]}${randoms[1]}${randoms[2]}";
-    LatLng randomCoords = LatLng(lat: randomDouble(randomIntce, -90, 90), lon: randomDouble(randomIntce, -180, 180));
+    //LatLng randomCoords = LatLng(lat: randomDouble(randomIntce, -90, 90), lon: randomDouble(randomIntce, -180, 180));
 
     const address = "12 Test Dr, White Plains";
 

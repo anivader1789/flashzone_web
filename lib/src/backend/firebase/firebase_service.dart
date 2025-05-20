@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flashzone_web/firebase_options.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
-import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/flash.dart';
@@ -28,6 +26,9 @@ class FirebaseService {
   
   
   FirebaseService({required this.ref});
+
+  FirebaseFirestore get db => _db;
+  FirebaseStorage get firebaseStorage => _firebaseStorage;
 
   Future<void> init() async {
     _firebase = await Firebase.initializeApp(

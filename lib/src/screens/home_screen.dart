@@ -9,6 +9,9 @@ import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/admin_eventcreationscreen.dart';
 import 'package:flashzone_web/src/screens/event_detail_view.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
+import 'package:flashzone_web/src/screens/fam_edit_screen.dart';
+import 'package:flashzone_web/src/screens/fam_list_screen.dart';
+import 'package:flashzone_web/src/screens/fam_screen.dart';
 import 'package:flashzone_web/src/screens/flash_detail_screen.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/messages_view.dart';
@@ -33,14 +36,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 enum HomeView {
-  flashes, post, chat, eventToday, events, eventDetails, profile, notifications, flashDetail, loading, admineventcreate
+  flashes, post, chat, eventToday, events, eventDetails, 
+  profile, notifications, flashDetail, loading, admineventcreate,
+  famsList,famPage,famAddNew
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _smallScreenSize = false;
   HomeView _currentView = HomeView.loading;
   FZUser? _userToView;
-  String? _flashId, _profileId, _eventId;
+  String? _flashId, _profileId, _eventId, _famId;
   Flash? _flashtoView;
   int _sideMenuDefaultSelected = 0;
   final _accountPopupController = OverlayPortalController();
@@ -58,11 +63,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if(ref.read(initialised) == false) {
       await ref.read(backend).init();
       ref.read(initialised.notifier).update((state) => true);
+      ref.read(backend).getNearbyFams(70, forceRemote: true);
     }
   }
 
   void goToRoute() async {
     final route = widget.route;
+    //Based on the route, we will set the current view
+    //and the flashId if needed
+    //This is a bit of a hack, but we need to set the current view
+    //based on the route, so we can show the correct view
+    
+
     if(route == null || route == "") {
       _currentView = HomeView.flashes;
     } else if(route.contains("flash")) {
@@ -103,7 +115,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _sideMenuDefaultSelected = 1;
       print("changed side menu index to: $_sideMenuDefaultSelected");
       
-    } else if(route.contains(NotificationsListView.routeName)) {
+    } else if(route.contains("fams")) {
+      if(route.length > 5) {
+        _famId = route.substring(5);
+        if(_famId != null && _famId!.isNotEmpty) {
+
+          _currentView = HomeView.famPage;
+        } else {
+          _currentView = HomeView.famsList;
+        }
+      } else {
+        _currentView = HomeView.famsList;
+      }
+
+      _sideMenuDefaultSelected = 2;
+      print("changed side menu index to: $_sideMenuDefaultSelected");
+      
+    } else if(route.contains(FamEditScreen.routeName)) {
+
+      _currentView = HomeView.famAddNew;
+    }  else if(route.contains(NotificationsListView.routeName)) {
 
       _currentView = HomeView.notifications;
     } else if(route.contains(WriteFlashView.routeName)) {
@@ -142,9 +173,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Stack(
               children: [
                 IconButton(
-                iconSize: 30, 
-                icon: const Icon(Icons.menu), 
-                onPressed: _menuPopupController.toggle,),
+                  iconSize: 30, 
+                  icon: const Icon(Icons.menu), 
+                  onPressed: _menuPopupController.toggle,),
                 Positioned(
                   top: 60,
                   child: OverlayPortal(
@@ -210,6 +241,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
               HomeView.eventToday => initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
               HomeView.events => initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
+              HomeView.famsList => initDone == false? showLoading() : FamListScreen(mobileSize: _smallScreenSize,),
+              HomeView.famPage => initDone == false? showLoading() : FamHomeScreen(famId: _famId!, mobileSize: _smallScreenSize,),
+              HomeView.famAddNew => initDone == false? showLoading() : FamEditScreen(mobileSize: _smallScreenSize,),
               HomeView.notifications => initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
               HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
               HomeView.flashDetail => initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),

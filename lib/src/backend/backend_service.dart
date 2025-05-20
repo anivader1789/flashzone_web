@@ -1,16 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/aws/aws_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_auth_service.dart';
+import 'package:flashzone_web/src/backend/firebase/firebase_chat_service.dart';
+import 'package:flashzone_web/src/backend/firebase/firebase_fam_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_service.dart';
 import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flashzone_web/src/model/chat.dart';
+import 'package:flashzone_web/src/model/chat_message.dart';
 import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/event.dart';
+import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/invitation.dart';
 import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,8 +24,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final backend = Provider((ref) => BackendService(ref));
 final currentuser = StateProvider<FZUser>((ref) => FZUser.signedOut());
 final flashes = StateProvider((ref) => List<Flash>.empty(growable: true));
+final nearbyFams = StateProvider((ref) => List<Fam>.empty(growable: true));
+final myFams = StateProvider((ref) => List<Fam>.empty(growable: true));
 final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,List<ChatMessage>>{});
 final authLoaded = StateProvider<bool>((ref) => false);
+
+final cachedRemoteUser = StateProvider<List<FZUser>>((ref) => List<FZUser>.empty(growable: true));
 
 final invitationCode = StateProvider<String?>((ref) => null);
 final invitationCodeError = StateProvider<String?>((ref) => null);
@@ -30,21 +40,25 @@ class BackendService {
   late AwsService aws;
   late FirebaseService firebase;
   late FirebaseAuthService firebaseAuth;
+  late FirebaseChatService firebaseChat;
+  late FirebaseFamService firebaseFam;
   BackendService(this.ref) {
     aws = AwsService(ref);
     firebase = FirebaseService(ref: ref);
-    firebaseAuth = FirebaseAuthService(ref: ref);
+    
   }
 
   Future<void> init() async {
     //await requestPermissions();
     //await LocationService.updateCurrentLocation(ref);
-    return firebase.init();
+    await firebase.init();
+
+    firebaseAuth = FirebaseAuthService(ref: ref);
+    firebaseChat = FirebaseChatService(ref: ref, db: firebase.db, firebaseStorage: firebase.firebaseStorage);
+    firebaseFam = FirebaseFamService(ref: ref, db: firebase.db, firebaseStorage: firebase.firebaseStorage);
+    CachedDataManager().init(ref);
   }
 
-  Future<FZResult?> sendMessage(ChatMessage chat) {
-    return Future(() => null);
-  }
 
   Future<Map<String, dynamic>?> fetchUserDetails(FZUser user) => firebase.fetchUserDetails(user);
   Future<FZResult> addNewUser(FZUser? fzUser) => firebase.addNewUser(fzUser);
@@ -91,7 +105,21 @@ class BackendService {
     }
     return res;
   } 
-  Future<FZUser?> fetchRemoteUser(String userId) => firebase.fetchRemoteUser(userId);
+  Future<FZUser?> fetchRemoteUser(String userId) async {
+    final cachedUsers = ref.read(cachedRemoteUser);
+    for(FZUser user in cachedUsers) {
+      if(user.id == userId) {
+        return user;
+      }
+    }
+    
+    FZUser? fetchedUser = await firebase.fetchRemoteUser(userId);
+    if(fetchedUser != null) {
+      cachedUsers.add(fetchedUser);
+      ref.read(cachedRemoteUser.notifier).update((state) => cachedUsers);
+    }
+    return fetchedUser;
+  }
 
   Future<void> requestPermissions() async {
     await LocationService.handleLocationPermission();
@@ -127,6 +155,44 @@ class BackendService {
     }
     
   } 
+
+  Future<List<Fam>> getNearbyFams(double radius, { bool forceRemote = false}) async {
+    if(forceRemote) {
+      final res = await firebaseFam.getNearbyFams(radius);
+      ref.read(nearbyFams.notifier).update((state) => res);
+      return res;
+    } else {
+      var res = ref.read(nearbyFams);
+
+      if(res.isEmpty) {
+        res = await firebaseFam.getNearbyFams(radius);
+        ref.read(nearbyFams.notifier).update((state) => res);
+        return res;
+      } else {
+        return res;
+      }
+    }
+    
+  } 
+
+  Future<List<Fam>> getMyFams(String myId, { bool forceRemote = false}) async {
+    if(forceRemote) {
+      final res = await firebaseFam.getMyFams(myId);
+      ref.read(myFams.notifier).update((state) => res);
+      return res;
+    } else {
+      var res = ref.read(myFams);
+      if(res.isEmpty) {
+        res = await firebaseFam.getMyFams(myId);
+        ref.read(myFams.notifier).update((state) => res);
+        return res;
+      } else {
+        return res;
+      }
+    }
+  }
+
+  Future<List<Event>> getFamEvents(String famId) => firebaseFam.getFamEvents(famId);
   
   Future<Flash?> fetchFlash(String flashId) => firebase.fetchFlash(flashId);
 
@@ -152,8 +218,39 @@ class BackendService {
 
   Future<FZResult> uploadImage(Uint8List data, String fileName) => firebase.uploadImage(data, fileName);
 
+  Future<String> sendMessage(FZChatMessage message, String groupId) => firebaseChat.sendMessage(message, groupId);
+
+  Stream<List<FZChatMessage>> chatStream(String groupId, int limit) => firebaseChat.chatStream(groupId, limit: limit);
+  Future<List<FZChatMessage>> getChats(String groupId, {
+    int limit = 50,
+    DocumentSnapshot? lastDocumentSnapshot,
+  }) => firebaseChat.getChats(groupId, limit: limit, lastDocumentSnapshot: lastDocumentSnapshot);
+
+
+  Future<String?> findPersonalChat({
+    required FZUser sender,
+    required FZUser receiver,
+  }) => firebaseChat.findPersonalChat(sender: sender, receiver: receiver);
+  
+  Future<String> initiatePersonalChat({
+    required FZUser sender,
+    required FZUser receiver,
+  }) => firebaseChat.initiatePersonalChat(sender: sender, receiver: receiver);
+
+  Future<String> getOrCreateRefForFamChat({
+    required String famId,
+  }) => firebaseChat.getOrCreateRefForFamChat(famId: famId);
+
+  
+
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
   Future<Event?> fetchEvent(String eventId) => firebase.fetchEvent(eventId);
   Future<FZResult> createNewEvent(Event event) => firebase.createNewEvent(event);
   Future<List<FZNotification>> fetchNotifications(String email) => firebase.fetchNotifications(email);
+
+  Future<FZResult> addNewFam(Fam fam) => firebaseFam.addNewFam(fam.creationObj());
+  Future<FZResult> updateFam(Fam fam) => firebaseFam.updateFam(fam);
+  Future<Fam?> fetchFam(String famId) => firebaseFam.fetchFam(famId);
+
+  
 }

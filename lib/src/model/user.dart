@@ -129,6 +129,24 @@ class FZUser {
     return result;
   }
 
+  Map<String, String> compactObject() {
+    final Map<String, String> obj = {};
+    if (id != null) obj.addEntries({idKey: id!}.entries);
+    if (name != null) obj.addEntries({nameKey: name!}.entries);
+    if (username != null) obj.addEntries({usernameKey: username!}.entries);
+    if (avatar != null) obj.addEntries({avatarKey: avatar!}.entries);
+    return obj;
+  }
+
+  static FZUser fromCompactObject(Map<String, dynamic> data) {
+    return FZUser(
+      id: data[idKey],
+      name: data[nameKey],
+      username: data[usernameKey],
+      avatar: data[avatarKey],
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {

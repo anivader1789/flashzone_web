@@ -58,6 +58,16 @@ class FZResult {
   String? message;
   dynamic returnedObject;
   FZResult({required this.code, this.message, this.returnedObject});
+
+  bool get isSuccessful => code == SuccessCode.successful;
+  bool get isFailed => code == SuccessCode.failed;
+
+  static FZResult success([dynamic returnedObject]) {
+    return FZResult(code: SuccessCode.successful, returnedObject: returnedObject);
+  }
+  static FZResult error([String? message]) {
+    return FZResult(code: SuccessCode.failed, message: message);
+  }
 }
 
 enum SuccessCode {

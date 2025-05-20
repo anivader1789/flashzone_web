@@ -49,7 +49,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     // ));
 
     items.add(SideMenuItem(
-      title: 'Home',
+      title: 'Local Discussion',
       onTap: (index, _) {
         //widget.menuClicked(HomeView.flashes);
         Navigator.pushNamed(context, "");
@@ -62,13 +62,27 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     ));
 
     items.add(SideMenuItem(
-          title: 'Events',
+          title: 'Local Events',
           onTap: (index, _) {
             sideMenu.changePage(index);
             //widget.menuClicked(HomeView.eventToday);
             Navigator.pushNamed(context, "events");
           },
           icon: const Icon(Icons.event),
+          // badgeContent: const Text(
+          //   '2',
+          //   style: TextStyle(color: Colors.white),
+          // ),
+        ));
+
+    items.add(SideMenuItem(
+          title: 'Explore Fams',
+          onTap: (index, _) {
+            sideMenu.changePage(index);
+            //widget.menuClicked(HomeView.eventToday);
+            Navigator.pushNamed(context, "fams");
+          },
+          icon: const Icon(Icons.group),
           // badgeContent: const Text(
           //   '2',
           //   style: TextStyle(color: Colors.white),

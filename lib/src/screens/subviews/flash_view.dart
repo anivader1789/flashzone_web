@@ -56,7 +56,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
           children: [
             buildUserPanel(collapse),
             vertical(2),
-            FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate, flashtagContent: true,),
+            FZText(text: widget.flash.content, style: FZTextStyle.paragraph, onTap: flashNavigate, context: context, flashtagContent: true,),
             vertical(),
             if(widget.flash.imageUrl != null) FZNetworkImage(url: widget.flash.imageUrl, maxWidth: MediaQuery.of(context).size.width * 0.5,),
             vertical(2),
@@ -126,6 +126,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget flashInfoView(bool collapse) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            vertical(),
             Row(
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
@@ -133,7 +134,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
                 FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
-            vertical(),
+            //vertical(),
             Row(
               children: [
                 FZSymbol(type: FZSymbolType.time, compact: collapse,),
@@ -143,6 +144,14 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
                 if(!collapse) const FZSymbol(type: FZSymbolType.location),
                 if(!collapse) horizontal(),
                 if(!collapse) FZText(text: widget.flash.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
+              ],
+            ),
+            //vertical(),
+            Row(
+              children: [
+                FZSymbol(type: FZSymbolType.community, compact: collapse,),
+                horizontal(),
+                FZText(text: widget.flash.community, style: FZTextStyle.paragraph),
               ],
             )
           ], 
