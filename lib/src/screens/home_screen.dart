@@ -9,6 +9,7 @@ import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/admin_eventcreationscreen.dart';
 import 'package:flashzone_web/src/screens/event_detail_view.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
+import 'package:flashzone_web/src/screens/fam_chat_screen.dart';
 import 'package:flashzone_web/src/screens/fam_edit_screen.dart';
 import 'package:flashzone_web/src/screens/fam_list_screen.dart';
 import 'package:flashzone_web/src/screens/fam_screen.dart';
@@ -38,7 +39,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 enum HomeView {
   flashes, post, chat, eventToday, events, eventDetails, 
   profile, notifications, flashDetail, loading, admineventcreate,
-  famsList,famPage,famAddNew
+  famsList,famPage,famAddNew,famChat
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
@@ -115,6 +116,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _sideMenuDefaultSelected = 1;
       print("changed side menu index to: $_sideMenuDefaultSelected");
       
+    } else if(route.contains(FamChatScreen.routeName)) {
+      if(route.length > 8) {
+        _famId = route.substring(8);
+        if(_famId != null && _famId!.isNotEmpty) {
+
+          _currentView = HomeView.famChat;
+        } else {
+          _currentView = HomeView.famsList;
+        }
+      }
     } else if(route.contains("fams")) {
       if(route.length > 5) {
         _famId = route.substring(5);
@@ -243,6 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               HomeView.events => initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
               HomeView.famsList => initDone == false? showLoading() : FamListScreen(mobileSize: _smallScreenSize,),
               HomeView.famPage => initDone == false? showLoading() : FamHomeScreen(famId: _famId!, mobileSize: _smallScreenSize,),
+              HomeView.famChat => initDone == false? showLoading() : FamChatScreen(famId: _famId!, mobileSize: _smallScreenSize,),
               HomeView.famAddNew => initDone == false? showLoading() : FamEditScreen(mobileSize: _smallScreenSize,),
               HomeView.notifications => initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
               HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),

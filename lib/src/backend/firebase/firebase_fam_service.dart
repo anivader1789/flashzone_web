@@ -93,10 +93,10 @@ class FirebaseFamService {
 
   Future<List<Event>> getFamEvents(String famId) async {
     try {
-      final querySnapshot = await db.collection(Fam.collectionName)
+      final querySnapshot = await db.collection(Event.collectionName)
         .where(Event.byFamKey, isEqualTo: famId)
         .get();
-
+      print("Fetching fam events: got ${querySnapshot.docs.length} events byFamId = $famId");
       if(querySnapshot.docs.isNotEmpty) {
         return querySnapshot.docs.map((e) => Event.fromDocSnapshot(e.id, e.data()))
         .toList();

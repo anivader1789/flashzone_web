@@ -8,6 +8,8 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/modules/fams/members_list_view.dart';
 import 'package:flashzone_web/src/modules/fams/membership_status_views.dart';
 import 'package:flashzone_web/src/modules/fams/pending_requests_list.dart';
+import 'package:flashzone_web/src/screens/fam_chat_screen.dart';
+import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
   final _pendingsPopupController = OverlayPortalController();
   final String demoFam = "aOqZk8CWzsUz5wPGVKg3";
 
+  bool _loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -46,75 +50,115 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     // Fetch the details of the fam from the database
     // and set the state with the fetched data
     // Example:
+    setState(() {
+      _loading = true;
+    });
     _events.clear();
     fam = await ref.read(backend).fetchFam(widget.famId!);
+    
+    setState(() {
+      _loading = false;
+    });
+    fetchFamEvents();
+  }
+
+  fetchFamEvents() async {
     _events.addAll(await ref.read(backend).getFamEvents(widget.famId!));
-    setState(() {});
+    if(_events.isNotEmpty) {
+      setState(() {
+        
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(fam == null) {
-      return const Center(child: CircularProgressIndicator());
+    if(_loading) {
+      return FZLoadingIndicator(text: "Loading Fam details..", mobileSize: widget.mobileSize);
     }
 
+    if(fam == null) {
+      return FZErrorIndicator(text: "Fam Error", mobileSize: widget.mobileSize);
+    }
 
     return Padding(padding: const EdgeInsets.all(10),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start ,
-        children: [
-          famDetails(),
-          vertical(2),
-          FZText(text: "Be part of the discussion:", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
-          vertical(),
-          ElevatedButton(
-            
-            onPressed: () {}, 
-            style: ButtonStyle(
-              elevation: MaterialStateProperty.all(2),
-              backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 182, 130, 27)),
-              side: const MaterialStatePropertyAll(
-                BorderSide(
-                  color: Colors.white,
-                  width: 1,
-                  style: BorderStyle.solid
+      child: SingleChildScrollView(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start , mainAxisSize: MainAxisSize.min,
+          children: [
+            famDetails(),
+            vertical(2),
+            FZText(text: "Be part of the discussion:", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
+            vertical(),
+            ElevatedButton(
+              
+              onPressed: () {
+                Navigator.pushNamed(context, "${FamChatScreen.routeName}/${widget.famId}");
+              }, 
+              style: ButtonStyle(
+                elevation: MaterialStateProperty.all(2),
+                backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 182, 130, 27)),
+                side: const MaterialStatePropertyAll(
+                  BorderSide(
+                    color: Colors.white,
+                    width: 1,
+                    style: BorderStyle.solid
+                    )
+                ),
+                shape: const MaterialStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(12)
+                      ),
                   )
-              ),
-              shape: const MaterialStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(12)
-                    ),
                 )
-              )
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.chat, color: Colors.white,),
-                  horizontal(),
-                  const FZText(text: "Enter the chatroom", style: FZTextStyle.headline, color: Colors.white,),
-                ],
               ),
-            )),
-          vertical(6),
-          FZText(text: "Events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
-          const Divider(),
-          vertical(2),
-          //buildFlashesView(),
-          vertical(),
-          FZText(text: "Flashes", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
-          const Divider(),
-          vertical(2),
-          //buildFlashesView(),
-        ],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.chat, color: Colors.white,),
+                    horizontal(),
+                    const FZText(text: "Enter the chatroom", style: FZTextStyle.headline, color: Colors.white,),
+                  ],
+                ),
+              )),
+            vertical(6),
+            FZText(text: "Events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
+            const Divider(),
+            vertical(2),
+            eventsGridView(_events),
+            vertical(),
+            FZText(text: "Flashes", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
+            const Divider(),
+            vertical(2),
+            //buildFlashesView(),
+          ],
+        ),
       ),
     );
   }
 
   //A function that returns a column widget that displayes information about the fam. details are fam name, description, admn of the fam and members
   Widget famDetails() {
+    if(widget.mobileSize) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ThumbnailView(link: fam!.imageUrl, radius: 64, mobileRadius: 32, mobileSize: true,),
+              horizontal(),
+              FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,),
+            ],
+          ),
+          vertical(2),
+          FZText(text: fam!.description, style: FZTextStyle.paragraph),
+          vertical(2),
+          membershipButtonsView(),
+          
+        ],
+        );
+    }
     return Column(crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -124,7 +168,20 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
             FZText(text: "#${fam!.name}", style: FZTextStyle.tooLargeHeadline, color: Colors.black,),
             horizontal(),
             Expanded(child: Container()),
-            Column(crossAxisAlignment: CrossAxisAlignment.start,
+            membershipButtonsView(),
+            horizontal(),
+          ],
+        ),
+        vertical(2),
+        FZText(text: fam!.description, style: FZTextStyle.paragraph),
+        
+      ],
+    );
+  } 
+
+  membershipButtonsView() {
+    return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextButton(
                   onPressed: _membersPopupController.toggle, 
@@ -170,16 +227,8 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                 MembershipStatusView(fam: fam!, user: ref.read(currentuser)),
                 
               ],
-            ),
-            horizontal(),
-          ],
-        ),
-        vertical(2),
-        FZText(text: fam!.description, style: FZTextStyle.paragraph),
-        
-      ],
-    );
-  } 
+            );
+  }
 
   buildFlashesView() {
     if(_flashes.isEmpty) {
@@ -201,8 +250,16 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                       );
   }
 
-  buildFamEvents() {
-    return FZText(text: "No events right now", style: FZTextStyle.headline, color: Constants.secondaryColor(),);
+  eventsGridView(List<Event> events) {
+    if(events.isEmpty) {
+      return FZText(text: "No events for now", style: FZTextStyle.headline, color: Constants.secondaryColor(),);
+    }
+    return GridView.count(shrinkWrap: true,
+      crossAxisCount: widget.mobileSize? 1: 3,
+      children: List.generate(events.length, (index) {
+                    return EventCellView(event: events[index]);
+                  },
+    ));
   }
 
   Widget vertical([int multiplier = 1]) => SizedBox(height: 5 * multiplier.toDouble(),);

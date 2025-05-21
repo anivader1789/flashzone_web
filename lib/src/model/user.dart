@@ -29,7 +29,7 @@ class FZUser {
       username: "loading");
   } 
 
-  
+  bool get isSignedOut => id == FZUser.interimUserId || id == FZUser.signedOutUserId;
 
   Map<String,String> profileUpdateObject() {
     final Map<String,String> obj = {};
