@@ -256,6 +256,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     }
     return GridView.count(shrinkWrap: true,
       crossAxisCount: widget.mobileSize? 1: 3,
+      physics: const NeverScrollableScrollPhysics(),
       children: List.generate(events.length, (index) {
                     return EventCellView(event: events[index]);
                   },

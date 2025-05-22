@@ -6,6 +6,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/chat_message.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FamChatScreen extends ConsumerStatefulWidget {
@@ -201,12 +202,10 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
     bool isOwner = chat.senderId == ref.read(currentuser).id;
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
-                  mainAxisAlignment:
-                      isOwner ? MainAxisAlignment.end : MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+                  alignment: isOwner? WrapAlignment.end: WrapAlignment.start,
                   children: [
-                    isOwner
+                    isOwner || widget.mobileSize
                         ? const SizedBox()
                         : Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -217,6 +216,7 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
                     MessageBubble(
                       chat: chat,
                       isUserMessage: isOwner,
+                      mobileSize: widget.mobileSize,
                     ),
                   ],
                 ),
@@ -225,9 +225,10 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
 }
 
 class MessageBubble extends StatelessWidget {
-  const MessageBubble({super.key, required this.chat, required this.isUserMessage});
+  const MessageBubble({super.key, required this.chat, required this.isUserMessage, required this.mobileSize});
   final FZChatMessage chat;
   final bool isUserMessage;
+  final bool mobileSize;
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +240,7 @@ class MessageBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if(isUserMessage == false) FZText(text: "${chat.senderName} says:", style: FZTextStyle.headline, color: Colors.white,),
+                  if(isUserMessage == false) FZText(text: "${chat.senderName}:", style: FZTextStyle.headline, color: Colors.white,),
                   FZText(text: chat.message, style: FZTextStyle.paragraph, color: Colors.white,),
                 ],
               ),
