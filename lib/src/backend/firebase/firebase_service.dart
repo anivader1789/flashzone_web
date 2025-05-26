@@ -95,22 +95,27 @@ class FirebaseService {
       .then((value) => fzUser.updateWith(value, ref))
       //If this returned null that means user already exists in db, then the following call does nothing and code is withdrawn. 
       //Otherwise if sourceuser is returned, then a new user is added in the db
-      .then((value) => newUserCheck(value))
-      .then((value) {
-        if(value.code ==  SuccessCode.successful) {
-          //print("Invitation code fetched");
-          ref.read(userToVerify.notifier).update((state) => fzUser);
-          ref.read(invitationCode.notifier).update((state) => value.returnedObject);
-          
-        } else if(value.code == SuccessCode.withdrawn) {
-          //print("User already exists");
-          ref.read(currentuser.notifier).update((state) => fzUser);
 
-        } else if(value.code == SuccessCode.failed) {
-          //print("Invitation code could not be found on the server");
-          ref.read(invitationCodeError.notifier).update((state) => "Your invitation code was not found. Please contact the admins");
-        }
-        //ref.read(currentuser.notifier).update((state) => fzUser);
+      //Bypassing user verification
+      //.then((value) => newUserCheck(value))
+      .then((value) => addNewUser(fzUser))
+      .then((value) {
+        // if(value.code ==  SuccessCode.successful) {
+        //   //print("Invitation code fetched");
+        //   ref.read(userToVerify.notifier).update((state) => fzUser);
+        //   ref.read(invitationCode.notifier).update((state) => value.returnedObject);
+          
+        // } else if(value.code == SuccessCode.withdrawn) {
+        //   //print("User already exists");
+        //   ref.read(currentuser.notifier).update((state) => fzUser);
+
+        // } else if(value.code == SuccessCode.failed) {
+        //   //print("Invitation code could not be found on the server");
+        //   ref.read(invitationCodeError.notifier).update((state) => "Your invitation code was not found. Please contact the admins");
+        // }
+
+        //Bypassing user verification
+        ref.read(currentuser.notifier).update((state) => fzUser);
       })
       .catchError((e) {
         //print("Exception while updating user after auth: ${e.toString()}");
