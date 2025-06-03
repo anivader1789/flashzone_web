@@ -133,9 +133,16 @@ class BackendService {
   Future<FZResult> createNewFlash(Flash flash) async {
     final flashesRef = ref.read(flashes);
     final res = await firebase.createNewFlash(flash);
-    flashesRef.add(res.returnedObject);
-    ref.read(flashes.notifier).update((state) => flashesRef);
-    return res;
+    if(res.code == SuccessCode.successful) {
+      print("Flash created successfully: ${res.returnedObject}");
+      flashesRef.add(res.returnedObject);
+      ref.read(flashes.notifier).update((state) => flashesRef);
+      return res;
+    } else  {
+      print("Flash creation failed: ${res.message}");
+      return FZResult(code: SuccessCode.failed, message: "Flash creation failed, returned object is null");
+    }
+    
   } 
 
   Future<List<Flash>> getFlashes(double radius, bool forceRemote) async {

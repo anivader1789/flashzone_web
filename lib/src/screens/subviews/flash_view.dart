@@ -131,7 +131,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey, onTap: profileNavigate),
               ],
             ),
             //vertical(),

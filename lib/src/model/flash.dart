@@ -50,6 +50,15 @@ class Flash {
 
   Map<String, dynamic> creationObj() {
     return {
+      contentKey: content,
+      imageKey: imageUrl,
+      nameKey: user.name,
+      userIdKey: user.id,
+      userhandleKey: user.username,
+      userPicKey: user.avatar,
+      dateKey: postDate.toString(),
+      addressKey: postLocation?.address,
+      geoKey: postLocation?.geoData,
       likesKey: likes,
       commentsKey: comments,
       communityKey: community, // New field

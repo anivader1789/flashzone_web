@@ -279,7 +279,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         vertical(3),
         Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            inputField(controller: bioController, hint: "Bio", maxChar: 400),
+            inputField(controller: bioController, hint: "Bio", maxChar: 400, largeInput: true),
             const SizedBox(width: 5,),
             FZButton(
                     onPressed: _bioSubmitted,
@@ -317,7 +317,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const FZText(text: "Edit Bio", style: FZTextStyle.paragraph),
           Row(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              inputField(controller: bioController, hint: "Bio", maxChar: 400),
+              inputField(controller: bioController, hint: "Bio", maxChar: 400, largeInput: true),
               const SizedBox(width: 5,),
               FZButton(
                     onPressed: _bioSubmitted,
@@ -458,11 +458,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return null;
   }
 
-  inputField({required TextEditingController controller, required String hint, int maxChar = 100}) {
-    return SizedBox(width: 250,
+  inputField({required TextEditingController controller, required String hint, int maxChar = 100, bool largeInput = false}) {
+    return SizedBox(width: largeInput? 450: 250,
+      height: largeInput? 150: null,
       child: TextField(
                     controller: controller,
                     maxLength: maxChar,
+                    maxLines: largeInput? 3: 1,
                     cursorColor: Constants.primaryColor(),
                             textAlignVertical: TextAlignVertical.center,
                             decoration: InputDecoration(

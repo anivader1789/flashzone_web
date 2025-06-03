@@ -330,10 +330,13 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
   bool validate() {
     if(detectableController.text.isEmpty) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Please write something to post");
       return false;
     } else if(detectableController.text.length > kMaxChars) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Flash content cannot be more than $kMaxChars characters");
       return false;
     } else if(Helpers.allFlashTagsInText(detectableController.text).isEmpty) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Please add at least one flashtag to your post");
       return false;
     }
 

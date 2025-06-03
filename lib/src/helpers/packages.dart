@@ -176,7 +176,7 @@ class Helpers {
               onPressed: () {
                 Navigator.of(ctx).pop();
               },
-              bgColor: Constants.lightColor()
+              bgColor: Constants.bgColor()
             ),
           ],
         ));

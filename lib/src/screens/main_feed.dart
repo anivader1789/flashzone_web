@@ -137,22 +137,27 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                 child: SizedBox(
                     //width: MediaQuery.of(context).size.width / 3,
                     height: 45,
-                    child: RoundedSearchInput(
-                      textController: searchController, 
-                      hintText: "search Flashzone")
-                    //  TextField(
-                    //         //onChanged: _search,
-                    //         controller: searchController,
-                    //         cursorColor: Constants.primaryColor(),
-                    //         style: const TextStyle(fontSize: 12),
-                    //         decoration: InputDecoration(
-                    //           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
-                    //           hintText: 'search FlashZone',
-                    //           fillColor: Colors.white70,
-                    //           filled: true,
+                    child: 
+                    // RoundedSearchInput(
+                    //   textController: searchController, 
+                    //   hintText: "search Flashzone",
+                    //   )
+                     TextField(
+                            //onChanged: _search,
+                            onSubmitted: (value) {
+                              searchFlashes(value);
+                            },
+                            controller: searchController,
+                            cursorColor: Constants.primaryColor(),
+                            style: const TextStyle(fontSize: 12),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),),
+                              hintText: 'search FlashZone',
+                              fillColor: Colors.white70,
+                              filled: true,
                               
-                    //         ),
-                    //       ),
+                            ),
+                          ),
                   ),
               ),
                 horizontal(),
