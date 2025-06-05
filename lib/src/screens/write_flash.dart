@@ -210,9 +210,11 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
     print("Posting a flash: ${detectableController.text}");
     final GeoFirePoint geoFirePoint = GeoFirePoint(ref.read(userCurrentLocation));
-    final postAddress = await LocationService.getAddressFromLatLng(ref);
+    final postAddress = "";
+    //await LocationService.getAddressFromLatLng(ref);
 
     print("posting address with: $postAddress");
+    
     //Create a new flash object
     final flash = Flash(
       content: detectableController.text,
@@ -231,7 +233,8 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       });
 
       //ref.read(flashes).insert(0, res.returnedObject);
-      widget.onFinished();
+      Navigator.pushNamed(context, "");
+      //widget.onFinished();
     } else {
       setState(() {
         _flashSubmitting = false;

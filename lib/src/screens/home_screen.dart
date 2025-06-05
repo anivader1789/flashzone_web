@@ -57,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     
     setup();
-    goToRoute();
+    //goToRoute();
   }
 
   void setup() async {
@@ -66,6 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ref.read(initialised.notifier).update((state) => true);
       ref.read(backend).getNearbyFams(70, forceRemote: true);
     }
+    goToRoute();
   }
 
   void goToRoute() async {

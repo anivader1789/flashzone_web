@@ -25,7 +25,10 @@ class _CommentViewState extends ConsumerState<CommentView> {
   void initState() {
     super.initState();
     
-    _ownComment = widget.flash.user.id == ref.read(currentuser).id;
+    _ownComment = widget.comment?.userId == ref.read(currentuser).id;
+    setState(() {
+      
+    });
   }
 
   @override

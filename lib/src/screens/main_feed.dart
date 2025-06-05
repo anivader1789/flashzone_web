@@ -1,6 +1,5 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
-import 'package:flashzone_web/src/helpers/cool_widgets.dart';
 import 'package:flashzone_web/src/helpers/fakes_generator.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';

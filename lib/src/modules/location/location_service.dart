@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geocode/geocode.dart';
 
 final userCurrentLocation = StateProvider<GeoPoint>((ref) => const GeoPoint(41.054514, -73.814637));
 
@@ -64,17 +65,18 @@ class LocationService {
     try {
       
       GeoPoint coords = ref.read(userCurrentLocation);
-      print("Trying to get landmark from ${coords.latitude}, ${coords.longitude}");
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        coords.latitude,
-        coords.longitude
+      //print("Trying to get landmark from ${coords.latitude}, ${coords.longitude}");
+      
+      final address = await GeoCode().reverseGeocoding(
+        latitude: coords.latitude,
+        longitude: coords.longitude
       );
 
-      Placemark place = placemarks[0];
+      print("Got placemarks: $address");
 
-      print("Got landmark: $place from $coords");
 
-      return "${place.locality}, ${place.country}";
+
+      return "${address.city}";
     } catch (e) {
 
       print("Caught error while getting lkandmark: $e");

@@ -27,6 +27,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   flutter_widget_from_html_core: ^0.15.2
   fwfh_webview: ^0.15.3
+  geocode: ^1.0.3
   geocoding: ^3.0.0
   geoflutterfire_plus: ^0.0.30
   geolocator: ^12.0.0
