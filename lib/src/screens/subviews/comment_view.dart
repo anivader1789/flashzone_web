@@ -1,4 +1,5 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/flash.dart';
@@ -6,6 +7,7 @@ import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class CommentView extends ConsumerStatefulWidget {
   const CommentView({super.key, required this.comment, required this.flash, required this.onDelete});
@@ -90,7 +92,7 @@ class _CommentViewState extends ConsumerState<CommentView> {
 
   profileNavigate(BuildContext context) {
     print("user profile clicked");
-    Navigator.pushNamed(context, "user/${widget.comment!.userId}");
+    context.go(Routes.routeNameProfile(widget.comment!.userId!));
     //widget.profileClicked(widget.flash.user);
   }
 }

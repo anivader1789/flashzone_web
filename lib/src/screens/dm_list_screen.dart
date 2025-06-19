@@ -1,4 +1,5 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/message_ref.dart';
 import 'package:flashzone_web/src/model/user.dart';
@@ -6,6 +7,7 @@ import 'package:flashzone_web/src/screens/dm_screen.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DMListScreen extends ConsumerStatefulWidget {
   const DMListScreen({super.key, this.receipientUser, required this.isMobileSize});
@@ -102,7 +104,7 @@ class _DMListScreenState extends ConsumerState<DMListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FZText(text: otherUser.name, style: FZTextStyle.headline, onTap: () => Navigator.pushNamed(context, "user/${otherUser.id}"),),
+                FZText(text: otherUser.name, style: FZTextStyle.headline, onTap: () => context.go(Routes.routeNameProfile(otherUser.id!)),),
                // const SizedBox(height: 4.0),
                // Text(ref.lastMessage),
               ],

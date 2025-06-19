@@ -2,6 +2,7 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class EventCellView extends StatelessWidget {
   const EventCellView({super.key, required this.event});
@@ -18,7 +19,7 @@ class EventCellView extends StatelessWidget {
             //   borderRadius: BorderRadius.all(Radius.circular(8)),
             // ),
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "events/${event.id}"),
+              onTap: () => context.go(Routes.routeNameEventDetail(event.id!)),
               child: SizedBox(width: double.infinity,
                 child: Stack(
                   children: [

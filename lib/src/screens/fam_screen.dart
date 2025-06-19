@@ -8,20 +8,20 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/modules/fams/members_list_view.dart';
 import 'package:flashzone_web/src/modules/fams/membership_status_views.dart';
 import 'package:flashzone_web/src/modules/fams/pending_requests_list.dart';
-import 'package:flashzone_web/src/screens/fam_chat_screen.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 
 //http://localhost:50000/#fams/H2xoT8GAAWd3tKGbeij3
 
 class FamHomeScreen extends ConsumerStatefulWidget {
-  const FamHomeScreen({super.key, required this.famId, required this.mobileSize});
+  const FamHomeScreen({super.key, required this.famId});
   final String? famId;
-  final bool mobileSize;
 
   static const routeName = 'fams';
 
@@ -43,10 +43,10 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
   @override
   void initState() {
     super.initState();
-    fetchDeatils();
+    //fetchDeatils();
   }
 
-  void fetchDeatils() async {
+  void fetchDetails() async {
     // Fetch the details of the fam from the database
     // and set the state with the fetched data
     // Example:
@@ -73,26 +73,39 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => fetchDetails());
+        
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 2);
+      
+    
+  }
+
+  childView(bool mobileSize) {
     if(_loading) {
-      return FZLoadingIndicator(text: "Loading Fam details..", mobileSize: widget.mobileSize);
+      return FZLoadingIndicator(text: "Loading Fam details..", mobileSize: mobileSize);
     }
 
     if(fam == null) {
-      return FZErrorIndicator(text: "Fam Error", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "Fam Error", mobileSize: mobileSize);
     }
 
     return Padding(padding: const EdgeInsets.all(10),
       child: SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start , mainAxisSize: MainAxisSize.min,
           children: [
-            famDetails(),
+            famDetails(mobileSize),
             vertical(2),
             FZText(text: "Be part of the discussion:", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
             vertical(),
             ElevatedButton(
               
               onPressed: () {
-                Navigator.pushNamed(context, "${FamChatScreen.routeName}/${widget.famId}");
+                context.go(Routes.routeNameFamChat(widget.famId!));
               }, 
               style: ButtonStyle(
                 elevation: MaterialStateProperty.all(2),
@@ -127,7 +140,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
             FZText(text: "Events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
             const Divider(),
             vertical(2),
-            eventsGridView(_events),
+            eventsGridView(_events, mobileSize),
             vertical(),
             FZText(text: "Flashes", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
             const Divider(),
@@ -140,8 +153,8 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
   }
 
   //A function that returns a column widget that displayes information about the fam. details are fam name, description, admn of the fam and members
-  Widget famDetails() {
-    if(widget.mobileSize) {
+  Widget famDetails(bool mobileSize) {
+    if(mobileSize) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -242,7 +255,6 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                             //onTap: () => ,
                             child: FlashCellView(
                                 flash: _flashes[index],
-                                profileClicked: (user) {},
                                 compact: true,
                             ),
                           );
@@ -250,12 +262,12 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                       );
   }
 
-  eventsGridView(List<Event> events) {
+  eventsGridView(List<Event> events, bool mobileSize) {
     if(events.isEmpty) {
       return FZText(text: "No events for now", style: FZTextStyle.headline, color: Constants.secondaryColor(),);
     }
     return GridView.count(shrinkWrap: true,
-      crossAxisCount: widget.mobileSize? 1: 3,
+      crossAxisCount: mobileSize? 1: 3,
       physics: const NeverScrollableScrollPhysics(),
       children: List.generate(events.length, (index) {
                     return EventCellView(event: events[index]);

@@ -6,6 +6,7 @@ import 'package:flashzone_web/src/model/message_ref.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DMScreen extends ConsumerStatefulWidget {
   const DMScreen({super.key, required this.receipientUser, this.messageRef, required this.onBackPressed});
@@ -77,7 +78,7 @@ class _DMScreenState extends ConsumerState<DMScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.pop(),
               ),
               FZText(text: widget.receipientUser.name, style: FZTextStyle.headline),
             ],

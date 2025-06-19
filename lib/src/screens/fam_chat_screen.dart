@@ -5,14 +5,14 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/chat_message.dart';
 import 'package:flashzone_web/src/model/fam.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FamChatScreen extends ConsumerStatefulWidget {
-  const FamChatScreen({super.key, required this.famId, required this.mobileSize});
+  const FamChatScreen({super.key, required this.famId});
   final String famId;
-  final bool mobileSize;
 
   static const routeName = 'famChat';
 
@@ -29,13 +29,7 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
 
   StreamSubscription? chatStreamSubscription;
 
-  @override
-  void initState() {
-    super.initState();
-
-    
-    loadFam();
-  }
+  
 
   loadFam() async {
     setState(() {
@@ -91,18 +85,30 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => loadFam());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+
+    
+  }
+
+  childView(bool mobileSize) {
     if(_loading) {
-      return FZLoadingIndicator(text: "Loading chat messages", mobileSize: widget.mobileSize);
+      return FZLoadingIndicator(text: "Loading chat messages", mobileSize: mobileSize);
     }
 
     final user = ref.watch(currentuser);
     
     if(user.isSignedOut) {
-      return FZErrorIndicator(text: "You have to Sign in to view this page", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "You have to Sign in to view this page", mobileSize: mobileSize);
     } else if(fam == null) {
-      return FZErrorIndicator(text: "Fam Error", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "Fam Error", mobileSize: mobileSize);
     } else if(fam!.members.contains(user.id) == false && fam!.admins.contains(user.id) == false) {
-      return FZErrorIndicator(text: "Oops. Access to private chat is restricted to fam members only", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "Oops. Access to private chat is restricted to fam members only", mobileSize: mobileSize);
     }
 
     
@@ -118,14 +124,14 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
             children: [
               // IconButton(
               //   icon: const Icon(Icons.arrow_back, color: Colors.white,),
-              //   onPressed: () => Navigator.pop(context),
+              //   onPressed: () => 
               // ),
               FZText(
                 text: "#${fam!.name}", 
                 style: FZTextStyle.headline, 
                 color: Colors.white,
                 onTap: () {
-                  Navigator.pushNamed(context, "fams/${widget.famId}");
+                  context.go(Routes.routeNameFamDetail(widget.famId));
                 },),
               const SizedBox(width: 15,),
               const FZText(text: "-- private chat room", style: FZTextStyle.paragraph, color: Colors.white,)
@@ -133,13 +139,13 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
           ),
         ),
         Expanded(
-          child: chatView(),
+          child: chatView(mobileSize),
         ),
       ],
     );
   }
 
-  chatView() {
+  chatView(bool mobileSize) {
     return Column(
       children: [
         Expanded(
@@ -149,7 +155,7 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
               var chat = _chats[i];
               return Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 1.0, 8.0, 1.0),
-                child: chatItemView(chat),
+                child: chatItemView(chat, mobileSize),
               );
             }, 
             separatorBuilder: (_, i) => Container(height: 3), 
@@ -198,14 +204,14 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
     await ref.read(backend).sendMessage(chat, _groupId!);
   }
 
-  chatItemView(FZChatMessage chat) {
+  chatItemView(FZChatMessage chat, bool mobileSize) {
     bool isOwner = chat.senderId == ref.read(currentuser).id;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Wrap(
                   alignment: isOwner? WrapAlignment.end: WrapAlignment.start,
                   children: [
-                    isOwner || widget.mobileSize
+                    isOwner || mobileSize
                         ? const SizedBox()
                         : Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -216,7 +222,7 @@ class _FamChatScreenState extends ConsumerState<FamChatScreen> {
                     MessageBubble(
                       chat: chat,
                       isUserMessage: isOwner,
-                      mobileSize: widget.mobileSize,
+                      mobileSize: mobileSize,
                     ),
                   ],
                 ),

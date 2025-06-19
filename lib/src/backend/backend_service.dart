@@ -31,6 +31,8 @@ final authLoaded = StateProvider<bool>((ref) => false);
 
 final cachedRemoteUser = StateProvider<List<FZUser>>((ref) => List<FZUser>.empty(growable: true));
 
+final routeInPipeline = StateProvider<String?>((ref) => null);
+
 final invitationCode = StateProvider<String?>((ref) => null);
 final invitationCodeError = StateProvider<String?>((ref) => null);
 final userToVerify = StateProvider<FZUser?>((ref) => null);

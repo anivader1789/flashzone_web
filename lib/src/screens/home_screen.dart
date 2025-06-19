@@ -22,6 +22,7 @@ import 'package:flashzone_web/src/screens/subviews/side_menu.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 final initialised = StateProvider<bool>((ref) => false);
 
@@ -160,7 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
  
   @override
   Widget build(BuildContext context) {
-    bool initDone = ref.watch(initialised);
+    //bool initDone = ref.watch(initialised);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     _setScreenScale(width,height);
@@ -246,24 +247,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
             selectedIndex: _sideMenuDefaultSelected,
           ),
-          Expanded(
-            child: switch (_currentView) {
-              HomeView.flashes => initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user), mobileSize: _smallScreenSize,),
-              HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
-              HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
-              HomeView.eventToday => initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
-              HomeView.events => initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
-              HomeView.famsList => initDone == false? showLoading() : FamListScreen(mobileSize: _smallScreenSize,),
-              HomeView.famPage => initDone == false? showLoading() : FamHomeScreen(famId: _famId!, mobileSize: _smallScreenSize,),
-              HomeView.famChat => initDone == false? showLoading() : FamChatScreen(famId: _famId!, mobileSize: _smallScreenSize,),
-              HomeView.famAddNew => initDone == false? showLoading() : FamEditScreen(mobileSize: _smallScreenSize,),
-              HomeView.notifications => initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
-              HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
-              HomeView.flashDetail => initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
-              HomeView.eventDetails => initDone == false? showLoading() : EventDetailsView(eventId: _eventId, mobileSize: _smallScreenSize),
-              HomeView.admineventcreate => const AdminEventCreation(),
-              HomeView.loading => showLoading()
-            }),
+          // Expanded(
+          //   child: switch (_currentView) {
+          //     HomeView.flashes => initDone == false? showLoading() : MainFeedListView(profileNavigate: (user) => _profileClicked(user), mobileSize: _smallScreenSize,),
+          //     HomeView.post => WriteFlashView(onFinished: _backToFeedView,),
+          //     HomeView.chat => MessagesView(mobileSize: _smallScreenSize,),
+          //     HomeView.eventToday => initDone == false? showLoading() : TodayEventFeedView(mobileSize: _smallScreenSize,),
+          //     HomeView.events => initDone == false? showLoading() : EventFeedView(mobileSize: _smallScreenSize,),
+          //     HomeView.famsList => initDone == false? showLoading() : FamListScreen(mobileSize: _smallScreenSize,),
+          //     HomeView.famPage => initDone == false? showLoading() : FamHomeScreen(famId: _famId!, mobileSize: _smallScreenSize,),
+          //     HomeView.famChat => initDone == false? showLoading() : FamChatScreen(famId: _famId!, mobileSize: _smallScreenSize,),
+          //     HomeView.famAddNew => initDone == false? showLoading() : FamEditScreen(mobileSize: _smallScreenSize,),
+          //     HomeView.notifications => initDone == false? showLoading() : NotificationsListView(mobileSize: _smallScreenSize,),
+          //     HomeView.profile => ProfileView(userId: _profileId, backClicked: _backToFeedView, messageClicked: _messageClicked, mobileSize: _smallScreenSize,),
+          //     HomeView.flashDetail => initDone == false? showLoading() : FlashDetailScreen(flash: _flashtoView, compact: _smallScreenSize),
+          //     HomeView.eventDetails => initDone == false? showLoading() : EventDetailsView(eventId: _eventId, mobileSize: _smallScreenSize),
+          //     HomeView.admineventcreate => const AdminEventCreation(),
+          //     HomeView.loading => showLoading()
+          //   }),
         ],
       ),
     );
@@ -298,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
 
-    Navigator.pushNamed(context, WriteFlashView.routeName);
+    context.go(Routes.routeNamePost());
     
   }
 
@@ -317,7 +318,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   _notificationsClicked() {
-    Navigator.pushNamed(context, NotificationsListView.routeName);
     
   }
 

@@ -8,11 +8,11 @@ import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FlashCellView extends ConsumerStatefulWidget {
-  const FlashCellView({super.key, required this.flash, required this.profileClicked, this.compact = false});
+  const FlashCellView({super.key, required this.flash, this.compact = false});
   final Flash flash;
-  final Function (FZUser) profileClicked;
   final bool compact;
   
 
@@ -177,7 +177,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     if(isSignedOut()) return;
 
     _flash.likes += 1;
-    ref.read(currentuser).likes.add(_flash!.id!);
+    ref.read(currentuser).likes.add(_flash.id!);
     setState(() { });
 
     final res = await ref.read(backend).updateFlash(_flash);
@@ -186,7 +186,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
       setState(() { });
     } else {
       final user = ref.read(currentuser);
-      user.likes.add(_flash!.id!);
+      user.likes.add(_flash.id!);
       await ref.read(backend).updateProfile(user);
     }
   }
@@ -197,12 +197,11 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   Widget horizontal([int multiplier = 1]) => SizedBox(width: 5 * multiplier.toDouble(),);
 
   profileNavigate() {
-    Navigator.pushNamed(context, "user/${widget.flash.user.id}");
-    //widget.profileClicked(widget.flash.user);
+    context.go(Routes.routeNameProfile(widget.flash.user.id!));
   }
 
   flashNavigate() {
-    Navigator.pushNamed(context, "flash/${widget.flash.id}");
+    context.go(Routes.routeNameFlashDetails(widget.flash.id!));
   }
 
   share(BuildContext ctx) {

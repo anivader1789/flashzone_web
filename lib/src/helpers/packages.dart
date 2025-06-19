@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -174,7 +175,7 @@ class Helpers {
             FZButton(
               text: "OK", 
               onPressed: () {
-                Navigator.of(ctx).pop();
+                ctx.pop();
               },
               bgColor: Constants.bgColor()
             ),
@@ -381,7 +382,7 @@ class FZText extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 if(famId != null && context != null) {
-                  Navigator.pushNamed(context, "fam/$famId");
+                  context.go(Routes.routeNameFamDetail(famId));
                 }
               },
               child: Row(mainAxisSize: MainAxisSize.min,

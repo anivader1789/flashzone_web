@@ -3,16 +3,15 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EventFeedView extends ConsumerStatefulWidget {
-  const EventFeedView({super.key, required this.mobileSize});
-  final bool mobileSize;
+  const EventFeedView({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EventFeedViewState();
@@ -29,8 +28,10 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
   void initState() {
     super.initState();
 
+    final today = DateTime.now();
+    todayLabel = "Events Today (${today.month}/${today.day})";
     _tapGestureForEventCreationForm = TapGestureRecognizer()..onTap = eventCreationFormTapped;
-    loadEvents();
+    //ref.read(routeInPipeline.notifier).update((state) => Routes.routeNameEventsList());
 
   }
 
@@ -39,8 +40,7 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
   }
 
   loadEvents() async {
-    final today = DateTime.now();
-    todayLabel = "Events Today (${today.month}/${today.day})";
+    
 
     final loadedEvents = await ref.read(backend).getEvents(7000000000);
 
@@ -60,6 +60,19 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => loadEvents());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+
+    
+    
+  }
+
+  childView(bool mobileSize) {
     return Padding(padding: const EdgeInsets.all(12),
     child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -77,30 +90,30 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
           FZText(text: todayLabel, style: FZTextStyle.headline, color: Constants.fillColor(),),
           const Divider(),
           vertical(),
-          eventsGridView(_todayEvents),
+          eventsGridView(_todayEvents, mobileSize),
           vertical(),
           FZText(text: "Tomorrow events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
           const Divider(),
           vertical(),
-          eventsGridView(_tomorrowEvents),
+          eventsGridView(_tomorrowEvents, mobileSize),
           vertical(),
           const FZText(text: "Events next week", style: FZTextStyle.headline, color: Colors.grey,),
           const Divider(),
           vertical(),
-          eventsGridView(_nextWeekEvents),
+          eventsGridView(_nextWeekEvents, mobileSize),
           vertical(),
           const FZText(text: "Upcoming events", style: FZTextStyle.headline, color: Colors.grey,),
           const Divider(),
           vertical(),
-          eventsGridView(_upcomingEvents),
+          eventsGridView(_upcomingEvents, mobileSize),
         ],
       ),
     )  ;
   }
 
-  eventsGridView(List<Event> events) {
+  eventsGridView(List<Event> events, bool mobileSize) {
     return GridView.count(shrinkWrap: true,
-      crossAxisCount: widget.mobileSize? 1: 3,
+      crossAxisCount: mobileSize? 1: 3,
       children: List.generate(events.length, (index) {
                     return EventCellView(event: events[index]);
                   },

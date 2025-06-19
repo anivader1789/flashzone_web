@@ -8,15 +8,16 @@ import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/modules/data/fz_data.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 
 class WriteFlashView extends ConsumerStatefulWidget {
-  const WriteFlashView({super.key, required this.onFinished});
-  final Function () onFinished;
+  const WriteFlashView({super.key});
 
   static const routeName = 'post';
 
@@ -40,6 +41,15 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      child: childView(mobileSize), 
+      sideMenuIndex: 0);
+
+    
+  }
+
+  childView(bool mobileSize) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +103,8 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
               Expanded(child: Container()),
               FZButton(
                 onPressed: () {
-                  widget.onFinished();
+                  final route = ref.read(routeInPipeline);
+                  context.go(route ?? Routes.routeNameHome());
                 }, 
                 //bgColor: Constants.primaryColor(),
                 text: "Cancel"),
@@ -230,10 +241,11 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
       setState(() {
         _errorSubmitting = false;
         _flashSubmitting = false;
+        context.go(Routes.routeNameHome());
       });
 
       //ref.read(flashes).insert(0, res.returnedObject);
-      Navigator.pushNamed(context, "");
+      
       //widget.onFinished();
     } else {
       setState(() {

@@ -5,15 +5,16 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 
 class FamEditScreen extends ConsumerStatefulWidget {
-  const FamEditScreen({super.key, required this.mobileSize});
-  final bool mobileSize;
+  const FamEditScreen({super.key});
 
   static const routeName = 'famAddNew';
 
@@ -38,6 +39,16 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+
+      
+    
+  }
+
+  childView(bool mobileSize) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +144,9 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     final result = await ref.read(backend).addNewFam(fam);
 
     if(result.isSuccessful) {
-      Navigator.pushNamed(context, "fams/${result.returnedObject}");
+      setState(() {
+        context.go(Routes.routeNameFamDetail(result.returnedObject));
+      });
     } else {
       Helpers.showDialogWithMessage(ctx: context, msg: "Error creating fam. Please try again..");
     }

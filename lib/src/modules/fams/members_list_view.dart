@@ -5,6 +5,7 @@ import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MembersListView extends ConsumerStatefulWidget {
   const MembersListView({super.key, required this.label, required this.memberIds, required this.onDismiss});
@@ -125,7 +126,7 @@ class _MemberListItemViewState extends ConsumerState<MemberListItemView> {
                     text: user?.name,
                     style: FZTextStyle.headline,
                     onTap: () {
-                      Navigator.pushNamed(context, "user/${user!.id}");
+                      context.go(Routes.routeNameProfile(user!.id!));
                     },
                   ),
                 ],

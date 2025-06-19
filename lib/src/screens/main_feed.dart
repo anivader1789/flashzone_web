@@ -3,16 +3,14 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/fakes_generator.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
-import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
 import 'package:flashzone_web/src/settings/user_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MainFeedListView extends ConsumerStatefulWidget {
-  const MainFeedListView({super.key, required this.profileNavigate, required this.mobileSize});
-  final Function (FZUser) profileNavigate;
-  final bool mobileSize;
+  const MainFeedListView({super.key});
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MainFeedListViewState();
 }
@@ -27,13 +25,6 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
   String filter = "all";
   List<DropdownMenuEntry<String>>? filters;
 
-  @override
-  void initState() {
-    super.initState();
-    
-    loadData();
-    loadFilter();
-  }
 
   
   loadFilter() async {
@@ -91,8 +82,20 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        loadFilter();
+        loadData();
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 0);
+    
+  }
+
+  childView(bool mobileSize) {
     if(_flashesLoading) {
-      return FZLoadingIndicator(text: "Loading flashes in your area", mobileSize: widget.mobileSize);
+      return FZLoadingIndicator(text: "Loading flashes in your area", mobileSize: mobileSize);
     }
 
     if(_flashes.isEmpty) {
@@ -160,7 +163,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                   ),
               ),
                 horizontal(),
-                widget.mobileSize?
+                mobileSize?
                 IconButton(
                   icon: const Icon(Icons.search), 
                   onPressed:  () {
@@ -179,7 +182,7 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                     bgColor: Constants.altPrimaryColor(),
                   ),
                 horizontal(),
-                widget.mobileSize?
+                mobileSize?
                 IconButton(
                   icon: const Icon(Icons.cancel), 
                   onPressed: () {
@@ -218,7 +221,6 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
                             //onTap: () => ,
                             child: FlashCellView(
                                 flash: _filterFlashes[index],
-                                profileClicked: widget.profileNavigate,
                             ),
                           );
                         },

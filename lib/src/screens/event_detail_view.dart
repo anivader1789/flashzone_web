@@ -2,19 +2,19 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/event.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'dart:html' as html;
 
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:fwfh_webview/fwfh_webview.dart';
+import 'package:go_router/go_router.dart';
 
 class EventDetailsView extends ConsumerStatefulWidget {
-  const EventDetailsView({super.key, required this.eventId, required this.mobileSize});
+  const EventDetailsView({super.key, required this.eventId});
   final String? eventId;
-  final bool mobileSize;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EventDetailsViewState();
@@ -53,16 +53,29 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => loadEvent());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+
+
+    
+  }
+
+  childView(bool mobileSize) {
     if(_loading) {
-      return FZLoadingIndicator(text: "Loading event", mobileSize: widget.mobileSize);
+      return FZLoadingIndicator(text: "Loading event", mobileSize: mobileSize);
     }
     
     if(_error) {
-      return FZErrorIndicator(text: "Event not found", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "Event not found", mobileSize: mobileSize);
     }
 
     if(_event == null) {
-      return FZErrorIndicator(text: "Event not loaded. Try reloading the page", mobileSize: widget.mobileSize);
+      return FZErrorIndicator(text: "Event not loaded. Try reloading the page", mobileSize: mobileSize);
     }
 
     return Padding(
@@ -74,7 +87,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
             FZRichHeadline(text: _event!.title),
             vertical(2),
             Row(children: [
-              ThumbnailView(link: _event!.user?.avatar, mobileSize: widget.mobileSize, radius: 42, mobileRadius: 32,),
+              ThumbnailView(link: _event!.user?.avatar, mobileSize: mobileSize, radius: 42, mobileRadius: 32,),
               //CircleAvatar(foregroundImage: Helpers.loadImageProvider(_event!.user?.avatar), radius: widget.mobileSize? 32: 48,),
               horizontal(2),
               Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,14 +96,14 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
                   vertical(),
                   InkWell(
                     child: FZText(text: _event!.user!.name, style: FZTextStyle.paragraph, color: Colors.blue,),
-                    onTap: () => Navigator.pushNamed(context, "user/${_event!.user!.id}"),),
+                    onTap: () => context.go(Routes.routeNameProfile(_event!.user!.id!)),),
                   ],
                 )
             ],),
             vertical(2),
             const Divider(),
             vertical(4),
-            topSectionView(),
+            topSectionView(mobileSize),
             vertical(2),
           ],
         ),
@@ -98,8 +111,8 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
     );
   }
 
-  topSectionView() {
-    if(widget.mobileSize) {
+  topSectionView(bool mobileSize) {
+    if(mobileSize) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image(image: Helpers.loadImageProvider(_event?.pic), width: double.infinity, fit: BoxFit.fill,),

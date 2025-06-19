@@ -8,6 +8,7 @@ import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PendingRequestsList extends ConsumerStatefulWidget {
   const PendingRequestsList({super.key, 
@@ -210,7 +211,7 @@ class _RequestItemViewState extends ConsumerState<RequestItemView> {
           text: user?.name,
           style: FZTextStyle.headline,
           onTap: () {
-            Navigator.pushNamed(context, "user/${user!.id}");
+            context.go(Routes.routeNameProfile(user!.id!));
           },
         ),
         Expanded(child: Container()),

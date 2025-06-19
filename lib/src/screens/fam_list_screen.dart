@@ -2,14 +2,13 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/fam.dart';
-import 'package:flashzone_web/src/screens/fam_edit_screen.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FamListScreen extends ConsumerStatefulWidget {
-  const FamListScreen({super.key, required this.mobileSize});
-  final bool mobileSize;
+  const FamListScreen({super.key});
 
   static const routeName = 'fams';
 
@@ -29,10 +28,8 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-
     tabController = TabController(length: 2, vsync: this);
-
-    fetchAllFams();
+    
   }
 
   fetchAllFams() async {
@@ -60,23 +57,39 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+
+    return MasterView(
+      onInitDone: () {
+        
+
+        fetchAllFams();
+      },
+      child: childView(size, mobileSize), 
+      sideMenuIndex: 2);
+
+      
+    
+  }
+
+  childView(Size size, bool mobileSize) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
           Row(
             children: [
-              FZNetworkImage(url: famShowcaseImg, maxWidth: widget.mobileSize? size.width * 0.4: size.width * 0.2),
+              FZNetworkImage(url: famShowcaseImg, maxWidth: mobileSize? size.width * 0.4: size.width * 0.2),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       FZText(text: "Fams are like your family", style: widget.mobileSize? FZTextStyle.largeHeadline: FZTextStyle.xlargeHeadline),
+                       FZText(text: "Fams are like your family", style: mobileSize? FZTextStyle.largeHeadline: FZTextStyle.xlargeHeadline),
                       const FZText(text: "Its the people who live nearby that you bond with", style: FZTextStyle.headline),
                       vertical(),
                       FZText(text: "Click here to start your fam today!", style: FZTextStyle.headline, color: Colors.blue, onTap: () {
-                        Navigator.pushNamed(context, FamEditScreen.routeName);
+                        context.go(Routes.routeNameFamNew());
                       },),
                     ],
                   ),
@@ -94,14 +107,14 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
           vertical(),
           const Divider(),
           vertical(),
-          Expanded(child: famsListContainerView())
+          Expanded(child: famsListContainerView(mobileSize))
           
         ],
       ),
     );
   }
 
-  famsListContainerView() {
+  famsListContainerView(bool mobileSize) {
     
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
@@ -117,15 +130,15 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
         Expanded(
           child: TabBarView(controller: tabController,
             children: [
-            famsNearbyView(),
-            famListView(),
+            famsNearbyView(mobileSize),
+            famListView(mobileSize),
           ]),
         )
       ],
     );
   }
 
-  famsNearbyView() {
+  famsNearbyView(bool mobileSize) {
     if(famsNearby.isEmpty) {
       return const Center(child: FZText(text: "No fams in your area yet", style: FZTextStyle.headline, color: Colors.grey,),);
     }
@@ -133,7 +146,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
     return ListView.separated(
       itemBuilder: (context, index) {
         Fam fam = famsNearby[index];
-        return famItemView(fam);
+        return famItemView(fam, mobileSize);
       }, 
       separatorBuilder: (context, index) {
         return const Divider(); // Regular divider between items
@@ -141,7 +154,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
       itemCount: famsNearby.length);
   }
 
-  famListView() {
+  famListView(bool mobileSize) {
     if(myFams.isEmpty && memberFams.isEmpty) {
       return const Center(child: FZText(text: "No fams to show here. But you can create one!", style: FZTextStyle.headline, color: Colors.grey,),);
     }
@@ -157,7 +170,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
         // First list items
         else if (index <= myFams.length) {
           Fam fam = myFams[index - 1];
-          return famItemView(fam);
+          return famItemView(fam, mobileSize);
         }
         // Second section header
         else if (index == myFams.length + 1) {
@@ -167,7 +180,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
         // Second list items
         else {
           Fam fam = memberFams[index - myFams.length - 2];
-          return famItemView(fam);
+          return famItemView(fam, mobileSize);
         }
       },
       separatorBuilder: (context, index) {
@@ -180,13 +193,13 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
     );
   }
 
-  famItemView(Fam fam) {
+  famItemView(Fam fam, bool mobileSize) {
     return Container(
       
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, "fams/${fam.id}");
+          context.go(Routes.routeNameFamDetail(fam.id!));
         },
         child: Card(
           surfaceTintColor: Constants.bgColor(),
@@ -196,7 +209,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FZText(text: "#${fam.name}", style: widget.mobileSize? FZTextStyle.headline: FZTextStyle.tooLargeHeadline),
+                FZText(text: "#${fam.name}", style: mobileSize? FZTextStyle.headline: FZTextStyle.tooLargeHeadline),
                 vertical(),
                 FZText(text: fam.description, style: FZTextStyle.paragraph),
                 vertical(),

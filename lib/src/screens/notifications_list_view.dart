@@ -2,13 +2,13 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/notification.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/notification_cell_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationsListView extends ConsumerStatefulWidget {
-  const NotificationsListView({super.key, required this.mobileSize});
-  final bool mobileSize;
+  const NotificationsListView({super.key});
 
   static const routeName = 'notifications';
 
@@ -52,7 +52,17 @@ class _NotificationsListViewState extends ConsumerState<NotificationsListView> {
 
   @override
   Widget build(BuildContext context) {
-    if(_loading) return FZLoadingIndicator(text: "Loading new notifications..", mobileSize: widget.mobileSize);
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => loadNotifications());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+  }
+
+  childView(bool mobileSize) {
+    if(_loading) return FZLoadingIndicator(text: "Loading new notifications..", mobileSize: mobileSize);
     if(_notifications.isEmpty) return const Center(child: FZText(text: "No Notifications", style: FZTextStyle.headline),);
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -64,7 +74,7 @@ class _NotificationsListViewState extends ConsumerState<NotificationsListView> {
                             //onTap: () => ,
                             child: NotificationCellView(
                                 notif: _notifications[index],
-                                mobileSize: widget.mobileSize,
+                                mobileSize: mobileSize,
                                 bgColor: index %2 ==0? Constants.lightColor(): Colors.grey,
                             ),
                           );

@@ -4,6 +4,7 @@ import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 //https://pub.dev/packages/easy_sidemenu
 
@@ -19,7 +20,7 @@ class SideMenuView extends ConsumerStatefulWidget {
 class _SideMenuViewState extends ConsumerState<SideMenuView> {
 
   PageController pageController = PageController();
-  late SideMenuController sideMenu = SideMenuController();
+  late SideMenuController sideMenu = SideMenuController(initialPage: widget.selectedIndex);
   List items = List.empty(growable: true);
 
   @override
@@ -52,7 +53,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
       title: 'Local Discussion',
       onTap: (index, _) {
         //widget.menuClicked(HomeView.flashes);
-        Navigator.pushNamed(context, "");
+        context.go(Routes.routeNameHome());
       },
       icon: const Icon(Icons.home),
       // badgeContent: const Text(
@@ -64,9 +65,9 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     items.add(SideMenuItem(
           title: 'Local Events',
           onTap: (index, _) {
-            sideMenu.changePage(index);
+            //sideMenu.changePage(index);
             //widget.menuClicked(HomeView.eventToday);
-            Navigator.pushNamed(context, "events");
+            context.go(Routes.routeNameEventsList());
           },
           icon: const Icon(Icons.event),
           // badgeContent: const Text(
@@ -78,9 +79,9 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     items.add(SideMenuItem(
           title: 'Explore Fams',
           onTap: (index, _) {
-            sideMenu.changePage(index);
+            //sideMenu.changePage(index);
             //widget.menuClicked(HomeView.eventToday);
-            Navigator.pushNamed(context, "fams");
+            context.go(Routes.routeNameFams());
           },
           icon: const Icon(Icons.group),
           // badgeContent: const Text(
@@ -99,7 +100,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     //       onTap: (index, _) {
     //         sideMenu.changePage(index);
     //         //widget.menuClicked(HomeView.eventToday);
-    //         Navigator.pushReplacementNamed(context, "eventstoday");
+    //         
     //       },
     //       icon: const Icon(Icons.stream),
     //       badgeContent: const Text(
@@ -112,7 +113,7 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     //       onTap: (index, _) {
     //         sideMenu.changePage(index);
     //         //widget.menuClicked(HomeView.events);
-    //         Navigator.pushReplacementNamed(context, "eventsall");
+    //         
     //       },
     //       icon: const Icon(Icons.upcoming),
     //       badgeContent: const Text(

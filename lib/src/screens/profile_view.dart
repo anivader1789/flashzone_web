@@ -3,17 +3,15 @@ import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileView extends ConsumerStatefulWidget {
-  const ProfileView({super.key, required this.userId, required this.backClicked, required this.mobileSize, required this.messageClicked});
+  const ProfileView({super.key, required this.userId});
   final String? userId;
-  final Function () backClicked;
-  final Function () messageClicked;
-  final bool mobileSize;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ProfileViewState();
 }
@@ -23,12 +21,6 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
   bool _loading = false;
   FZUser? _user;
   
-  @override
-  void initState() {
-    super.initState();
-    
-    loadUser();
-  }
 
   void loadUser() async {
     if(widget.userId == null) return;
@@ -55,8 +47,19 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
  
   @override
   Widget build(BuildContext context) {
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => loadUser());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 0);
+    
+  }
+
+  childView(bool mobileSize) {
     if(_loading) {
-      return FZLoadingIndicator(text: "Loading this user's data", mobileSize: widget.mobileSize);
+      return FZLoadingIndicator(text: "Loading this user's data", mobileSize: mobileSize);
     }
 
     if(_user == null) {
@@ -68,19 +71,19 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
       child: Column(
         children: [
           //backButtonRow(),
-          vertical(widget.mobileSize? 4: 2),
+          vertical(mobileSize? 4: 2),
           Row(
             children: [
               horizontal(),
               CircleAvatar(
                 backgroundImage: Helpers.loadImageProvider(_user!.avatar),
-                radius: widget.mobileSize? 24: 40,
+                radius: mobileSize? 24: 40,
               ),
               horizontal(),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FZText(text: _user!.name, style: widget.mobileSize? FZTextStyle.headline: FZTextStyle.largeHeadline),
+                    FZText(text: _user!.name, style: mobileSize? FZTextStyle.headline: FZTextStyle.largeHeadline),
                     //vertical(),
                     FZText(text: "@${_user!.username}", style: FZTextStyle.paragraph),
                     vertical(),
@@ -113,11 +116,11 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
   }
 
   vertical([double multiple = 1]) {
-    return SizedBox(height: widget.mobileSize? 5: 15 * multiple,);
+    return SizedBox(height: 10 * multiple,);
   }
 
   horizontal([double multiple = 1]) {
-    return SizedBox(width: widget.mobileSize? 5:  15 * multiple,);
+    return SizedBox(width: 10 * multiple,);
   }
   
   buildFlashesView() {
@@ -129,7 +132,6 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
                             //onTap: () => ,
                             child: FlashCellView(
                                 flash: _flashes[index],
-                                profileClicked: (user) {},
                                 compact: true,
                             ),
                           );
@@ -147,7 +149,7 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
                 icon: const Icon(Icons.arrow_back), 
                 onPressed: () {
                   setState(() {
-                    Navigator.pushNamed(context, "");
+                    context.go(Routes.routeNameHome());
                   });
                 }
               ),

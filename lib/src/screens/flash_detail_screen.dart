@@ -5,16 +5,17 @@ import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/comment_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FlashDetailScreen extends ConsumerStatefulWidget {
-  const FlashDetailScreen({super.key, required this.flash, required this.compact});
-  final Flash? flash;
-  final bool compact;
+  const FlashDetailScreen({super.key, required this.flashId});
+  final String flashId;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _FlashDetailScreenState();
@@ -28,20 +29,24 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   bool _loading = false;
   bool _ownFlash = false;
 
-  @override
-  void initState() {
-    super.initState();
 
-    _flash = widget.flash;
+  fetchFlash() async {
+    setState(() {
+      _loading = true;
+    });
+
+    _flash = await ref.read(backend).fetchFlash(widget.flashId);
 
     if(_flash != null) {
       _ownFlash = _flash!.user.id == ref.read(currentuser).id;
     } else {
       _ownFlash = false;
     }
-    
-    
-    loadComments();
+
+    setState(() {
+      _loading = false;
+      loadComments();
+    });
   }
 
   loadComments() async {
@@ -59,11 +64,24 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.flash == null) {
-      return FZErrorIndicator(text: "Flash not found", mobileSize: widget.compact);
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+    return MasterView(
+      onInitDone: () {
+        Future(() => fetchFlash());
+      },
+      child: childView(mobileSize), 
+      sideMenuIndex: 1);
+      
+    
+    
+  }
+
+  childView(bool compact) {
+    if(_flash == null) {
+      return FZErrorIndicator(text: "Flash not found", mobileSize: compact);
     }
 
-    if(widget.flash!.deleted) {
+    if(_flash!.deleted) {
       return const Center(child: FZText(text: "Flash deleted", style: FZTextStyle.paragraph),);
     }
 
@@ -104,7 +122,6 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
         ),
       ),
     );
-    
   }
 
   commentInputView() {
@@ -157,7 +174,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                             //onTap: () => ,
                             child: CommentView(
                                 comment: _commentsList!.comments[index],
-                                flash: widget.flash!,
+                                flash: _flash!,
                                 onDelete: () {
                                   setState(() {
                                     _commentsList!.comments.removeAt(index);
@@ -170,7 +187,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   }
 
   Widget buildInteractionsView(bool collapse) {
-    final isLiked = ref.read(currentuser).likes.contains(widget.flash!.id);
+    final isLiked = ref.read(currentuser).likes.contains(_flash!.id);
     final likeIcon = isLiked? Icons.thumb_up_alt: Icons.thumb_up_off_alt;
     return Column(
       children: [
@@ -199,7 +216,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   Widget buildUserPanel(bool collapse) {
     return Row(mainAxisSize: MainAxisSize.max,
       children: [
-        ThumbnailView(link: widget.flash!.user.avatar, mobileSize: collapse),
+        ThumbnailView(link: _flash!.user.avatar, mobileSize: collapse),
         // MouseRegion(
         //   cursor: SystemMouseCursors.click,
         //   child: GestureDetector(
@@ -225,9 +242,9 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
             vertical(),
             Row(
               children: [
-                FZText(text: widget.flash!.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
+                FZText(text: _flash!.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: "@${widget.flash!.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey, onTap: profileNavigate),
+                FZText(text: "@${_flash!.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey, onTap: profileNavigate),
               ],
             ),
             //vertical(),
@@ -235,11 +252,11 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
               children: [
                 FZSymbol(type: FZSymbolType.time, compact: collapse,),
                 horizontal(),
-                FZText(text: Helpers.getDisplayDate(widget.flash!.postDate), style:collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
+                FZText(text: Helpers.getDisplayDate(_flash!.postDate), style:collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
                 if(!collapse) horizontal(),
                 if(!collapse) const FZSymbol(type: FZSymbolType.location),
                 if(!collapse) horizontal(),
-                if(!collapse) FZText(text: widget.flash!.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
+                if(!collapse) FZText(text: _flash!.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
               ],
             ),
             //vertical(),
@@ -247,7 +264,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
               children: [
                 FZSymbol(type: FZSymbolType.community, compact: collapse,),
                 horizontal(),
-                FZText(text: widget.flash!.community, style: FZTextStyle.paragraph),
+                FZText(text: _flash!.community, style: FZTextStyle.paragraph),
               ],
             )
           ], 
@@ -264,7 +281,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                 icon: const Icon(Icons.arrow_back), 
                 onPressed: () {
                   setState(() {
-                    Navigator.pushNamed(context, "");
+                    context.go(Routes.routeNameHome());
                   });
                 }
               ),
@@ -278,7 +295,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
       _loading = true;
     });
 
-    await ref.read(backend).deleteFlash(widget.flash!);
+    await ref.read(backend).deleteFlash(_flash!);
     setState(() {
       _loading = false;
     });
@@ -294,7 +311,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
       _commentPosting = true;
     });
 
-    final commentsList = _commentsList ?? CommentsList.newFrom(widget.flash!.id!);
+    final commentsList = _commentsList ?? CommentsList.newFrom(_flash!.id!);
 
     commentsList.comments.add(Comment.newFromContent(text, ref.read(currentuser)));
     final res = await ref.read(backend).setFlashComments(commentsList);
@@ -348,12 +365,12 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   bool isSignedOut() => ref.read(currentuser).id == FZUser.signedOutUserId;
 
   profileNavigate() {
-    Navigator.pushNamed(context, "user/${widget.flash!.user.id}");
+    context.go(Routes.routeNameProfile(_flash!.user.id!));
     //widget.profileClicked(widget.flash.user);
   }
 
   share(BuildContext ctx) {
-    final url = "${Uri.base}#flash/${widget.flash!.id}";
+    final url = "${Uri.base}#flash/${_flash!.id}";
     Clipboard.setData(ClipboardData(text: url));
     Helpers.showDialogWithMessage(ctx: ctx, msg: "Link to this flash has been copied to clipboard");
   }
