@@ -199,7 +199,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SizedBox(
                   child: OverlayPortal(
                           controller: _accountPopupController, 
-                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: _smallScreenSize,),),
                 )
               ],
             ),
@@ -229,7 +229,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             foregroundImage: Helpers.loadImageProvider(_user.avatar), radius: 18,
             child: OverlayPortal(
               controller: _accountPopupController, 
-              overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+              overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: _smallScreenSize,),),
               ),),
         //CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),

@@ -8,14 +8,16 @@ import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/email_auth/email_auth.dart';
 import 'package:flashzone_web/src/modules/google_auth/google_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AccountInputState {
   signup, username, bio, loading, finished, account, code, verificationPending, name
 }
 class AccountScreen extends ConsumerStatefulWidget {
-  const AccountScreen({super.key, required this.onDismiss});
+  const AccountScreen({super.key, required this.onDismiss, required this.mobileSize});
   final Function () onDismiss;
+  final bool mobileSize;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AccountScreenState();
@@ -167,7 +169,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 width: 250,
                 child: TextField(
                   controller: usernameController,
-                  maxLength: 15,
+                  maxLength: 30,
                   decoration: const InputDecoration(
                     prefix: FZText(text: "@", style: FZTextStyle.paragraph),
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -177,13 +179,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ),
               const SizedBox(width: 5,),
-              FZButton(
+              button(
                     onPressed: () {
                       // Implement the logic to send the message
                       _usernameSubmitted(context);
                       //usernameController.clear();
                     },
-                    text: "Save",
                   ),
             ],
           ),
@@ -217,13 +218,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ),
               const SizedBox(width: 5,),
-              FZButton(
+              button(
                     onPressed: () {
                       // Implement the logic to send the message
                       _nameSubmitted(context);
                       //usernameController.clear();
                     },
-                    text: "Save",
                   ),
             ],
           ),
@@ -252,9 +252,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             children: [
               inputField(controller: codeController, hint: "Invitation Code", maxChar: 6),
               const SizedBox(width: 5,),
-              FZButton(
+              button(
                     onPressed: _beginVerification,
-                    text: "Save",
                   ),
             
             ],
@@ -281,9 +280,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           children: [
             inputField(controller: bioController, hint: "Bio", maxChar: 400, largeInput: true),
             const SizedBox(width: 5,),
-            FZButton(
+            button(
                     onPressed: _bioSubmitted,
-                    text: "Save",
                   ),
           ],
         ),
@@ -319,10 +317,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             children: [
               inputField(controller: bioController, hint: "Bio", maxChar: 400, largeInput: true),
               const SizedBox(width: 5,),
-              FZButton(
-                    onPressed: _bioSubmitted,
-                    text: "Save",
-                  ),
+              button(onPressed: _bioSubmitted),
             ],
           ),
         ],
@@ -458,8 +453,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return null;
   }
 
+  button({
+    required Function() onPressed,
+    String text = "Save", IconData icon = Icons.save}) {
+      if(widget.mobileSize) {
+        return IconButton(onPressed: onPressed, icon: Icon(icon, color: Colors.black,));
+      } else {
+        return FZButton(
+                    onPressed: onPressed,
+                    text: text,
+                  );
+      }
+    }
+
   inputField({required TextEditingController controller, required String hint, int maxChar = 100, bool largeInput = false}) {
-    return SizedBox(width: largeInput? 450: 250,
+    double width = widget.mobileSize? 280: largeInput? 450: 250;
+    return SizedBox(width: width,
       height: largeInput? 150: null,
       child: TextField(
                     controller: controller,

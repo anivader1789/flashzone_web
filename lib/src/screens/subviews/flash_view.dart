@@ -47,7 +47,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     if(_flash.deleted) {
       return const Center(child: FZText(text: "Flash deleted", style: FZTextStyle.paragraph),);
     }
-    bool collapse = MediaQuery.of(context).size.width < 900? true: false;
+    bool collapse = MediaQuery.of(context).size.width < 800? true: false;
     return Padding(
       padding: collapse? const EdgeInsets.fromLTRB(8, 5, 8, 5):  const EdgeInsets.fromLTRB(30, 15, 30, 15),
       child: Container(
@@ -131,7 +131,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
               children: [
                 FZText(text: widget.flash.user.name, style: FZTextStyle.headline, onTap: profileNavigate,),
                 horizontal(),
-                FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey, onTap: profileNavigate),
+                if(!collapse) FZText(text: "@${widget.flash.user.username}", style: collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey, onTap: profileNavigate),
               ],
             ),
             //vertical(),

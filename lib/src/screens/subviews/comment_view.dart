@@ -21,25 +21,31 @@ class CommentView extends ConsumerStatefulWidget {
 
 class _CommentViewState extends ConsumerState<CommentView> {
   bool _loading = false;
-  bool _ownComment = false;
+ // bool _ownComment = false;
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
     
-    _ownComment = widget.comment?.userId == ref.read(currentuser).id;
-    setState(() {
+    
+  //   setState(() {
       
-    });
-  }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
+   // _ownComment = widget.comment?.userId == ref.read(currentuser).id;
+
     if(widget.comment == null) return Container();
     if(widget.comment!.deleted) return const Center(child: FZText(text: "Comment Deleted", style: FZTextStyle.paragraph),);
     if(_loading) return const Center(child: CircularProgressIndicator(),);
 
-    return Container(padding: const EdgeInsets.all(11),
+    final user = ref.watch(currentuser);
+
+    bool mobileSize = MediaQuery.of(context).size.width < 800;
+
+    return Container(padding: EdgeInsets.all(mobileSize? 4: 11),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black, width: 1),
         borderRadius: const BorderRadius.all(Radius.circular(8))
@@ -47,20 +53,22 @@ class _CommentViewState extends ConsumerState<CommentView> {
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.all(9), 
-            child: ThumbnailView(link: widget.comment!.userAvatar, mobileSize: true),
+            padding: EdgeInsets.all(mobileSize? 3: 9), 
+            child: ThumbnailView(link: widget.comment!.userAvatar, mobileSize: mobileSize, mobileRadius: 16,),
             //CircleAvatar(foregroundImage: Helpers.loadImageProvider(widget.comment!.userAvatar),),
           ),
+          if(mobileSize) const SizedBox(width: 5,),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
+                    
                     FZText(text: widget.comment!.userName, style: FZTextStyle.paragraph, onTap: () => profileNavigate(context),),
-                    const SizedBox(width: 5,),
-                    FZText(text: "@${widget.comment!.userHandle}", style: FZTextStyle.subheading, color: Colors.grey, onTap: () => profileNavigate(context),),
+                    if(!mobileSize) const SizedBox(width: 5,),
+                    if(!mobileSize) FZText(text: "@${widget.comment!.userHandle}", style: FZTextStyle.subheading, color: Colors.grey, onTap: () => profileNavigate(context),),
                     Expanded(child: Container()),
-                    if(_ownComment) FZText(color: Colors.red, text: "Delete", style: FZTextStyle.paragraph, onTap: _deleteComment),
+                    deleteButton(mobileSize, widget.comment?.userId == user.id),
                     const SizedBox(width: 5,),
                   ],
                 ),
@@ -73,6 +81,16 @@ class _CommentViewState extends ConsumerState<CommentView> {
         ],
       ),
     );
+  }
+
+  deleteButton(bool mobileSize, bool shouldShow) {
+    if(!shouldShow) return const SizedBox.shrink();
+
+    if(mobileSize) {
+      return IconButton(onPressed: _deleteComment, icon: const Icon(Icons.delete, size: 18, color: Colors.red,));
+    } else {
+      return FZText(color: Colors.red, text: "Delete", style: FZTextStyle.subheading, onTap: _deleteComment);
+    }
   }
 
   _deleteComment() async {

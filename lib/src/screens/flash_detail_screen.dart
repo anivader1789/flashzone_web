@@ -26,14 +26,14 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   CommentsList? _commentsList;
   Flash? _flash;
   bool _commentPosting = false;
-  bool _loading = false;
+  bool _loading = true;
   bool _ownFlash = false;
 
 
   fetchFlash() async {
-    setState(() {
-      _loading = true;
-    });
+    // setState(() {
+    //   _loading = true;
+    // });
 
     _flash = await ref.read(backend).fetchFlash(widget.flashId);
 
@@ -70,13 +70,17 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
         Future(() => fetchFlash());
       },
       child: childView(mobileSize), 
-      sideMenuIndex: 1);
+      sideMenuIndex: 0);
       
     
     
   }
 
   childView(bool compact) {
+    if(_loading) {
+      return const Center(child: CircularProgressIndicator(),);
+    }
+
     if(_flash == null) {
       return FZErrorIndicator(text: "Flash not found", mobileSize: compact);
     }
@@ -85,11 +89,9 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
       return const Center(child: FZText(text: "Flash deleted", style: FZTextStyle.paragraph),);
     }
 
-    if(_loading) {
-      return const Center(child: CircularProgressIndicator(),);
-    }
+    
 
-    bool collapse = MediaQuery.of(context).size.width < 900? true: false;
+    bool collapse = MediaQuery.of(context).size.width < 800? true: false;
     return SingleChildScrollView(
       child: Container(
         color: Colors.white70,

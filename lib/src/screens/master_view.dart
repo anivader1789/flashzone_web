@@ -86,7 +86,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
                 SizedBox(
                   child: OverlayPortal(
                           controller: _accountPopupController, 
-                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: smallScreenSize,),),
                 )
               ],
             ),
@@ -116,7 +116,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
             foregroundImage: Helpers.loadImageProvider(user.avatar), radius: 18,
             child: OverlayPortal(
               controller: _accountPopupController, 
-              overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(),),),
+              overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: smallScreenSize,),),
               ),),
         //CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
@@ -142,6 +142,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
 
   _postClicked(BuildContext ctx) {
     final user = ref.read(currentuser);
+    bool smallScreenSize = MediaQuery.of(context).size.width < 800;
 
     if(user.id == FZUser.signedOutUserId) {
       Helpers.showDialogWithMessage(ctx: ctx, msg: "You have to sign into an account to post a flash");
@@ -149,7 +150,10 @@ class _MasterViewState extends ConsumerState<MasterView> {
     }
 
     if(user.username == null) {
-      Helpers.showDialogWithMessage(ctx: ctx, msg: "Please finish creating your profile by clicking on the account button on top right");
+      final msg = smallScreenSize?
+          "Please finish creating your profile by clicking on the hamburger symbol on the top right corner and then by clicking on your name"
+        : "Please finish creating your profile by clicking on the account button on top right";
+      Helpers.showDialogWithMessage(ctx: ctx, msg: msg);
       return;
     }
 
@@ -243,7 +247,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
                       children: [
                         CircleAvatar(foregroundImage: Helpers.loadImageProvider(user.avatar), radius: 11,), 
                         const SizedBox(width: 5,),
-                        FZText(text: user.name, style: FZTextStyle.paragraph)],)),
+                        FZText(text: user.username ?? user.name, style: FZTextStyle.paragraph)],)),
               ],
             ),
           ),
