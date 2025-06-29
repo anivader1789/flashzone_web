@@ -123,7 +123,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
       ],
       backgroundColor: Constants.bgColor(),
       ),
-      body: Row(
+      body: Row(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SideMenuView(
             menuClicked: (view) {

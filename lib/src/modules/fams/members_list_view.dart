@@ -8,9 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class MembersListView extends ConsumerStatefulWidget {
-  const MembersListView({super.key, required this.label, required this.memberIds, required this.onDismiss});
+  const MembersListView({super.key, required this.label, required this.memberIds, required this.adminIds, required this.onDismiss});
   final String label;
   final List<String> memberIds;
+  final List<String> adminIds;
   final Function () onDismiss;
 
   @override
@@ -58,7 +59,10 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
         Expanded(
           child: ListView.separated(
             itemBuilder: (context, index) {
-              return MemberListItemView(memberId: widget.memberIds[index], mobileSize: mobileSize,);
+              return MemberListItemView(
+                memberId: widget.memberIds[index], 
+                isAdmin: widget.adminIds.contains(widget.memberIds[index]),
+                mobileSize: mobileSize,);
             }, 
             separatorBuilder: (context, index) {
                   return const Divider(color: Colors.grey); // Regular divider between items
@@ -73,8 +77,9 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
 }
 
 class MemberListItemView extends ConsumerStatefulWidget {
-  const MemberListItemView({super.key, required this.memberId, required this.mobileSize});
+  const MemberListItemView({super.key, required this.memberId, required this.isAdmin, required this.mobileSize});
   final String memberId;
+  final bool isAdmin;
   final bool mobileSize;
 
   @override
@@ -129,6 +134,17 @@ class _MemberListItemViewState extends ConsumerState<MemberListItemView> {
                       context.go(Routes.routeNameProfile(user!.id!));
                     },
                   ),
+                  if(widget.isAdmin) ...[
+                    const SizedBox(width: 5,),
+                    FZText(
+                      text: "(Admin)",
+                      color: Colors.red,
+                      style: FZTextStyle.headline,
+                      onTap: () {
+                        context.go(Routes.routeNameProfile(user!.id!));
+                      },
+                    ),
+                  ]
                 ],
               );
   }

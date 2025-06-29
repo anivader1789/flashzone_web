@@ -13,6 +13,7 @@ import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,9 +41,12 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
 
   bool _loading = false;
 
+  bool _isAdmin = false;
+
   @override
   void initState() {
     super.initState();
+
     //fetchDeatils();
   }
 
@@ -57,9 +61,15 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     fam = await ref.read(backend).fetchFam(widget.famId!);
     
     setState(() {
+      if(fam != null) {
+        _isAdmin = fam!.admins.contains(ref.read(currentuser).id);
+        fetchFamEvents();
+      }
       _loading = false;
     });
-    fetchFamEvents();
+
+    
+    
   }
 
   fetchFamEvents() async {
@@ -96,7 +106,11 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
 
     return Padding(padding: const EdgeInsets.all(10),
       child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start , mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsets.zero,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start , 
+          mainAxisSize: MainAxisSize.min,
           children: [
             famDetails(mobileSize),
             vertical(2),
@@ -140,7 +154,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
             FZText(text: "Events", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
             const Divider(),
             vertical(2),
-            eventsGridView(_events, mobileSize),
+            //eventsGridView(_events, mobileSize),
             vertical(),
             FZText(text: "Flashes", style: FZTextStyle.headline, color: Constants.secondaryColor(),),
             const Divider(),
@@ -157,31 +171,49 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     if(mobileSize) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          adminView(mobileSize),
+          vertical(),
           Row(
             children: [
               ThumbnailView(link: fam!.imageUrl, radius: 64, mobileRadius: 32, mobileSize: true,),
               horizontal(),
-              FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,),
+              Column(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,),
+                  vertical(),
+                  viewMembersLink()
+                ],
+              ),
             ],
           ),
+          vertical(),
+          MembershipStatusView(fam: fam!, user: ref.read(currentuser)),
           vertical(2),
           FZText(text: fam!.description, style: FZTextStyle.paragraph),
           vertical(2),
-          membershipButtonsView(),
+          //membershipButtonsView(),
           
         ],
         );
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        adminView(mobileSize),
+        vertical(),
         Row(
           children: [
             ThumbnailView(link: fam!.imageUrl, radius: 64, mobileRadius: 21, mobileSize: false,),
             horizontal(),
-            FZText(text: "#${fam!.name}", style: FZTextStyle.tooLargeHeadline, color: Colors.black,),
+            Column(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,),
+                  vertical(),
+                  viewMembersLink()
+                ],
+              ),
             horizontal(),
             Expanded(child: Container()),
-            membershipButtonsView(),
+            MembershipStatusView(fam: fam!, user: ref.read(currentuser)),
             horizontal(),
           ],
         ),
@@ -191,6 +223,51 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
       ],
     );
   } 
+
+  adminView(bool mobileSize) {
+    if(!_isAdmin) return const SizedBox.shrink();
+
+    return Container( width: double.infinity,
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: Constants.secondaryColor(),
+        borderRadius: const BorderRadius.all(Radius.circular(18)),
+      ),
+      child: mobileSize?
+        Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
+          children: [
+            const FZText(text: "You are an admin", style: FZTextStyle.smallsubheading, color: Colors.white,),
+            vertical(),
+            OverlayPortal(
+                            controller: _pendingsPopupController, 
+                            overlayChildBuilder:  
+                              (context) => PendingRequestsList(
+                                fam: fam!, 
+                                onDismiss: () => _pendingsPopupController.hide(),
+                                ),
+                            child: FZText(text: "View all pending requests", style: FZTextStyle.smallsubheading, color: Colors.white, onTap: _pendingsPopupController.toggle,),
+                            ),
+          ],
+        )
+       : Row(
+        children: [
+          horizontal(3),
+          const FZText(text: "You are an admin", style: FZTextStyle.subheading, color: Colors.white,),
+          const Expanded(child: SizedBox()),
+           OverlayPortal(
+                          controller: _pendingsPopupController, 
+                          overlayChildBuilder:  
+                            (context) => PendingRequestsList(
+                              fam: fam!, 
+                              onDismiss: () => _pendingsPopupController.hide(),
+                              ),
+                          child: FZText(text: "View all pending requests", style: FZTextStyle.subheading, color: Colors.white, onTap: _pendingsPopupController.toggle,),
+                          ),
+          horizontal(3),
+        ],
+      ),
+    );
+  }
 
   membershipButtonsView() {
     return Column(
@@ -204,6 +281,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                             (context) => MembersListView(
                               label: "Fam Members", 
                               memberIds: fam!.members,
+                              adminIds: fam!.admins,
                               onDismiss: () => _membersPopupController.hide(),
                               ),
                           child: FZText(text: "${fam!.members.length} Members", style: FZTextStyle.headline, color: Colors.blue,),
@@ -217,6 +295,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                             (context) => MembersListView(
                               label: "Fam Admins", 
                               memberIds: fam!.admins, 
+                              adminIds: fam!.admins,
                               onDismiss: () => _adminsPopupController.hide(),
                               ),
                             child: FZText(text: "${fam!.admins.length} Admin", style: FZTextStyle.headline, color: Colors.blue,),
@@ -241,6 +320,26 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                 
               ],
             );
+  }
+
+  viewMembersLink() {
+    return Row(
+      children: [
+        const Icon(Icons.person, color: Colors.black,),
+        horizontal(),
+        OverlayPortal(
+                          controller: _membersPopupController, 
+                          overlayChildBuilder:  
+                            (context) => MembersListView(
+                              label: "Fam Members", 
+                              memberIds: fam!.members,
+                              adminIds: fam!.admins,
+                              onDismiss: () => _membersPopupController.hide(),
+                              ),
+                          child: FZText(text: "${fam!.members.length} Members", style: FZTextStyle.headline, color: Colors.black, onTap: _membersPopupController.toggle,),
+                          )
+      ],
+    );
   }
 
   buildFlashesView() {

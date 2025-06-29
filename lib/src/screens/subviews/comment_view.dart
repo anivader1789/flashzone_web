@@ -109,7 +109,6 @@ class _CommentViewState extends ConsumerState<CommentView> {
   }
 
   profileNavigate(BuildContext context) {
-    print("user profile clicked");
     context.go(Routes.routeNameProfile(widget.comment!.userId!));
     //widget.profileClicked(widget.flash.user);
   }
