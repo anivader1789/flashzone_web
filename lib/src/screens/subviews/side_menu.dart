@@ -156,8 +156,22 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
       onTap: (index, _) {
         
       },
-      icon: const Icon(Icons.help),
+      icon: const Icon(Icons.read_more),
     ));
+
+    items.add(SideMenuItem(
+          title: 'Contact Us',
+          onTap: (index, _) {
+            //sideMenu.changePage(index);
+            //widget.menuClicked(HomeView.eventToday);
+            context.go(Routes.routeNameContactUs());
+          },
+          icon: const Icon(Icons.contact_support),
+          // badgeContent: const Text(
+          //   '2',
+          //   style: TextStyle(color: Colors.white),
+          // ),
+        ));
   }
 
   @override

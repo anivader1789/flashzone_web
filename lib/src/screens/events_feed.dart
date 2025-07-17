@@ -8,6 +8,7 @@ import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EventFeedView extends ConsumerStatefulWidget {
@@ -36,7 +37,8 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
   }
 
   eventCreationFormTapped() {
-    launchUrl(Uri.parse('https://docs.google.com/forms/d/1BNL_2lR26mvI2KdAZMWKv5Oshf3Ykrmk-ExMZpGgwi4'), webOnlyWindowName: '_blank');
+    context.go(Routes.routeNameEventCreate());
+    //launchUrl(Uri.parse('https://docs.google.com/forms/d/1BNL_2lR26mvI2KdAZMWKv5Oshf3Ykrmk-ExMZpGgwi4'), webOnlyWindowName: '_blank');
   }
 
   loadEvents() async {

@@ -20,6 +20,7 @@ class Routes {
   static const String home = '/';
   static const String events = "events";
   static const String post = "post";
+  static const String eventCreate = "eventCreate";
   static const String fams = "fams";
   static const String famDetail = "fam";
   static const String famNew = "addFam";
@@ -27,13 +28,17 @@ class Routes {
   static const String notifications = "notif";
   static const String flashDetails = "flash";
   static const String profile = "user";
+  static const String contactUs = "contactus";
   static const String famChat = "famChat";
   static const String dm = "dm";
   static const String admin = "admin";
 
   static String routeNameAuthentication() => "$home$authentication";
   static String routeNameHome() => home;
+  static String routeNameContactUs() => "$home$contactUs";
   static String routeNameEventsList() => "$home$events";
+  static String routeNameEventCreate() => "$home$eventCreate";
+  static String routeNameEventCreateFromFam(String famId) => "$home$eventCreate/$famId";
   static String routeNamePost() => "$home$post";
   static String routeNameFams() => "$home$fams";
   static String routeNameFamDetail(String famId) => "$home$famDetail/$famId";

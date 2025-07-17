@@ -27,6 +27,7 @@ final flashes = StateProvider((ref) => List<Flash>.empty(growable: true));
 final nearbyFams = StateProvider((ref) => List<Fam>.empty(growable: true));
 final myFams = StateProvider((ref) => List<Fam>.empty(growable: true));
 final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,List<ChatMessage>>{});
+
 final authLoaded = StateProvider<bool>((ref) => false);
 
 final cachedRemoteUser = StateProvider<List<FZUser>>((ref) => List<FZUser>.empty(growable: true));
@@ -36,6 +37,9 @@ final routeInPipeline = StateProvider<String?>((ref) => null);
 final invitationCode = StateProvider<String?>((ref) => null);
 final invitationCodeError = StateProvider<String?>((ref) => null);
 final userToVerify = StateProvider<FZUser?>((ref) => null);
+
+final famInEdit = StateProvider<Fam?>((ref) => null);
+final eventInEdit = StateProvider<Event?>((ref) => null);
 
 class BackendService {
   final Ref ref;
@@ -226,6 +230,7 @@ class BackendService {
   Future<FZResult> setFlashComments(CommentsList commentsList) => firebase.setFlashComments(commentsList);
 
   Future<FZResult> uploadImage(Uint8List data, String fileName) => firebase.uploadImage(data, fileName);
+  Future<FZResult> deleteImage(String url) => firebase.deleteImage(url);
 
   Future<String> sendMessage(FZChatMessage message, String groupId) => firebaseChat.sendMessage(message, groupId);
 
@@ -255,8 +260,11 @@ class BackendService {
   Future<List<Event>> getEvents(double radius) => firebase.getEvents(radius);
   Future<Event?> fetchEvent(String eventId) => firebase.fetchEvent(eventId);
   Future<FZResult> createNewEvent(Event event) => firebase.createNewEvent(event);
+  Future<FZResult> updateEvent(Event event) => firebase.updateEvent(event);
   Future<List<FZNotification>> fetchNotifications(String email) => firebase.fetchNotifications(email);
 
+  Future<FZResult> sendMessagetoDeveloper(String email, String message) => firebase.sendMessagetoDeveloper(email, message);
+  
   Future<FZResult> addNewFam(Fam fam) => firebaseFam.addNewFam(fam.creationObj());
   Future<FZResult> updateFam(Fam fam) => firebaseFam.updateFam(fam);
   Future<Fam?> fetchFam(String famId) => firebaseFam.fetchFam(famId);

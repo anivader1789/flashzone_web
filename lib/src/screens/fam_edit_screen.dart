@@ -23,6 +23,23 @@ class FamEditScreen extends ConsumerStatefulWidget {
 }
 
 class _FamEditScreenState extends ConsumerState<FamEditScreen> {
+
+  Fam? faminEditing;
+  bool _editMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    faminEditing = ref.read(famInEdit);
+    if(faminEditing != null) {
+      _editMode = true;
+      _imageUrl = faminEditing!.imageUrl;
+      nameInputController.text = faminEditing!.name;
+      descriptionInputController.text = faminEditing!.description;
+    }
+
+  }
+
   final nameInputController = DetectableTextEditingController(
     detectedStyle:  TextStyle(fontSize: 18, color: Constants.fillColor()),
       regExp: hashTagRegExp,
@@ -34,7 +51,7 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     );
 
   bool _imageUploading = false;
-  String? _imageUrl;
+  String? _imageUrl, _oldImageUrl;
 
     
   @override
@@ -53,8 +70,8 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FZText(text: "Creating a new Fam", style: FZTextStyle.headline),
-          vertical(2),
+          FZText(text: _editMode? "Edit Fam": "Creating a new Fam", style: FZTextStyle.largeHeadline),
+          vertical(4),
           imageUploadField(context),
           vertical(2),
           nameInputField(),
@@ -65,7 +82,7 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
             onPressed: () {
              createFam(context);
             } ,
-            text: "Create Fam",
+            text: _editMode? "Save": "Create Fam",
           ),
 
         ],
@@ -141,14 +158,29 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
       imageUrl: _imageUrl,
       );
 
-    final result = await ref.read(backend).addNewFam(fam);
 
-    if(result.isSuccessful) {
-      setState(() {
-        context.go(Routes.routeNameFamDetail(result.returnedObject));
-      });
+    if(faminEditing != null) {
+      //Editing a fam
+      
+      final result = await ref.read(backend).addNewFam(fam);
+      await deleteImage(_oldImageUrl);
+
+      if(result.isSuccessful) {
+        setState(() {
+          ref.read(famInEdit.notifier).update((state) => null);
+          context.go(Routes.routeNameFamDetail(result.returnedObject));
+        });
+      } else {
+
+        setState(() {
+          Helpers.showDialogWithMessage(ctx: context, msg: "Error creating fam. Please try again..");
+        });
+      }
     } else {
-      Helpers.showDialogWithMessage(ctx: context, msg: "Error creating fam. Please try again..");
+      setState(() {
+        ref.read(famInEdit.notifier).update((state) => fam);
+        context.go(Routes.routeNameFamDetail("0"));
+      });
     }
   }
 
@@ -215,6 +247,7 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
       final res = await ref.read(backend).uploadImage(compressed, fileName);
       if(res.isSuccessful) {
         setState(() {
+          _oldImageUrl = _imageUrl;
           _imageUrl = res.returnedObject;
           _imageUploading = false;
         });
@@ -233,6 +266,11 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
         _imageUploading = false;
       });
     }
+  }
+
+  deleteImage(String? url) async {
+    if(url == null) return;
+    await ref.read(backend).deleteImage(url);
   }
 
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);

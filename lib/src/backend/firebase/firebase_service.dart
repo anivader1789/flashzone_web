@@ -54,11 +54,11 @@ class FirebaseService {
 
   void authStatusChanged(User? newUser) {
     if (newUser == null) {
-      //print('User is signed out!');
+      print('User is signed out!');
       ref.read(authLoaded.notifier).update((state) => true);
       ref.read(currentuser.notifier).update((state) => FZUser.signedOut());
     } else {
-      //print('User is signed in!');
+      print('User is signed in!');
       ref.read(authLoaded.notifier).update((state) => true);
       assert(newUser.runtimeType == User);
 
@@ -371,9 +371,18 @@ class FirebaseService {
     try {
       final doc = await _db.collection(Event.collectionName).add(event.creationObj());
       event.id = doc.id;
-      return FZResult(code: SuccessCode.successful, message: "Created a new event}", returnedObject: event);
+      return FZResult(code: SuccessCode.successful, message: "Created a new event}", returnedObject: event.id);
     }  catch(e) {
       throw FirebaseError(message: "Adding new event: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> updateEvent(Event event) async {
+    try {
+      await _db.collection(Event.collectionName).doc(event.id).update(event.updateObj());
+      return FZResult(code: SuccessCode.successful, message: "Updated event}", returnedObject: event.id);
+    }  catch(e) {
+      throw FirebaseError(message: "Updating event: ${e.toString()}");
     }
   }
 
@@ -510,6 +519,22 @@ class FirebaseService {
     }
   }
 
+  Future<FZResult> sendMessagetoDeveloper(String email, String message) async {
+    try {
+      final user = ref.read(currentuser);
+      final data = {
+        "email": email,
+        "id": user.id,
+        "message": message
+      };
+
+      await _db.collection("message_from_users").add(data);
+      return FZResult(code: SuccessCode.successful, message: "Message sent successfully");
+    }  catch(e) {
+      throw FirebaseError(message: "Adding new flash: ${e.toString()}");
+    }
+  }
+
   Future<FZResult> uploadImage(Uint8List data, String fileName) async {
     try {
       final storageRef = _firebaseStorage.ref().child("img/$fileName");
@@ -527,6 +552,18 @@ class FirebaseService {
     } catch(e) {
       throw FirebaseError(message: "While uploading clip $fileName: ${e.toString()}");
     }
+  }
+
+  Future<FZResult> deleteImage(String url) async {
+    try {
+      final storageRef = _firebaseStorage.ref().child("img/$url");
+      await storageRef.delete();
+      return FZResult(code: SuccessCode.successful);
+    } catch (e) {
+      throw FirebaseError(message: "Exception while deleting image $url: ${e.toString()}");
+    }
+
+
   }
 
   GeoPoint geopointFrom(Map<String, dynamic> data) =>

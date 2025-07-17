@@ -116,6 +116,7 @@ class Helpers {
     } 
   }
 
+
   static String getDisplayDate(DateTime dateTime) {
     String day = DateFormat('d MMM y').format(dateTime);
     String time = DateFormat('h:mm a').format(dateTime);

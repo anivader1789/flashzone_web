@@ -14,6 +14,7 @@ dependencies:
   cloud_firestore: ^5.4.0
   context_menus: ^2.0.0+1
   cupertino_icons: ^1.0.8
+  datetime_picker_formfield_new: ^2.1.0
   detectable_text_field: ^3.0.2
   easy_sidemenu: ^0.6.0
   firebase_auth: ^5.2.0

@@ -84,7 +84,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisSize: MainAxisSize.min,
           children: [
             vertical(2),
-            FZRichHeadline(text: _event!.title),
+            headlineView(),
             vertical(2),
             Row(children: [
               ThumbnailView(link: _event!.user?.avatar, mobileSize: mobileSize, radius: 42, mobileRadius: 32,),
@@ -111,6 +111,28 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
     );
   }
 
+  headlineView() {
+    if(_event == null) return Container();
+
+    if(_event!.user!.id == ref.read(currentuser).id) {
+      return Row(
+        children: [
+          FZRichHeadline(text: _event!.title),
+          horizontal(2),
+          InkWell(
+            child: const Icon(Icons.edit, color: Colors.grey,),
+            onTap: () {
+              ref.read(eventInEdit.notifier).update((state) => _event);
+              context.go(Routes.routeNameEventCreate());
+            }
+          ),
+        ],
+      );
+    } else {
+      return FZRichHeadline(text: _event!.title);
+    }
+  }
+
   topSectionView(bool mobileSize) {
     if(mobileSize) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +142,7 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
           infoSection(),
           vertical(3),
           //hasHtmlContent(_event!.description)?
-            htmlContentView(_event!.description)
+          htmlContentView(_event!.description)
           //: FZText(text: _event!.description, style: FZTextStyle.paragraph),
         ],
       );

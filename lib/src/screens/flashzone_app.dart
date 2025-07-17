@@ -1,5 +1,7 @@
 
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/screens/contact_us_screen.dart';
+import 'package:flashzone_web/src/screens/create_event_screen.dart';
 import 'package:flashzone_web/src/screens/event_detail_view.dart';
 import 'package:flashzone_web/src/screens/events_feed.dart';
 import 'package:flashzone_web/src/screens/fam_chat_screen.dart';
@@ -35,9 +37,19 @@ final GoRouter router = GoRouter(
             return const WriteFlashView();
           },),
         GoRoute(
+          path: Routes.eventCreate,
+          builder: (BuildContext context, GoRouterState state) {
+            return const CreateEventScreen();
+          },),
+        GoRoute(
           path: Routes.notifications,
           builder: (BuildContext context, GoRouterState state) {
             return const NotificationsListView();
+          },),
+        GoRoute(
+          path: Routes.contactUs,
+          builder: (BuildContext context, GoRouterState state) {
+            return const ContactUsScreen();
           },),
         GoRoute(
           path: Routes.fams,
@@ -48,6 +60,16 @@ final GoRouter router = GoRouter(
           path: Routes.famNew,
           builder: (BuildContext context, GoRouterState state) {
             return const FamEditScreen();
+          },),
+        GoRoute(
+          path: '${Routes.eventCreate}/:famid',
+          builder: (context, state) {
+            final famId = state.pathParameters['famid'];
+            if(famId == null || famId.isEmpty) {
+              return RouteErrorScreen(fullUrl: state.fullPath?? "Unkown");
+            }
+            
+            return CreateEventScreen(famId: famId);
           },),
         GoRoute(
           path: '${Routes.profile}/:userid',
