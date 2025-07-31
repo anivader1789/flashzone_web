@@ -79,15 +79,27 @@ class _EventFeedViewState extends ConsumerState<EventFeedView> {
     child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
         children: [
           vertical(),
-          Text.rich(
-            TextSpan(children: [
-              const TextSpan(text: "To register your own event, please fill up this form: "),
-              TextSpan(
-                text: "'Event Registration Form'.", 
-                style: const TextStyle(color: Colors.blue),
-                recognizer: _tapGestureForEventCreationForm,
-                mouseCursor: SystemMouseCursors.click)
-          ])),
+          Row(
+            children: [
+              SizedBox(
+                width: 180,
+                child: OutlinedButton.icon(
+                  onPressed: eventCreationFormTapped, 
+                  icon: const Icon(Icons.add), 
+                  label: const FZText(text: "Create Event", style: FZTextStyle.paragraph)),
+              ),
+              const Expanded(child: SizedBox())
+            ],
+          ),
+          // Text.rich(
+          //   TextSpan(children: [
+          //     const TextSpan(text: "To register your own event, please fill up this form: "),
+          //     TextSpan(
+          //       text: "'Event Registration Form'.", 
+          //       style: const TextStyle(color: Colors.blue),
+          //       recognizer: _tapGestureForEventCreationForm,
+          //       mouseCursor: SystemMouseCursors.click)
+          // ])),
           vertical(6),
           FZText(text: todayLabel, style: FZTextStyle.headline, color: Constants.fillColor(),),
           const Divider(),

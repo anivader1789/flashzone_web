@@ -209,7 +209,7 @@ class _FamListScreenState extends ConsumerState<FamListScreen> with SingleTicker
             padding: const EdgeInsets.all(8.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FZText(text: "#${fam.name}", style: mobileSize? FZTextStyle.headline: FZTextStyle.tooLargeHeadline),
+                FZText(text: fam.name, style: mobileSize? FZTextStyle.headline: FZTextStyle.tooLargeHeadline),
                 vertical(),
                 FZText(text: fam.description, style: FZTextStyle.paragraph),
                 vertical(),

@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +27,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
   late Flash _flash;
   bool _loading = false;
   bool _ownFlash = false;
+  double _distance = 0.0;
 
   @override
   void initState() {
@@ -39,6 +42,10 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
     // }
     
     _flash = widget.flash;
+    GeoPoint geoPoint = (_flash!.postLocation!.geoData)['geopoint'] as GeoPoint;
+      GeoPoint currentLocation = ref.read(userCurrentLocation);
+      _distance = LocationService.getDistanceBetweenPoints(geoPoint, currentLocation);
+      
     _ownFlash = _flash.user.id == ref.read(currentuser).id;
   }
 
@@ -144,7 +151,7 @@ class _FlashCellViewState extends ConsumerState<FlashCellView> {
                   horizontal(),
                   const FZSymbol(type: FZSymbolType.location),
                   horizontal(),
-                  FZText(text: widget.flash.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
+                  FZText(text: "$_distance miles", style: FZTextStyle.subheading, color: Colors.grey,),
                 ],
               ],
             ),

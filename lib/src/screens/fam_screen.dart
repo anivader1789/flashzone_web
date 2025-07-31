@@ -208,7 +208,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
               horizontal(),
               Column(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  headlineView(),
+                  headlineView(mobileSize),
                   vertical(),
                   viewMembersLink()
                 ],
@@ -236,7 +236,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
             horizontal(),
             Column(mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  headlineView(),
+                  headlineView(mobileSize),
                   vertical(),
                   viewMembersLink()
                 ],
@@ -254,13 +254,13 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     );
   } 
 
-  headlineView() {
+  headlineView(bool mobileSize) {
     if(fam == null) return Container();
 
     if(_isAdmin) {
       return Row(
         children: [
-          FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,),
+          FZText(text: fam!.name, style: mobileSize? FZTextStyle.headline: FZTextStyle.largeHeadline, color: Colors.black,),
           horizontal(2),
           InkWell(
             onTap: editFam,
@@ -269,7 +269,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
         ],
       );
     } else {
-      return FZText(text: "#${fam!.name}", style: FZTextStyle.headline, color: Colors.black,);
+      return FZText(text: fam!.name, style: mobileSize? FZTextStyle.headline: FZTextStyle.largeHeadline, color: Colors.black,);
     }
   }
 
@@ -451,7 +451,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
                               adminIds: fam!.admins,
                               onDismiss: () => _membersPopupController.hide(),
                               ),
-                          child: FZText(text: "${fam!.members.length} Members", style: FZTextStyle.headline, color: Colors.black, onTap: _membersPopupController.toggle,),
+                          child: FZText(text: "${fam!.members.length + fam!.admins.length} Members", style: FZTextStyle.headline, color: Colors.black, onTap: _membersPopupController.toggle,),
                           )
       ],
     );

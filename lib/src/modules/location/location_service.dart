@@ -84,4 +84,16 @@ class LocationService {
     }
   }
 
+  static double getDistanceBetweenPoints(GeoPoint point1, GeoPoint point2) {
+    final distance = Geolocator.distanceBetween(
+      point1.latitude,
+      point1.longitude,
+      point2.latitude,
+      point2.longitude
+    );
+    // Convert meters to miles and restrict to 2 decimal places, return double
+    final miles = (double.parse((distance / 1609.34).toStringAsFixed(1)));
+    return miles; // 1 mile = 1609.34 meters
+  }
+
 }

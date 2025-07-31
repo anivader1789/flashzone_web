@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
@@ -5,6 +6,7 @@ import 'package:flashzone_web/src/model/comment.dart';
 import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/comment_view.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
@@ -28,6 +30,7 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
   bool _commentPosting = false;
   bool _loading = true;
   bool _ownFlash = false;
+  double _distance = 0;
 
 
   fetchFlash() async {
@@ -39,9 +42,17 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
 
     if(_flash != null) {
       _ownFlash = _flash!.user.id == ref.read(currentuser).id;
+
+      GeoPoint geoPoint = (_flash!.postLocation!.geoData)['geopoint'] as GeoPoint;
+      GeoPoint currentLocation = ref.read(userCurrentLocation);
+      _distance = LocationService.getDistanceBetweenPoints(geoPoint, currentLocation);
+      
     } else {
       _ownFlash = false;
     }
+
+    
+    
 
     setState(() {
       _loading = false;
@@ -255,10 +266,13 @@ class _FlashDetailScreenState extends ConsumerState<FlashDetailScreen> {
                 FZSymbol(type: FZSymbolType.time, compact: collapse,),
                 horizontal(),
                 FZText(text: Helpers.getDisplayDate(_flash!.postDate), style:collapse? FZTextStyle.smallsubheading: FZTextStyle.subheading, color: Colors.grey,),
-                if(!collapse) horizontal(),
-                if(!collapse) const FZSymbol(type: FZSymbolType.location),
-                if(!collapse) horizontal(),
-                if(!collapse) FZText(text: _flash!.postLocation?.address ?? "Unknown", style: FZTextStyle.subheading, color: Colors.grey,),
+                if(!collapse) ...[
+                  horizontal(),
+                  FZSymbol(type: FZSymbolType.location, compact: collapse,),
+                  horizontal(),
+                  FZText(text: "$_distance miles", style: FZTextStyle.subheading, color: Colors.grey,),
+                ]
+               
               ],
             ),
             //vertical(),

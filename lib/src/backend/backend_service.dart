@@ -229,7 +229,7 @@ class BackendService {
   Future<CommentsList?> fetchFlashComments(String flashId) => firebase.fetchFlashComments(flashId);
   Future<FZResult> setFlashComments(CommentsList commentsList) => firebase.setFlashComments(commentsList);
 
-  Future<FZResult> uploadImage(Uint8List data, String fileName) => firebase.uploadImage(data, fileName);
+  Future<FZResult> uploadImage(Uint8List data, String fileName, String folderName) => firebase.uploadImage(data, fileName, folderName);
   Future<FZResult> deleteImage(String url) => firebase.deleteImage(url);
 
   Future<String> sendMessage(FZChatMessage message, String groupId) => firebaseChat.sendMessage(message, groupId);

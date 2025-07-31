@@ -103,7 +103,10 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
           borderRadius: BorderRadius.circular(18),
           image: _imageUrl != null ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover) : null,
         ),
-        child: _imageUploading ? const Center(child: CircularProgressIndicator()) : const Icon(Icons.add_a_photo, size: 50, color: Colors.white,),
+        child: _imageUploading ? 
+          const Center(
+            child: CircularProgressIndicator()) 
+          : _imageUrl != null? null:  const Icon(Icons.add_a_photo, size: 50, color: Colors.white,),
       ),
     );
   }
@@ -144,6 +147,16 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
   }
 
   createFam(BuildContext context) async {
+    final nameValidationResult = validateName(nameInputController.text);
+    if(nameValidationResult != null) {
+      Helpers.showDialogWithMessage(ctx: context, msg: nameValidationResult);
+      return;
+    }
+    if(descriptionInputController.text.isEmpty || _imageUrl == null) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Must contain a description and an image");
+      return;
+    }
+
     final GeoFirePoint geoFirePoint = GeoFirePoint(ref.read(userCurrentLocation));
     final postAddress = await LocationService.getAddressFromLatLng(ref);
 
@@ -243,8 +256,9 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     print("size of image after compression ${compressed.length}");
     //imgFile.writeAsBytesSync(compressed);
 
+    final folder = "fam/${ref.read(currentuser).id}";
     try {
-      final res = await ref.read(backend).uploadImage(compressed, fileName);
+      final res = await ref.read(backend).uploadImage(compressed, fileName, folder);
       if(res.isSuccessful) {
         setState(() {
           _oldImageUrl = _imageUrl;
@@ -272,6 +286,36 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     if(url == null) return;
     await ref.read(backend).deleteImage(url);
   }
+
+  validateName(String? name) {
+    if(name == null || name.isEmpty) {
+      return "Please enter a name for your fam";
+    } else if(name.length < 3) {
+      return "Name must be at least 3 characters long";
+    } else if(name.length > 60) {
+      return "Name must be less than 60 characters long";
+    } 
+    //If name contains any punctuation mark
+    else if(name.contains(" ") || name.contains("-") || name.contains("_")) {
+      return "Name cannot contain spaces or special characters like - _";
+    }
+    else if(name.contains(",") 
+        || name.contains("!") || name.contains(".") 
+        || name.contains("&") || name.contains("#") 
+        || name.contains("@") || name.contains("*")) {
+      return "Name cannot contain special characters like , ! . & # @ *";
+    }
+    //Cannot contains brackets or quotation marks
+    else if(name.contains("(") || name.contains(")") 
+        || name.contains("[") || name.contains("]") 
+        || name.contains("{") || name.contains("}") 
+        || name.contains("'") || name.contains('"')) {
+      return "Name cannot contain brackets or quotation marks";
+    }
+
+    return null;
+  }
+
 
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);

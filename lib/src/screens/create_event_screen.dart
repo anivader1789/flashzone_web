@@ -44,6 +44,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       latCont = TextEditingController(),
       lonCont = TextEditingController(),
       addressCont = TextEditingController(),
+      addressCityCont = TextEditingController(),
+      addressStateCont = TextEditingController(),
+      addressCountryCont = TextEditingController(),
       addressInstructionCont = TextEditingController(),
       addressAreaCont = TextEditingController(),
       mapCont = TextEditingController();
@@ -66,6 +69,8 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   populateFields() {
+    priceCont.text = "0";
+
     if (editingEvent == null) return;
 
     titleCont.text = editingEvent!.title;
@@ -249,12 +254,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FZText(text: "Event Location", style: FZTextStyle.headline),
+        const FZText(text: "Event Venue Location", style: FZTextStyle.headline),
         vertical(),
-        const FZText(
-            text: "Full address of the venue", style: FZTextStyle.paragraph),
-        field(addressCont, label: "Full address"),
-        vertical(),
+        
         const FZText(
             text: "Latitude and Longitude (See below the form for instructions)",
             style: FZTextStyle.paragraph),
@@ -291,14 +293,34 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         ),
         vertical(),
         const FZText(
-            text: "City, Borough, County",
+            text: "Street address", style: FZTextStyle.paragraph),
+        field(addressCont, label: "eg: 1234 Main St, Apt 101"),
+        
+        vertical(),
+        const FZText(
+            text: "Borough, County (Optional)",
             style: FZTextStyle.paragraph),
-        field(addressAreaCont, label: ""),
+        field(addressAreaCont, label: "eg: Brooklyn"),
+        vertical(),
+        const FZText(
+            text: "City",
+            style: FZTextStyle.paragraph),
+        field(addressCityCont, label: "eg: New York City"),
+        vertical(),
+        const FZText(
+            text: "State",
+            style: FZTextStyle.paragraph),
+        field(addressStateCont, label: "eg: New York"),
+        vertical(),
+        const FZText(
+            text: "Country",
+            style: FZTextStyle.paragraph),
+        field(addressCountryCont, label: "eg: USA"),
         vertical(),
         const FZText(
             text: "Any instructions, landmark, parking info, etc",
             style: FZTextStyle.paragraph),
-        field(addressInstructionCont, label: "More Address Instructions..")
+        field(addressInstructionCont, label: "eg: Next to the subway station. Parking available"),
       ],
     );
   }
@@ -326,6 +348,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       _loading = true;
     });
 
+
+    final fullAddress = "${addressCont.text}, ${addressCityCont.text}, "
+        "${addressStateCont.text}, ${addressCountryCont.text}";
+
     try {
       if (editingEvent != null) {
         final GeoFirePoint geoFirePoint = GeoFirePoint(
@@ -341,7 +367,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         editingEvent!.addressArea = addressAreaCont.text;
         editingEvent!.map = mapCont.text;
         editingEvent!.location = FZLocation(
-                address: addressCont.text, geoData: geoFirePoint.data);
+                address: fullAddress, geoData: geoFirePoint.data);
         editingEvent!.price = double.parse(priceCont.text);
 
         final res = await ref.read(backend).updateEvent(editingEvent!);
@@ -377,7 +403,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             duration: _eventDuration,
             map: mapCont.text,
             location: FZLocation(
-                address: addressCont.text, geoData: geoFirePoint.data));
+                address: fullAddress, geoData: geoFirePoint.data));
 
         final res = await ref.read(backend).createNewEvent(event);
         if (res.code == SuccessCode.successful) {
@@ -393,6 +419,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         }
       }
     } catch (e) {
+      print(e.toString());
       setState(() {
         _loading = false;
         _error = "exception thrown";
@@ -418,7 +445,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         ),
         child: _imageUploading
             ? const Center(child: CircularProgressIndicator())
-            : const Icon(
+            : _imageUrl != null? null: const Icon(
                 Icons.add_a_photo,
                 size: 50,
                 color: Colors.white,
@@ -484,8 +511,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     print("size of image after compression ${compressed.length}");
     //imgFile.writeAsBytesSync(compressed);
 
+    final folder = "event/${ref.read(currentuser).id}";
+
     try {
-      final res = await ref.read(backend).uploadImage(compressed, fileName);
+      final res = await ref.read(backend).uploadImage(compressed, fileName, folder);
       if (res.isSuccessful) {
         setState(() {
           _oldImageUrl = _imageUrl;
@@ -544,9 +573,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       return false;
     }
 
-    if (addressCont.text.isEmpty) {
+    if (addressCont.text.isEmpty || addressCityCont.text.isEmpty ||
+        addressStateCont.text.isEmpty || addressCountryCont.text.isEmpty) {
       Helpers.showDialogWithMessage(
-          ctx: ctx, msg: "Please enter the full address of the event");
+          ctx: ctx, msg: "Please enter the full address of the event. Including street address, city, state and country");
       return false;
     }
 
@@ -584,8 +614,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   durationInput() {
-    final durations = List.generate(
-        12, (index) => (index + 1) * 30); // 30, 60, 90, ..., 360 minutes
+    //Generate durations (minutes) from 30 minutes to 6 hours in 15 minutes increments
+    final durations = List.generate(24, (index) => (index + 1) * 15); // 15, 30, ..., 360 minutes
+    // final durations = List.generate(
+    //     12, (index) => (index + 1) * 30); // 30, 60, 90, ..., 360 minutes
 
     //Generate DropdownMenuEntries for each duration
     List<DropdownMenuEntry> items = [];

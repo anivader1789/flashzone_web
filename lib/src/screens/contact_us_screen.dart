@@ -92,7 +92,10 @@ class _ContactUsScreenState extends ConsumerState<ContactUsScreen> {
       if (res.code == SuccessCode.successful) {
         setState(() {
           _sending = false;
-          _sendStatusMessage = null;
+          messageCont.clear();
+          _sendStatusMessage = "Message successfully sent. We will get back to you soon.";
+          Helpers.showDialogWithMessage(
+          ctx: context, msg: "Message successfully sent. We will get back to you soon.");
         });
       }
     } on Exception catch (e) {

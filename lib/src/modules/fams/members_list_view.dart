@@ -19,7 +19,16 @@ class MembersListView extends ConsumerStatefulWidget {
 }
 
 class _MembersListViewState extends ConsumerState<MembersListView> {
+  List<String> membersIds = [];
 
+  @override
+  void initState() {
+    super.initState();
+    membersIds.addAll(widget.memberIds);
+    membersIds.addAll(widget.adminIds);
+
+    
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -60,14 +69,14 @@ class _MembersListViewState extends ConsumerState<MembersListView> {
           child: ListView.separated(
             itemBuilder: (context, index) {
               return MemberListItemView(
-                memberId: widget.memberIds[index], 
-                isAdmin: widget.adminIds.contains(widget.memberIds[index]),
+                memberId: membersIds[index], 
+                isAdmin: widget.adminIds.contains(membersIds[index]),
                 mobileSize: mobileSize,);
             }, 
             separatorBuilder: (context, index) {
                   return const Divider(color: Colors.grey); // Regular divider between items
                 }, 
-            itemCount: widget.memberIds.length),
+            itemCount: membersIds.length),
         )
       ],
     );

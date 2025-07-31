@@ -316,8 +316,10 @@ class _WriteFlashViewState extends ConsumerState<WriteFlashView> {
     print("size of image after compression ${compressed.length}");
     //imgFile.writeAsBytesSync(compressed);
 
+    final folder = "flash/${ref.read(currentuser).id}";
+
     try {
-      final res = await ref.read(backend).uploadImage(compressed, fileName);
+      final res = await ref.read(backend).uploadImage(compressed, fileName, folder);
       if(res.code == SuccessCode.successful) {
         setState(() {
           _imageUrl = res.returnedObject;

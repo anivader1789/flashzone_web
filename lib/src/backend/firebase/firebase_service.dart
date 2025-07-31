@@ -535,9 +535,9 @@ class FirebaseService {
     }
   }
 
-  Future<FZResult> uploadImage(Uint8List data, String fileName) async {
+  Future<FZResult> uploadImage(Uint8List data, String fileName, String folderName) async {
     try {
-      final storageRef = _firebaseStorage.ref().child("img/$fileName");
+      final storageRef = _firebaseStorage.ref().child("$folderName/$fileName");
       final uploadTask = storageRef.putData(data, SettableMetadata(contentType: "image/jpeg"));
       final TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
       final url = await snapshot.ref.getDownloadURL();
