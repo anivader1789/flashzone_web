@@ -30,7 +30,6 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     //   //pageController.jumpToPage(index);
     // });
     super.initState();
-    print("side menu loading with: ${widget.selectedIndex}");
     //sideMenu = SideMenuController(initialPage: widget.selectedIndex);
 
     populateMenuItems();

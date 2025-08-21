@@ -82,6 +82,14 @@ class _MainFeedListViewState extends ConsumerState<MainFeedListView> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(flashListReloadNeeded, (previous, next) {
+      if(next == true) {
+        loadData();
+        ref.read(flashListReloadNeeded.notifier).update((state) => false);
+      }
+    });
+    
+
     bool mobileSize = MediaQuery.of(context).size.width < 800;
     return MasterView(
       onInitDone: () {

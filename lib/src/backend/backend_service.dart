@@ -30,6 +30,8 @@ final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,L
 
 final authLoaded = StateProvider<bool>((ref) => false);
 
+final flashListReloadNeeded = StateProvider<bool>((ref) => false);
+
 final cachedRemoteUser = StateProvider<List<FZUser>>((ref) => List<FZUser>.empty(growable: true));
 
 final routeInPipeline = StateProvider<String?>((ref) => null);
@@ -127,6 +129,22 @@ class BackendService {
     return fetchedUser;
   }
 
+  Future<FZUser?> fetchRemoteUserByUsername(String userName) async {
+    final cachedUsers = ref.read(cachedRemoteUser);
+    for(FZUser user in cachedUsers) {
+      if(user.username == userName) {
+        return user;
+      }
+    }
+    
+    FZUser? fetchedUser = await firebase.fetchRemoteUserByUsername(userName);
+    if(fetchedUser != null) {
+      cachedUsers.add(fetchedUser);
+      ref.read(cachedRemoteUser.notifier).update((state) => cachedUsers);
+    }
+    return fetchedUser;
+  }
+
   Future<void> requestPermissions() async {
     await LocationService.handleLocationPermission();
   } 
@@ -143,6 +161,7 @@ class BackendService {
       print("Flash created successfully: ${res.returnedObject}");
       flashesRef.add(res.returnedObject);
       ref.read(flashes.notifier).update((state) => flashesRef);
+      ref.read(flashListReloadNeeded.notifier).update((state) => true);
       return res;
     } else  {
       print("Flash creation failed: ${res.message}");

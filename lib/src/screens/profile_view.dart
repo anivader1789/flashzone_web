@@ -27,7 +27,13 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
     setState(() {
       _loading = true;
     });
-    _user = await ref.read(backend).fetchRemoteUser(widget.userId!);
+    if(widget.userId!.substring(0,5) == "user=") {
+      final userName = widget.userId!.substring(5);
+      _user = await ref.read(backend).fetchRemoteUserByUsername(userName);
+    } else {
+      _user = await ref.read(backend).fetchRemoteUser(widget.userId!);
+    }
+    
 
     setState(() {
       _loading = false;

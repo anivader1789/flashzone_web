@@ -398,6 +398,29 @@ class FZText extends StatelessWidget {
           )
         );
         //spans.add(TextSpan(text: str.substring(str[0] == " "?2: 1), style: highlightedStyle,));
+      } else if(str[0] == "@" || (str[0] == " " && str[1] == "@")) {
+        final userName = str.substring(str[0] == " "?2: 1);
+
+        final highlightedStyle = TextStyle(fontSize: 24, color: Constants.fillColor(), textBaseline: TextBaseline.alphabetic, height: 1);
+        
+        //spans.add(const TextSpan(text: " "));
+        spans.add(WidgetSpan(//alignment: PlaceholderAlignment.baseline,
+          child: 
+          //Image(image: Helpers.ftIcon(), color: clr, width: 32,)
+          MouseRegion(cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                if(context != null) {
+                  //context.go(Routes.route(famId));
+                  context.go(Routes.routeNameProfile("user=$userName"));
+                }
+              },
+              child: Text(str, style: highlightedStyle,),
+            ),
+          )
+          )
+        );
+
       } else {
         spans.add(TextSpan(text: str, style: const TextStyle(fontSize: 24,),));
       }
@@ -413,7 +436,7 @@ class FZText extends StatelessWidget {
 
 
   List<String?> highlightTexts(String str) {
-    RegExp reg = Helpers.hashTagRegExp;
+    RegExp reg = Helpers.hashTagAtSignRegExp;
   
     //final fts = reg.allMatches(str).map((z) => z.group(0)).toList();
     final fts = reg.allMatches(str);

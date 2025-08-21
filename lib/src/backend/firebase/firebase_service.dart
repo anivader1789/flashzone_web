@@ -216,6 +216,21 @@ class FirebaseService {
     }
   }
 
+  Future<FZUser?> fetchRemoteUserByUsername(String userName) async {
+    try {
+      final docRef = _db.collection(FZUser.collection).where(FZUser.usernameKey, isEqualTo: userName);
+      final result = await docRef.get();
+      if(result.docs.isEmpty) {
+        return null;
+      } else {
+        final data = result.docs.first.data();
+        return FZUser.newSourceUserWithData(result.docs.first.id, data);
+      }
+    } catch(e) {
+      throw FirebaseError(message: "Fetch user by username: ${e.toString()}");
+    }
+  }
+
   Future<InvitationCode?> fetchInvitationCode(String? email) async {
     print("fetching invitiation code: $email");
     if(email == null) return null;
