@@ -87,15 +87,16 @@ class GettingStartedView extends StatelessWidget {
 
 <h2>Local Website</h2>
 
-<p>This website is local. Users in other locations don't see what you're seeing. This is because our purpose is to build local communities made up of people who share one or more interests. When you change your location you will see the content in the new location, both posts and events. For this version "local" means 30 miles. We are focusing on this NY/CT (parts of, and a touch of NJ) locality first (everyone has to start some where). We chose that because it was a maximum distance that many people would drive to to get to an event they would really like to participate in. You will see the distance from your location to events that are listed.</p>
+<p>This website is local. Users in other locations don't see what you're seeing. This is because our purpose is to build local communities made up of people who share one or more interests. When you change your location you will see the content in the new location, both posts and events. For this version "local" means 30 miles. We are focusing on many NY/CT localities first (everyone has to start some where), and we live here. You will see the distance from your location to events that are listed.</p>
 
 <h2>We Use Flashtags</h2>
 
-<p>When you post please tap the hashtag and place it in front of key words in your post. Doing so will change those words into links. They will appear as a geo-anchored hashtag symbol when your post is published. This symbol is called a flashtag:   It geo-anchors the words that come immediately after it. As we introduce new features these flashtags will arrange your posts so that people with similar interests locally can find them all in one place. Clicking on a flashtag will show you all the other flashes (posts) which include the same flashtag.</p>
+<p>When you post please tap the hashtag and place it in front of key words in your post. Doing so will change those words into links. They will appear as a geo-anchored hashtag symbol when your post is published. This symbol is called a flashtag:   and it looks like a hashtag with a circle around it. It geo-anchors the words that come immediately after it. As we introduce new features these flashtags will arrange your posts so that people with similar interests locally can find them all in one place. Clicking on a flashtag will show you all the other flashes (posts) which include the same flashtag.</p>
 
 <p>Feel free to place flashtags in front of multiple keywords in your post. For, example, this post: </p>
 
 <p>"I had an amazing #Reiki session. My Reiki practitioner used #MusicalTones and it amplified the experience. Thank you @angelD if you're reading this." </p>
+<p>(The hashtag turns into a flashtag when it’s posted.)</p>
 
 <hr>
 
@@ -115,11 +116,9 @@ class GettingStartedView extends StatelessWidget {
 
 <p>=============================================</p>
 
-<p>FlashZone is currently serving multiple communities. They are <b>Spirituality</b>, <b>Art</b>, <b>Experimental</b>, <b>Personal Development</b>, <b>Paranormal</b>, <b>Business</b>, <b>Experimental</b>, <b>Beauty</b>, and <b>Others</b>.</p>
+<p>FlashZone is currently serving multiple communities. They are <b>Spirituality</b>, <b>Art</b>, <b>Experimental</b>, <b>Personal Development</b>, <b>Paranormal</b>, <b>Business</b>, <b>Beauty</b>, and <b>Others</b>.</p>
 
-<p>Below are some suggested interests for the Spiritual Community. There are many more. You can put in your own interests. You are not limited to this list! Please add the hashtag symbol before any keywords you use in your flash. You can use multiple ones like this one in the following flash:</p>
-
-<p>"I had an amazing #Reiki session. My Reiki practitioner used #MusicalTones and it amplified the experience. Thank you @angelD if you're reading this.”</p>
+<p>Below are some suggested interests for the Spiritual Community. There are many more. You can put in your own interests too. You are not limited to this list! Please add a hashtag symbol before any keywords you use in your flash. You can use multiple ones.</p>
 
 <ul>
 <li>EnergyHealing</li>
