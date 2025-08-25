@@ -32,6 +32,7 @@ class Routes {
   static const String famChat = "famChat";
   static const String dm = "dm";
   static const String admin = "admin";
+  static const String gettingStarted = "gettingStarted";
 
   static String routeNameAuthentication() => "$home$authentication";
   static String routeNameHome() => home;
@@ -50,5 +51,6 @@ class Routes {
   static String routeNameFamChat(String famId) => "$home$famChat/$famId";
   static String routeNameDM(String? userId) => userId == null? "$home$dm": "$home$dm/$userId";
   static String routeNameAdmin() => "$home$admin";
+  static String routeNameGettingStarted() => "$home$gettingStarted";
 
 }

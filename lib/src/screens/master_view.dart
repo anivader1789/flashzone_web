@@ -92,7 +92,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
             ),
           ]
         : [
-        RoundedBadge(onClick: () {}, title: 'Get Started', icon: const Icon(Icons.help),),
+        RoundedBadge(onClick: _gettingStartedClicked, title: 'Get Started', icon: const Icon(Icons.help),),
         //const SizedBox(width:10),
         //RoundedBadge(onClick: _chatClicked, title: 'Messages', icon: const Icon(Icons.forum),),
         const SizedBox(width:10),
@@ -161,6 +161,10 @@ class _MasterViewState extends ConsumerState<MasterView> {
     
   }
 
+  _gettingStartedClicked() {
+    context.go(Routes.routeNameGettingStarted());
+  }
+
   // _profileClicked(FZUser user) {
   //   setState(() {
   //     _userToView = user;
@@ -211,6 +215,14 @@ class _MasterViewState extends ConsumerState<MasterView> {
           child: IntrinsicWidth(
             child: Column(mainAxisSize: MainAxisSize.min,
               children: [
+                ElevatedButton(
+                  style: menuButtonStyle(),
+                  onPressed: () { 
+                    _menuPopupController.hide();
+                    _gettingStartedClicked(); 
+                  }, 
+                  child: Row(children: [Icon(Icons.help_center, color: Constants.altPrimaryColor(),), const SizedBox(width: 5,), const FZText(text: "Getting Started", style: FZTextStyle.paragraph)],)),
+                const Divider(),
                 ElevatedButton(
                   style: menuButtonStyle(),
                   onPressed: () { 

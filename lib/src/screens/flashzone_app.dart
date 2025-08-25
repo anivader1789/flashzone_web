@@ -9,6 +9,7 @@ import 'package:flashzone_web/src/screens/fam_edit_screen.dart';
 import 'package:flashzone_web/src/screens/fam_list_screen.dart';
 import 'package:flashzone_web/src/screens/fam_screen.dart';
 import 'package:flashzone_web/src/screens/flash_detail_screen.dart';
+import 'package:flashzone_web/src/screens/getting_started_view.dart';
 import 'package:flashzone_web/src/screens/main_feed.dart';
 import 'package:flashzone_web/src/screens/notifications_list_view.dart';
 import 'package:flashzone_web/src/screens/profile_view.dart';
@@ -45,6 +46,11 @@ final GoRouter router = GoRouter(
           path: Routes.notifications,
           builder: (BuildContext context, GoRouterState state) {
             return const NotificationsListView();
+          },),
+        GoRoute(
+          path: Routes.gettingStarted,
+          builder: (BuildContext context, GoRouterState state) {
+            return const GettingStartedView();
           },),
         GoRoute(
           path: Routes.contactUs,
