@@ -7,6 +7,7 @@ import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/location.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/screens/master_view.dart';
+import 'package:flashzone_web/src/screens/subviews/time_picker_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
@@ -258,7 +259,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         vertical(),
         
         const FZText(
-            text: "Latitude and Longitude (See below the form for instructions)",
+            text: "put your exact address in a browser and ask for latitude and longitude. You will see two series of numbers and letters separated by a comma. Put the first one in the box marked latitude. Put the second one in the box marked longitude. That's all there is to it",
             style: FZTextStyle.paragraph),
         mobileSize?
           Column(
@@ -298,9 +299,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         
         vertical(),
         const FZText(
-            text: "Borough, County (Optional)",
+            text: "BOROUGH or COUNTY (optional but helpful to users when searching events)",
             style: FZTextStyle.paragraph),
-        field(addressAreaCont, label: "eg: Brooklyn"),
+        field(addressAreaCont, label: "eg: Westchester or Brooklyn"),
         vertical(),
         const FZText(
             text: "City",
@@ -672,7 +673,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   dateField() {
-    final format = DateFormat("yyyy-MM-dd");
+    final format = DateFormat("MM-dd-yyyy");
     return SizedBox(
       width: 200,
       child: DateTimeField(
@@ -699,32 +700,47 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   timeField() {
-    final format = DateFormat("HH:mm");
-    return SizedBox(
-      width: 150,
-      child: DateTimeField(
-        decoration: const InputDecoration(icon: Icon(Icons.timer)),
-        format: format,
-        initialValue: _eventDateTime,
-        onChanged: (value) {
-          setState(() {
-            _eventDateTime = DateTime(
-                _eventDateTime.year,
-                _eventDateTime.month,
-                _eventDateTime.day,
-                value?.hour ?? _eventDateTime.hour,
-                value?.second ?? _eventDateTime.second);
-          });
-        },
-        onShowPicker: (context, currentValue) async {
-          final time = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+    return FZTimePickerView(
+      initialDateTime: _eventDateTime,
+      onDateTimeChanged: (newTime) {
+        setState(() {
+          _eventDateTime = DateTime(
+              _eventDateTime.year,
+              _eventDateTime.month,
+              _eventDateTime.day,
+              newTime.hour,
+              newTime.minute
           );
-          return DateTimeField.convert(time);
-        },
-      ),
+          print("New time selected: $_eventDateTime");
+        });
+      },
     );
+    // final format = DateFormat("HH:mm");
+    // return SizedBox(
+    //   width: 150,
+    //   child: DateTimeField(
+    //     decoration: const InputDecoration(icon: Icon(Icons.timer)),
+    //     format: format,
+    //     initialValue: _eventDateTime,
+    //     onChanged: (value) {
+    //       setState(() {
+    //         _eventDateTime = DateTime(
+    //             _eventDateTime.year,
+    //             _eventDateTime.month,
+    //             _eventDateTime.day,
+    //             value?.hour ?? _eventDateTime.hour,
+    //             value?.second ?? _eventDateTime.second);
+    //       });
+    //     },
+    //     onShowPicker: (context, currentValue) async {
+    //       final time = await showTimePicker(
+    //         context: context,
+    //         initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+    //       );
+    //       return DateTimeField.convert(time);
+    //     },
+    //   ),
+    // );
   }
 
   field(TextEditingController cont,
