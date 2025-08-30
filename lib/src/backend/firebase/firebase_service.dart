@@ -13,6 +13,7 @@ import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
+import 'package:flashzone_web/src/screens/terms_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
@@ -59,6 +60,9 @@ class FirebaseService {
       ref.read(currentuser.notifier).update((state) => FZUser.signedOut());
     } else {
       print('User is signed in!');
+      ref.read(termsAcceptedProvider.notifier).state = true;
+      
+
       ref.read(authLoaded.notifier).update((state) => true);
       assert(newUser.runtimeType == User);
 

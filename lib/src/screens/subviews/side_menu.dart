@@ -142,18 +142,18 @@ class _SideMenuViewState extends ConsumerState<SideMenuView> {
     //   icon: const Icon(Icons.settings),
     // ));
 
-    items.add(SideMenuItem(
-      title: 'Terms & Conditions',
-      onTap: (index, _) {
+    // items.add(SideMenuItem(
+    //   title: 'Terms & Conditions',
+    //   onTap: (index, _) {
         
-      },
-      icon: const Icon(Icons.description),
-    ));
+    //   },
+    //   icon: const Icon(Icons.description),
+    // ));
 
     items.add(SideMenuItem(
       title: 'About',
       onTap: (index, _) {
-        
+        context.go(Routes.routeNameAbout());
       },
       icon: const Icon(Icons.read_more),
     ));

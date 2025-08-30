@@ -7,6 +7,7 @@ import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/email_auth/email_auth.dart';
 import 'package:flashzone_web/src/modules/google_auth/google_auth.dart';
+import 'package:flashzone_web/src/screens/terms_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,6 +129,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   signinForm() {
+    if(ref.read(termsAcceptedProvider) != true) {
+      return TermsConditionView(onDismiss: () {
+        setState(() {
+          
+        });
+      },);
+    }
+    
     if(_showSignup) {
       return EmailSignInModule(ctx: context, signupMode: _showSignup, signupModeChanged: (val) {
             setState(() {

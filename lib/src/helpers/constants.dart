@@ -33,6 +33,7 @@ class Routes {
   static const String dm = "dm";
   static const String admin = "admin";
   static const String gettingStarted = "gettingStarted";
+  static const String about = "about";
 
   static String routeNameAuthentication() => "$home$authentication";
   static String routeNameHome() => home;
@@ -52,5 +53,6 @@ class Routes {
   static String routeNameDM(String? userId) => userId == null? "$home$dm": "$home$dm/$userId";
   static String routeNameAdmin() => "$home$admin";
   static String routeNameGettingStarted() => "$home$gettingStarted";
+  static String routeNameAbout() => "$home$about";
 
 }

@@ -1,5 +1,6 @@
 
 import 'package:flashzone_web/src/helpers/constants.dart';
+import 'package:flashzone_web/src/screens/about_screen.dart';
 import 'package:flashzone_web/src/screens/contact_us_screen.dart';
 import 'package:flashzone_web/src/screens/create_event_screen.dart';
 import 'package:flashzone_web/src/screens/event_detail_view.dart';
@@ -51,6 +52,11 @@ final GoRouter router = GoRouter(
           path: Routes.gettingStarted,
           builder: (BuildContext context, GoRouterState state) {
             return const GettingStartedView();
+          },),
+        GoRoute(
+          path: Routes.about,
+          builder: (BuildContext context, GoRouterState state) {
+            return const AboutScreen();
           },),
         GoRoute(
           path: Routes.contactUs,

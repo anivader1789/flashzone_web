@@ -23,7 +23,7 @@ class _ContactUsScreenState extends ConsumerState<ContactUsScreen> {
   @override
   Widget build(BuildContext context) {
     bool mobileSize = MediaQuery.of(context).size.width < 800;
-    return MasterView(child: childView(mobileSize), sideMenuIndex: 5);
+    return MasterView(child: childView(mobileSize), sideMenuIndex: 4);
   }
 
   childView(bool mobileSize) {
