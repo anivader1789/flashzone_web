@@ -92,7 +92,7 @@ class AboutScreen extends StatelessWidget {
     <li><b>Private Location-Based Groups called "fams":</b> Connect with neighbors or hyperlocal communities with shared interests.</li>
   </ul>
   
-  <p>We hope you will enjoy your experience at FlashZone platform. If you have any questions, concern or suggestion, please go to the contact us button from side left-hand side menu option and drop us a message!</p>
+  <p>We hope you will enjoy your experience at FlashZone platform. if you have any questions, concerns, or suggestions, please drop us a line using the “contact us” option on the left.</p>
 
 </body>
 </html>

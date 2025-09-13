@@ -394,7 +394,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             title: titleCont.text,
             description: descriptionCont.text,
             price: double.parse(priceCont.text),
-            pic: _imageUrl!,
+            pic:  _imageUrl!,
             user: ref.read(currentuser),
             addressArea: addressAreaCont.text,
             addressInstructions: addressInstructionCont.text,

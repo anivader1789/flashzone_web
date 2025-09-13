@@ -11,6 +11,7 @@ import 'package:flashzone_web/src/screens/terms_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum AccountInputState {
   signup, username, bio, loading, finished, account, code, verificationPending, name
@@ -129,13 +130,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   signinForm() {
-    if(ref.read(termsAcceptedProvider) != true) {
-      return TermsConditionView(onDismiss: () {
-        setState(() {
+    // if(ref.read(termsAcceptedProvider) != true) {
+    //   return TermsConditionView(onDismiss: () {
+    //     setState(() {
           
-        });
-      },);
-    }
+    //     });
+    //   },);
+    // }
     
     if(_showSignup) {
       return EmailSignInModule(ctx: context, signupMode: _showSignup, signupModeChanged: (val) {
@@ -148,8 +149,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return IntrinsicWidth(
       child: Column(mainAxisSize: MainAxisSize.min,
         children: [
+          
           label("Sign in or Sign up with Google"),
           vertical(),
+          termsText(),
+          vertical(3),
           const GoogleSignInBtn(),
           vertical(2),
           //const Divider(thickness: 2,),
@@ -460,6 +464,23 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     }
 
     return null;
+  }
+
+  termsText() {
+    return Column(
+      children: [
+        const FZText(text: "By signing in, you agree to our terms and conditions.", style: FZTextStyle.smallsubheading, color: Color.fromARGB(255, 32, 30, 30),),
+        const SizedBox(height: 5,),
+        FZText(text: "View terms & conditions", style: FZTextStyle.smallsubheading, color: const Color.fromARGB(255, 11, 91, 156), onTap: () async {
+          //Open link on seperate tab
+          final Uri uri = Uri.parse("/terms.pdf");
+     if (!await launchUrl(uri, webOnlyWindowName: '_blank')) {
+       throw Exception('Could not launch ts');
+     }
+        },),
+        
+      ],
+    );
   }
 
   button({
