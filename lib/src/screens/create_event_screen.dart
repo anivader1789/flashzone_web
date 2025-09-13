@@ -345,6 +345,21 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   submit() async {
     if (validate(context) == false) return;
 
+    final lat = parseGeoValue(latCont.text);
+    final lon = parseGeoValue(lonCont.text);
+    if(lat == null || lon == null) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Please enter valid latitude and longitude");
+      return;
+    }
+
+    final price = parsePriceValue(priceCont.text);
+    if(price == null) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "Please enter valid price");
+      return;
+    }
+
+
+
     setState(() {
       _loading = true;
     });
@@ -356,7 +371,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     try {
       if (editingEvent != null) {
         final GeoFirePoint geoFirePoint = GeoFirePoint(
-            GeoPoint(double.parse(latCont.text), double.parse(lonCont.text)));
+            GeoPoint(lat, lon));
 
         editingEvent!.title = titleCont.text;
         editingEvent!.description = descriptionCont.text;
@@ -369,7 +384,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         editingEvent!.map = mapCont.text;
         editingEvent!.location = FZLocation(
                 address: fullAddress, geoData: geoFirePoint.data);
-        editingEvent!.price = double.parse(priceCont.text);
+        editingEvent!.price = price;
 
         final res = await ref.read(backend).updateEvent(editingEvent!);
         if (res.code == SuccessCode.successful) {
@@ -389,12 +404,12 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         }
       } else {
         final GeoFirePoint geoFirePoint = GeoFirePoint(
-            GeoPoint(double.parse(latCont.text), double.parse(lonCont.text)));
+            GeoPoint(lat, lon));
         final event = Event(
             title: titleCont.text,
             description: descriptionCont.text,
-            price: double.parse(priceCont.text),
-            pic:  _imageUrl!,
+            price: price,
+            pic:   _imageUrl!,
             user: ref.read(currentuser),
             addressArea: addressAreaCont.text,
             addressInstructions: addressInstructionCont.text,
@@ -788,6 +803,42 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       ],
     );
   }
+
+  double? parsePriceValue(String? text) {
+  if (text == null || text.isEmpty) {
+    return null;
+  }
+
+  // Remove common currency symbols, commas, and other non-digit, non-decimal characters.
+  final cleanedText = text
+      .replaceAll(RegExp(r'[^0-9.]'), '')
+      .replaceAll(',', '');
+
+  return double.tryParse(cleanedText);
+}
+
+  double? parseGeoValue(String? text) {
+  if (text == null || text.isEmpty) {
+    return null;
+  }
+
+  // Convert to uppercase and remove common non-numeric characters and spaces
+  final cleanedText = text
+      .toUpperCase()
+      .replaceAll('N', '')
+      .replaceAll('S', '')
+      .replaceAll('E', '')
+      .replaceAll('W', '')
+      .replaceAll('°', '')
+      .replaceAll(' ', '');
+
+  // Handle negative values for South and West
+  if (text.toUpperCase().contains('S') || text.toUpperCase().contains('W')) {
+    return double.tryParse(cleanedText)!.abs() * -1;
+  }
+
+  return double.tryParse(cleanedText);
+}
 
   label(String str) => FZText(
         text: str,
