@@ -8,6 +8,7 @@ import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/email_auth/email_auth.dart';
 import 'package:flashzone_web/src/modules/google_auth/google_auth.dart';
 import 'package:flashzone_web/src/screens/terms_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,24 +94,31 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             )
         ),
-        Center(
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(25, 45, 25, 45),
-            decoration: BoxDecoration(
-              color: Constants.cardColor(),
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-            ),
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset("assets/flashzoneR.png", height: 21,),
-                vertical(9),
-                containerView()
-              ],),
-            ),
-            ) ,
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(25, 45, 25, 45),
+                  decoration: BoxDecoration(
+                    color: Constants.cardColor(),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  ),
+                  child: IntrinsicWidth(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset("assets/flashzoneR.png", height: 21,),
+                      vertical(9),
+                      containerView()
+                    ],),
+                  ),
+                  ),
+              ),
+            ],
+          ),
         ),]
     );
   }
@@ -485,9 +493,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   button({
     required Function() onPressed,
-    String text = "Save", IconData icon = Icons.save}) {
+    String text = "Save", IconData icon = Icons.check_circle}) {
       if(widget.mobileSize) {
-        return IconButton(onPressed: onPressed, icon: Icon(icon, color: Colors.black,));
+        return IconButton(onPressed: onPressed, icon: Icon(icon, color: Constants.primaryColor(),));
       } else {
         return FZButton(
                     onPressed: onPressed,

@@ -192,11 +192,13 @@ class _EventDetailsViewState extends ConsumerState<EventDetailsView> {
   }
 
   priceInfoBox() {
-    return infoBox(Row(
+    String donationText = _event!.donation? " (Donation allowed)": "";
+    return infoBox(
+      Row(
           children: [
             const FZText(text: "Price: ", style: FZTextStyle.headline),
             horizontal(2),
-            FZText(text: _event!.price == 0? "FREE": "\$${_event!.price}", style: FZTextStyle.largeHeadline)
+            FZText(text: _event!.price == 0? "FREE$donationText": "\$${_event!.price}$donationText", style: FZTextStyle.largeHeadline)
           ],
         ) );
         

@@ -59,7 +59,7 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
     bool mobileSize = MediaQuery.of(context).size.width < 800;
     return MasterView(
       child: childView(mobileSize), 
-      sideMenuIndex: 1);
+      sideMenuIndex: 2);
 
       
     
@@ -68,24 +68,26 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
   childView(bool mobileSize) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FZText(text: _editMode? "Edit Fam": "Creating a new Fam", style: FZTextStyle.largeHeadline),
-          vertical(4),
-          imageUploadField(context),
-          vertical(2),
-          nameInputField(),
-          vertical(2),
-          descInputField(),
-          vertical(2),
-          FZButton(
-            onPressed: () {
-             createFam(context);
-            } ,
-            text: _editMode? "Save": "Create Fam",
-          ),
-
-        ],
+      child: SingleChildScrollView(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FZText(text: _editMode? "Edit Fam": "Creating a new Fam", style: FZTextStyle.largeHeadline),
+            vertical(4),
+            imageUploadField(context),
+            vertical(2),
+            nameInputField(),
+            vertical(2),
+            descInputField(),
+            vertical(2),
+            FZButton(
+              onPressed: () {
+               createFam(context);
+              } ,
+              text: _editMode? "Save": "Create Fam",
+            ),
+        
+          ],
+        ),
       ),
     );
   }
@@ -101,12 +103,14 @@ class _FamEditScreenState extends ConsumerState<FamEditScreen> {
         decoration: BoxDecoration(
           color: Constants.bgColor(),
           borderRadius: BorderRadius.circular(18),
-          image: _imageUrl != null ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover) : null,
+          image: _imageUrl != null ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover, opacity: 0.6) : null,
         ),
         child: _imageUploading ? 
           const Center(
             child: CircularProgressIndicator()) 
-          : _imageUrl != null? null:  const Icon(Icons.add_a_photo, size: 50, color: Colors.white,),
+          : _imageUrl != null? 
+           _editMode? const Icon(Icons.add_a_photo, size: 50, color: Colors.white,):  null
+           :  const Icon(Icons.add_a_photo, size: 50, color: Colors.white,),
       ),
     );
   }

@@ -32,6 +32,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   bool _imageUploading = false;
   String? _imageUrl, _oldImageUrl;
   int _eventRepeatOptionSelected = 0;
+  bool _donationAllowed = false;
 
   final copyEventIdCont = TextEditingController(),
       titleCont = TextEditingController(),
@@ -81,6 +82,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     _eventDuration = editingEvent!.duration;
     priceCont.text = editingEvent!.price.toString();
     addressCont.text = editingEvent!.location?.address ?? "";
+    
     latCont.text = editingEvent!.location?.geoData['geopoint']?.latitude
             .toString() ??
         "";
@@ -338,6 +340,22 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             keyType: TextInputType.number,
             customWidth: 90,
             icon: const Icon(Icons.attach_money)),
+        vertical(),
+        Row(
+          children: [
+            Checkbox(
+              value: _donationAllowed,
+              onChanged: (value) {
+                setState(() {
+                  _donationAllowed = value ?? false;
+                });
+              },
+            ),
+            const FZText(
+                text: "Allow donations",
+                style: FZTextStyle.paragraph),
+          ],
+        )
       ],
     );
   }
@@ -382,6 +400,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         editingEvent!.addressInstructions = addressInstructionCont.text;
         editingEvent!.addressArea = addressAreaCont.text;
         editingEvent!.map = mapCont.text;
+        editingEvent!.donation = _donationAllowed;
         editingEvent!.location = FZLocation(
                 address: fullAddress, geoData: geoFirePoint.data);
         editingEvent!.price = price;
@@ -417,6 +436,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             byFam: widget.famId,
             time: _eventDateTime,
             duration: _eventDuration,
+            donation: _donationAllowed,
             map: mapCont.text,
             location: FZLocation(
                 address: fullAddress, geoData: geoFirePoint.data));
