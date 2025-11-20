@@ -63,6 +63,21 @@ flutter:
   # Enable generation of localized Strings from arb files.
   generate: true
 
+  fonts:
+    - family: Cinzel
+      fonts:
+        - asset: assets/fonts/cinzel/Cinzel-VariableFont_wght.ttf
+    - family: Merriweather
+      fonts:
+        - asset: assets/fonts/merriweather/Merriweather-VariableFont_opsz,wdth,wght.ttf
+        - asset: assets/fonts/merriweather/Merriweather-Italic-VariableFont_opsz,wdth,wght.ttf
+          style: italic
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/playfair/PlayfairDisplay-VariableFont_wght.ttf
+        - asset: assets/fonts/playfair/PlayfairDisplay-Italic-VariableFont_wght.ttf
+          style: italic
+
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
@@ -71,3 +86,4 @@ flutter:
     - assets/event_placeholder.jpeg
     - assets/google-icon.png
     - assets/logo.png
+    - assets/yt_logo_fullcolor_white_digital.png

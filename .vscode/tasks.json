@@ -6,6 +6,12 @@
         "type": "shell",
         "command": "flutter run -d chrome --web-port=50000",
         "problemMatcher": []
+      },
+      {
+        "label": "flutter-run-surabhi-fam",
+        "type": "shell",
+        "command": "flutter run -d chrome --web-port=50000 --web-launch-url=http://localhost:50000/#/fam/IZRDrxOR4C7eOK8yJunW",
+        "problemMatcher": []
       }
     ]
   }

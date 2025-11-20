@@ -11,6 +11,7 @@ import 'package:flashzone_web/src/modules/fams/pending_requests_list.dart';
 import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
+import 'package:flashzone_web/src/screens/themed_screen.dart';
 import 'package:flashzone_web/src/screens/thumbnail_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -106,9 +107,9 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
         
       },
       child: childView(mobileSize), 
+      showMenu: fam == null? true: fam!.pageContent == null? true: false,
       sideMenuIndex: 2);
       
-    
   }
 
   childView(bool mobileSize) {
@@ -121,6 +122,10 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
 
     if(fam == null) {
       return FZErrorIndicator(text: "Fam Error", mobileSize: mobileSize);
+    }
+
+    if(fam!.pageContent != null) {
+      return ThemedPage(fam!);
     }
 
     return Padding(padding: const EdgeInsets.all(10),
@@ -346,7 +351,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
           horizontal(3),
           const FZText(text: "Preview mode", style: FZTextStyle.subheading, color: Colors.white,),
           const Expanded(child: SizedBox()),
-          FZButton(onPressed: publishFam, text: "Publish"),
+          FZButton(onPressed: () => publishFam(), text: "Publish"),
           horizontal(),
           FZButton(onPressed: editFam, text: "Cancel"),
           horizontal(3),
@@ -356,7 +361,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
   }
 
   publishFam() async {
-    if(fam != null) return;
+    if(fam == null) return;
 
     setState(() {
       _loading = true;

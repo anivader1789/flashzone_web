@@ -11,10 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class MasterView extends ConsumerStatefulWidget {
-  const MasterView({super.key, required this.child, this.onInitDone, required this.sideMenuIndex});
+  const MasterView({super.key, required this.child, this.onInitDone, required this.sideMenuIndex, this.showMenu = true});
   final Widget child;
   final Function ()? onInitDone;
   final int sideMenuIndex;
+  final bool showMenu;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MasterViewState();
@@ -55,6 +56,13 @@ class _MasterViewState extends ConsumerState<MasterView> {
     bool smallScreenSize = MediaQuery.of(context).size.width < 800;
     final user = ref.watch(currentuser);
 
+    if(widget.showMenu == false) {
+      print("Not showing menu; is a fam");
+      return Scaffold(
+        body: widget.child,
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

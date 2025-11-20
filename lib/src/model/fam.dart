@@ -1,3 +1,4 @@
+import 'package:flashzone_web/src/model/fam_page_content.dart';
 import 'package:flashzone_web/src/model/location.dart';
 
 class Fam {
@@ -10,6 +11,7 @@ class Fam {
   List<String> members;
   List<String> adminRequests;
   List<String> memberRequests;
+  FamPageContent? pageContent;
   String community; // New field
 
   FZLocation? location;
@@ -25,6 +27,7 @@ class Fam {
     required this.members,
     required this.adminRequests,
     required this.memberRequests,
+    this.pageContent,
     this.community = "Spirituality", // Default value
   });
 
@@ -36,7 +39,8 @@ class Fam {
     membersKey = 'members',
     locationKey = 'location', addressKey = "address", geoKey = "geo",
     adminRequestsKey = 'admin_requests',
-    memberRequestsKey = 'member_requests';
+    memberRequestsKey = 'member_requests',
+    pageContentKey = 'page_content';
 
   static Fam fromDocSnapshot(String id, Map<String, dynamic>? data) {
     if (data == null) {
@@ -64,6 +68,9 @@ class Fam {
       members: List<String>.from(data[membersKey] ?? []), 
       adminRequests: List<String>.from(data[adminRequestsKey] ?? []),
       memberRequests: List<String>.from(data[memberRequestsKey] ?? []),
+      pageContent: FamPageContent.fromMap(
+        Map<String, dynamic>.from(data[pageContentKey] ?? {}),
+      ),
       community: data[communityKey] ?? "Spirituality", // Read from data or default
     );
   }
@@ -159,6 +166,10 @@ class Fam {
       members: List<String>.from(json['members'] ?? []), 
       adminRequests: List<String>.from(json['admin_requests'] ?? []), 
       memberRequests: List<String>.from(json['member_requests'] ?? []), 
+      pageContent: json['page_content'] != null
+          ? FamPageContent.fromMap(
+              Map<String, dynamic>.from(json['page_content']))
+          : null,
       community: json[communityKey] ?? "Spirituality", // New field
     );
   }
