@@ -104,7 +104,6 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     return MasterView(
       onInitDone: () {
         Future(() => fetchDetails());
-        
       },
       child: childView(mobileSize), 
       showMenu: fam == null? true: fam!.pageContent == null? true: false,

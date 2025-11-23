@@ -33,6 +33,8 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   String? _imageUrl, _oldImageUrl;
   int _eventRepeatOptionSelected = 0;
   bool _donationAllowed = false;
+  final durations = List.generate(24, (index) => (index + 1) * 15); 
+  final List<String> items = [];
 
   final copyEventIdCont = TextEditingController(),
       titleCont = TextEditingController(),
@@ -65,6 +67,25 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       _eventDateTime = editingEvent!.time;
     } else {
       _eventDateTime = DateTime.now();
+    }
+
+    for (int i = 0; i < durations.length; i++) {
+      int duration = durations[i];
+      int hours = duration ~/ 60;
+      int minutes = duration % 60;
+      String hoursStr = hours > 0
+          ? hours == 1
+              ? "$hours hour "
+              : "$hours hours "
+          : "";
+      String minutesStr = minutes > 0
+          ? minutes == 1
+              ? "$minutes minute"
+              : "$minutes minutes"
+          : "";
+      String label = "$hoursStr$minutesStr".trim();
+      items.add(label);
+
     }
 
     populateFields();
@@ -217,7 +238,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const FZText(text: "Repeat Option", style: FZTextStyle.headline),
-        DropdownMenu(
+        DropdownMenu<int>(
           width: 300,
           initialSelection: 0,
           inputDecorationTheme: InputDecorationTheme(
@@ -616,8 +637,6 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       return false;
     }
 
-    
-
     return true;
   }
 
@@ -651,29 +670,20 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
 
   durationInput() {
     //Generate durations (minutes) from 30 minutes to 6 hours in 15 minutes increments
-    final durations = List.generate(24, (index) => (index + 1) * 15); // 15, 30, ..., 360 minutes
+    // 15, 30, ..., 360 minutes
     // final durations = List.generate(
     //     12, (index) => (index + 1) * 30); // 30, 60, 90, ..., 360 minutes
 
     //Generate DropdownMenuEntries for each duration
-    List<DropdownMenuEntry> items = [];
-    for (int i = 0; i < durations.length; i++) {
-      int duration = durations[i];
-      int hours = duration ~/ 60;
-      int minutes = duration % 60;
-      String hoursStr = hours > 0
-          ? hours == 1
-              ? "$hours hour "
-              : "$hours hours "
-          : "";
-      String minutesStr = minutes > 0
-          ? minutes == 1
-              ? "$minutes minute"
-              : "$minutes minutes"
-          : "";
-      String label = "$hoursStr$minutesStr".trim();
-      items.add(DropdownMenuEntry(value: duration, label: label));
-    }
+    //List<String> items = [];
+    
+      //items.add(DropdownMenuEntry(value: duration, label: label));
+    //}
+    List<DropdownMenuEntry<String>> dropdownItems = [
+      for (int i = 0; i < durations.length; i++)
+        DropdownMenuEntry(value: items[i], label: items[i])
+    ];
+    String currentSelectionLabel = items[durations.indexOf(_eventDuration)];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,20 +694,21 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
           children: [
             const Icon(Icons.timer),
             horizontal(),
-            DropdownMenu(
+            DropdownMenu<String>(
               width: 200,
-              initialSelection: _eventDuration,
+              initialSelection: currentSelectionLabel,
               inputDecorationTheme: InputDecorationTheme(
                 //isDense: true,
                 //contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 constraints: BoxConstraints.tight(const Size.fromHeight(40)),
                 border: const UnderlineInputBorder(),
               ),
-              dropdownMenuEntries: items,
+              dropdownMenuEntries: dropdownItems,
               //label: FZText(text: "$_eventDuration minutes", style: FZTextStyle.paragraph),
               onSelected: (value) {
                 setState(() {
-                  _eventDuration = value ?? 60; // Default to 60 minutes
+                  final index = items.indexOf(value!);
+                  _eventDuration = durations[index]; // Default to 60 minutes
                 });
               },
             ),
