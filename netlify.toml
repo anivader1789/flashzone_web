@@ -1,12 +1,7 @@
-# When request comes with Surabhi's host, always serve her fam route
 [[redirects]]
+  # This rule only applies when the Host header matches the custom domain
+  host = "www.simplyyousurabhi.org"
   from = "/*"
-  to = "/fam/IZRDrxOR4C7eOK8yJunW"
+  to = "/index.html" # Assuming your Flutter index is the entry point
   status = 200
-  conditions = { Host = ["www.simplyyousurabhi.org", "simplyyousurabhi.org"] }
-
-# Default SPA fallback for everything else (flashzone.io etc.)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  force = true
