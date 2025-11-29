@@ -40,6 +40,27 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+  <script>
+    const CUSTOM_DOMAIN = "www.simplyyousurabhi.org";
+    const CUSTOM_ROUTE_HASH = "#/fam/IZRDrxOR4C7eOK8yJunW";
+    const CUSTOM_TITLE = "Surabhi's site";
+
+    // This script runs immediately after the DOM structure is loaded.
+    if (window.location.hostname === CUSTOM_DOMAIN) {
+      // 1. Set the desired page title
+      document.title = CUSTOM_TITLE;
+
+      // 2. Ensure the correct hash fragment is loaded if the user hits the root URL
+      if (window.location.hash === "" || window.location.hash === "#/") {
+        // Use replaceState to change the URL without adding a history entry
+        window.history.replaceState(
+          null, 
+          '', 
+          window.location.pathname + CUSTOM_ROUTE_HASH
+        );
+      }
+    }
+  </script>
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/build/pdf.js" type="text/javascript"></script>
