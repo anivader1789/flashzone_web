@@ -1,7 +1,20 @@
+# This file forces a REWRITE (Domain Masking) instead of a REDIRECT (URL change)
+# for the custom domain, while ensuring asset files (like flutter.js) are served correctly.
+
+# --- 1. Rule for the WWW domain ---
 [[redirects]]
-  # This rule only applies when the Host header matches the custom domain
   host = "www.simplyyousurabhi.org"
-  from = "/*"
-  to = "/index.html" # Assuming your Flutter index is the entry point
+  # Targets ONLY the root path, allowing assets like flutter.js to load normally.
+  from = "/"
+  to = "/index.html"
+  # STATUS 200 is the key: it means "rewrite/proxy," not "redirect."
+  status = 200
+  force = true
+
+# --- 2. Rule for the naked domain (Recommended) ---
+[[redirects]]
+  host = "simplyyousurabhi.org"
+  from = "/"
+  to = "/index.html"
   status = 200
   force = true
