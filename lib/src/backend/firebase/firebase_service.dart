@@ -11,6 +11,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/invitation.dart';
 import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/model/store.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flashzone_web/src/screens/terms_screen.dart';
@@ -537,6 +538,51 @@ class FirebaseService {
       throw FirebaseError(message: "Adding new flash: ${e.toString()}");
     }
   }
+
+  Future<List<CartItem>> getUserCartItems(String userId) async {
+    try {
+      final querySnapshot = await _db.collection(CartItem.collectionName)
+        .where(CartItem.buyerIdKey, isEqualTo: userId)
+        //.where("statusCode", isEqualTo: 0)
+        .get();
+
+      if(querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.map((e) => CartItem.fromDocSnapshot(e.id, e.data())).toList();
+      } else {
+        return List.empty();
+      }
+    } catch(e) {
+      throw FirebaseError(message: "Getting cart items: ${e.toString()}");
+    }
+  }
+
+  Future<CartItem> addItemToCart(CartItem cartItem) async {
+    try {
+      final doc = await _db.collection(CartItem.collectionName).add(cartItem.creationObj());
+      cartItem.id = doc.id;
+      return cartItem;
+    }  catch(e) {
+      throw FirebaseError(message: "Adding item to cart: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> removeItemFromCart(CartItem cartItem) async {
+    try {
+      await _db.collection(CartItem.collectionName).doc(cartItem.id).delete();
+      return FZResult(code: SuccessCode.successful, message: "Cart item removed");
+    }  catch(e) {
+      throw FirebaseError(message: "Removing cart item: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> updateCartItem(CartItem cartItem) async {
+    try {
+      await _db.collection(CartItem.collectionName).doc(cartItem.id).update(cartItem.creationObj());
+      return FZResult(code: SuccessCode.successful, message: "Cart item updated");
+    }  catch(e) {
+      throw FirebaseError(message: "Updating cart item: ${e.toString()}");
+    }
+  } 
 
   Future<FZResult> sendMessagetoDeveloper(String email, String message) async {
     try {

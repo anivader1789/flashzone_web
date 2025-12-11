@@ -1,3 +1,5 @@
+import 'package:flashzone_web/src/model/store.dart';
+
 class FamPageContent {
   final int themeVersion;
   
@@ -40,15 +42,7 @@ class FamPageContent {
           .toList() ??
           [],
       storeItems: (data['store'] as List<dynamic>?)
-          ?.map((e) => StoreItem(
-                id: e['id'] as String,
-                title: e['title'] as String,
-                subtitle: e['subtitle'] as String,
-                image: e['image'] as String,
-                description: e['description'] as String,
-                price: e['price'] as int,
-                currency: e['currency'] as String,
-              ))
+          ?.map((e) => StoreItem.fromMap(e as Map<String, dynamic>))
           .toList(),
       galleryHeading: data['gallery_heading'] as String?,
       galleryImageUrls: (data['gallery_image_urls'] as List<dynamic>?)
@@ -70,20 +64,3 @@ class MidSectionContent {
     });
 }
 
-class StoreItem {
-  final String id;
-  final String title, subtitle;
-  final String description;
-  final String image;
-  final int price;
-  final String currency;
-  StoreItem({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.description,
-    required this.image,
-    required this.price,
-    required this.currency,
-  });
-}

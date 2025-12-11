@@ -2,6 +2,8 @@ import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/fam_page_content.dart';
+import 'package:flashzone_web/src/model/store.dart';
+import 'package:flashzone_web/src/screens/subviews/themed_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,35 +64,42 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
         ),
       ),
       //Top navigation bar
-      Container(
-        width: screenSize.width,
-        height: 60,
-        color: Colors.black.withOpacity(0.7),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true),
-              Row(
-                children: [
-                  //TextButton(onPressed: () {}, child: themeText("About Surabhi", color: Colors.white)),
-                  //horizontal(4),
-                  TextButton(onPressed: () {}, child: themeText("Book a session", color: Colors.white,)),
-                  horizontal(4),
-                  TextButton(onPressed: () {}, child: themeText("Contact", color: Colors.white,)),
-                  horizontal(4),
-                  const Icon(CupertinoIcons.cart, color: Colors.white,),
-                  horizontal(4),
-                  CircleAvatar(
-                    foregroundImage: Helpers.loadImageProvider(ref.read(currentuser).avatar), radius: 18,
-                    ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
+      ThemedNavBar(
+        titleWidget: themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true), 
+        actions: [
+          TextButton(onPressed: () {}, child: themeText("Book a session", color: Colors.white,)),
+          TextButton(onPressed: () {}, child: themeText("Contact", color: Colors.white,)),
+        ], 
+        userAvatar: ref.read(currentuser).avatar)
+      // Container(
+      //   width: screenSize.width,
+      //   height: 60,
+      //   color: Colors.black.withOpacity(0.7),
+      //   child: Padding(
+      //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      //     child: Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //       children: [
+      //         themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true),
+      //         Row(
+      //           children: [
+      //             //TextButton(onPressed: () {}, child: themeText("About Surabhi", color: Colors.white)),
+      //             //horizontal(4),
+      //             TextButton(onPressed: () {}, child: themeText("Book a session", color: Colors.white,)),
+      //             horizontal(4),
+      //             TextButton(onPressed: () {}, child: themeText("Contact", color: Colors.white,)),
+      //             horizontal(4),
+      //             const Icon(CupertinoIcons.cart, color: Colors.white,),
+      //             horizontal(4),
+      //             CircleAvatar(
+      //               foregroundImage: Helpers.loadImageProvider(ref.read(currentuser).avatar), radius: 18,
+      //               ),
+      //           ],
+      //         )
+      //       ],
+      //     ),
+      //   ),
+      // ),
       ],
       
 

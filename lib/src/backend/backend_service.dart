@@ -5,7 +5,9 @@ import 'package:flashzone_web/src/backend/firebase/firebase_auth_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_chat_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_fam_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_service.dart';
+import 'package:flashzone_web/src/model/appointments.dart';
 import 'package:flashzone_web/src/model/auth_creds.dart';
+import 'package:flashzone_web/src/model/available_slots.dart';
 import 'package:flashzone_web/src/model/chat.dart';
 import 'package:flashzone_web/src/model/chat_message.dart';
 import 'package:flashzone_web/src/model/comment.dart';
@@ -15,6 +17,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/invitation.dart';
 import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/model/store.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
@@ -88,6 +91,11 @@ class BackendService {
                       required Function failureCallback, 
                       required Function successCallback}) => firebaseAuth.submitOTP(smsCode: smsCode, failureCallback: failureCallback, successCallback: successCallback);
 
+  Future<List<CartItem>> getUserCartItems(String userId) => firebase.getUserCartItems(userId);
+  Future<CartItem> addItemToCart(CartItem cartItem) => firebase.addItemToCart(cartItem);
+  Future<FZResult> removeItemFromCart(CartItem cartItem) => firebase.removeItemFromCart(cartItem);
+  Future<FZResult> updateCartItem(CartItem cartItem) => firebase.updateCartItem(cartItem);
+  
   Future<FZResult> deleteFlash(Flash flash) async {
     try {
       await firebase.deleteFlash(flash);
@@ -287,6 +295,12 @@ class BackendService {
   Future<FZResult> addNewFam(Fam fam) => firebaseFam.addNewFam(fam.creationObj());
   Future<FZResult> updateFam(Fam fam) => firebaseFam.updateFam(fam);
   Future<Fam?> fetchFam(String famId) => firebaseFam.fetchFam(famId);
+
+  Future<Appointment> makeBooking(Appointment appointment) => firebaseFam.makeBooking(appointment);
+  Future<List<Appointment>> getBookingsForUser(String userId) => firebaseFam.getBookingsForUser(userId);
+  Future<FZResult> deleteBooking(String appointmentId) => firebaseFam.deleteBooking(appointmentId);
+  
+  Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) => firebaseFam.getAvailableSlotsForProvider(providerUserId, providerFamId);
 
   
 }

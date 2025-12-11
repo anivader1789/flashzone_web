@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/helpers/constants.dart';
-import 'package:flashzone_web/src/helpers/packages.dart';
+//import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/auth_creds.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import './google_signin_btn.dart';
-import 'package:google_sign_in_web/google_sign_in_web.dart';
+//import 'package:google_sign_in_web/google_sign_in_web.dart';
 
 
 
@@ -23,7 +23,8 @@ class GoogleSignInBtn extends ConsumerStatefulWidget {
 class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
 
   final List<String> scopes = <String>[
-    //'email',
+    'email',
+    'https://www.googleapis.com/auth/calendar',
     //'https://www.googleapis.com/auth/contacts.readonly',
   ];
 
@@ -50,7 +51,7 @@ class _GoogleSignInBtnState extends ConsumerState<GoogleSignInBtn> {
 
         // Obtain the auth details from the request
         final GoogleSignInAuthentication googleAuth = await account.authentication;
-
+        
         // Create a new credential
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,

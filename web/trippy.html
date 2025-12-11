@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divine Fractal Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Deep black background */
+            overflow: hidden; /* Hide scrollbars */
+        }
+        canvas {
+            display: block; /* Remove default inline spacing */
+        }
+        /* Optional: Instructions overlay that fades out */
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-family: sans-serif;
+            pointer-events: none;
+            animation: fadeOut 4s forwards;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="instructions">Press F11 for Full Screen</div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let time = 0;
+        
+        // Configuration for the "Divine" feel
+        const settings = {
+            trail: 0.05,       // How much the previous frame lingers (0.01 - 0.2)
+            symmetry: 12,      // Number of rotational symmetry arms
+            speed: 0.02,       // Animation speed
+            colorSpeed: 0.5,   // How fast colors cycle
+            scaleBase: 200,    // Base size of the pattern
+        };
+
+        // Resize canvas to fill window
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // The main drawing loop
+        function draw() {
+            // 1. Create the "Trail" effect
+            // Instead of clearing the canvas, we draw a semi-transparent black rectangle.
+            // This makes old lines slowly fade into the background.
+            ctx.fillStyle = `rgba(0, 0, 0, ${settings.trail})`;
+            ctx.fillRect(0, 0, width, height);
+
+            // 2. Set up drawing coordinates
+            // Move origin to center of screen
+            ctx.translate(width / 2, height / 2);
+
+            // 3. Color Logic (HSL)
+            // Hue rotates over time
+            const hue = (time * 10) % 360;
+            ctx.strokeStyle = `hsl(${hue}, 70%, 50%)`;
+            ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+            ctx.lineWidth = 2;
+            
+            // Add a neon glow effect
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+
+            // 4. Draw the Fractal/Mandala Pattern
+            ctx.beginPath();
+            
+            // We draw loops based on symmetry
+            for (let i = 0; i < settings.symmetry; i++) {
+                // Rotate the context for each arm of the star/mandala
+                ctx.rotate((Math.PI * 2) / settings.symmetry);
+                
+                // Dynamic geometric math
+                // Using sine and cosine combined with time to create "breathing" shapes
+                let x = Math.sin(time) * (Math.cos(time * 1.5) * settings.scaleBase);
+                let y = Math.cos(time * 0.8) * settings.scaleBase;
+                
+                // Secondary orbit (adds the fractal complexity)
+                let x2 = x + Math.cos(time * 4) * 50;
+                let y2 = y + Math.sin(time * 4) * 50;
+
+                // Draw lines relative to the rotation
+                ctx.moveTo(x, y);
+                ctx.lineTo(x2, y2);
+                
+                // Draw small particles at the tips for extra "sparkle"
+                ctx.arc(x2, y2, 3, 0, Math.PI * 2);
+            }
+            
+            ctx.stroke();
+
+            // 5. Reset transformation for next frame
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            // 6. Increment time and loop
+            time += settings.speed;
+            requestAnimationFrame(draw);
+        }
+
+        // Start animation
+        draw();
+
+    </script>
+</body>
+</html>

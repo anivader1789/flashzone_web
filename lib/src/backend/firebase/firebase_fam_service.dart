@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flashzone_web/src/model/appointments.dart';
+import 'package:flashzone_web/src/model/available_slots.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
@@ -107,6 +111,61 @@ class FirebaseFamService {
       throw FirebaseError(message: "Getting my fam events: ${e.toString()}");
     }
   }
+
+  Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) async {
+    try {
+      final querySnapshot = await db.collection(AvailableSlots.collectionName)
+        .where(AvailableSlots.fieldProviderUserId, isEqualTo: providerUserId)
+        .where(AvailableSlots.fieldProviderFamId, isEqualTo: providerFamId)
+        .get();
+      //print("Fetching fam available slots: got ${querySnapshot.docs.length} slots for providerUserId = $providerUserId");
+      if(querySnapshot.docs.isNotEmpty) {
+        return AvailableSlots.fromMap(querySnapshot.docs[0].data(), querySnapshot.docs[0].id);
+      } else {
+        throw FirebaseError(message: "No available slots found for providerUserId = $providerUserId");
+      }
+    } catch (e) {
+      throw FirebaseError(message: "Getting provider available slots: ${e.toString()}");
+    }
+  }
+
+  Future<List<Appointment>> getBookingsForUser(String userId) async {
+    try {
+      final querySnapshot = await db.collection(Appointment.collectionName)
+        .where(Appointment.fieldProviderId, isEqualTo: userId)
+        .get();
+      //print("Fetching fam appointments: got ${querySnapshot.docs.length} appointments byFamId = $famId");
+      if(querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.map((e) => Appointment.fromMap(e.data(), e.id))
+        .toList();
+      } else {
+        return List.empty();
+      }
+    } catch (e) {
+      throw FirebaseError(message: "Getting user appointments: ${e.toString()}");
+    }
+  }
+
+  Future<Appointment> makeBooking(Appointment appointment) async {
+    try {
+      final docRef = await db.collection(Appointment.collectionName).add(appointment.toMap());
+      await docRef.update({'id': docRef.id});
+      final doc = await docRef.get();
+      return Appointment.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+    } catch (e) {
+      throw FirebaseError(message: "Making booking: ${e.toString()}");
+    }
+  }
+
+  Future<FZResult> deleteBooking(String appointmentId) async {
+    try {
+      await db.collection(Appointment.collectionName).doc(appointmentId).delete();
+      return FZResult.success('Appointment deleted successfully');
+    } catch (e) {
+      return FZResult.error(e.toString());
+    }
+  }
+
 
   GeoPoint geopointFrom(Map<String, dynamic> data) =>
      (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;

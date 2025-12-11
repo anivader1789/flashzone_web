@@ -7,7 +7,6 @@ import 'package:flashzone_web/src/model/op_results.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/email_auth/email_auth.dart';
 import 'package:flashzone_web/src/modules/google_auth/google_auth.dart';
-import 'package:flashzone_web/src/screens/terms_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
