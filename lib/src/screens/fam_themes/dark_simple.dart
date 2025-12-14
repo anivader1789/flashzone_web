@@ -346,7 +346,9 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                           themeText("${item.currency} ${item.price} ", isPrimaryFont: false, weight: FontWeight.bold, size: 21, color: Colors.yellow),
                           vertical(2),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

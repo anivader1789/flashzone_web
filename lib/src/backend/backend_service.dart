@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashzone_web/src/backend/aws/aws_service.dart';
+import 'package:flashzone_web/src/backend/booking_and_payment/razorpay_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_auth_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_chat_service.dart';
 import 'package:flashzone_web/src/backend/firebase/firebase_fam_service.dart';
@@ -23,6 +24,7 @@ import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 final backend = Provider((ref) => BackendService(ref));
 final currentuser = StateProvider<FZUser>((ref) => FZUser.signedOut());
@@ -53,6 +55,7 @@ class BackendService {
   late FirebaseAuthService firebaseAuth;
   late FirebaseChatService firebaseChat;
   late FirebaseFamService firebaseFam;
+  late RazorpayService razorpayService;
   BackendService(this.ref) {
     aws = AwsService(ref);
     firebase = FirebaseService(ref: ref);
@@ -63,6 +66,7 @@ class BackendService {
     await requestPermissions();
     await LocationService.updateCurrentLocation(ref);
     await firebase.init();
+    await razorpayService.initService();
 
     firebaseAuth = FirebaseAuthService(ref: ref);
     firebaseChat = FirebaseChatService(ref: ref, db: firebase.db, firebaseStorage: firebase.firebaseStorage);
@@ -302,5 +306,7 @@ class BackendService {
   
   Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) => firebaseFam.getAvailableSlotsForProvider(providerUserId, providerFamId);
 
+  void attachCallbacks(Function (PaymentSuccessResponse) onPaymentSuccess, Function (PaymentFailureResponse) onPaymentFailure, Function (ExternalWalletResponse) onChangePaymentMethod) => razorpayService.attachCallbacks(onPaymentSuccess, onPaymentFailure, onChangePaymentMethod);
+  void initiatePayment(double amount, String currency) => razorpayService.initiatePayment(amount, currency);
   
 }

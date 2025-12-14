@@ -40,7 +40,6 @@ class FirebaseService {
     //_analytics = FirebaseAnalytics.instanceFor(app: _firebase);
     _firebaseAuth = FirebaseAuth.instanceFor(app: _firebase);
     //await _firebaseAuth.setPersistence(Persistence.INDEXED_DB);
-    _firebaseStorage = FirebaseStorage.instance;
 
     _firebaseAuth.authStateChanges().listen((user) => authStatusChanged(user));
   } 
