@@ -64,10 +64,10 @@ class BackendService {
   }
 
   Future<void> init() async {
-    await requestPermissions();
-    await LocationService.updateCurrentLocation(ref);
+    //await requestPermissions();
+    //await LocationService.updateCurrentLocation(ref);
     await firebase.init();
-    await razorpayService.initService();
+     razorpayService.initService();
 
     firebaseAuth = FirebaseAuthService(ref: ref);
     firebaseChat = FirebaseChatService(ref: ref, db: firebase.db, firebaseStorage: firebase.firebaseStorage);
