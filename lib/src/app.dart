@@ -7,16 +7,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'package:universal_html/html.dart' as html;
 
 /// The Widget that configures your application.
 class App extends ConsumerWidget {
-  const App({
+  App({
     super.key,
     required this.settingsController,
-  });
+  }) {
+    _setTitleForHost();
+  }
+
+  
 
   final SettingsController settingsController;
   
+  void _setTitleForHost() {
+    final host = html.window.location.host; // e.g. 'simplyyousurabhi.org'
+    if (host == 'simplyyousurabhi.org') {
+      html.document.title = "Surabhi's site (Simply you Surabhi)";
+    } else if (host == 'flashzone.io' || host.endsWith('flashzone.netlify.app')) {
+      html.document.title = 'Flashzone';
+    } else {
+      html.document.title = 'Flashzone'; // default
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

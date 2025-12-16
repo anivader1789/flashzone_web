@@ -46,6 +46,7 @@ dependencies:
   razorpay_flutter: ^1.4.0
   riverpod: ^2.5.1
   shared_preferences: ^2.2.3
+  universal_html: ^2.2.4
   url_launcher: ^6.3.1
   uuid: ^4.5.1
 
