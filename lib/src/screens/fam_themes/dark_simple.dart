@@ -1,8 +1,8 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
-import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/fam_page_content.dart';
 import 'package:flashzone_web/src/model/store.dart';
+import 'package:flashzone_web/src/screens/purchase%20screens/book_session_view.dart';
 import 'package:flashzone_web/src/screens/subviews/themed_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,10 @@ class DarkSimpleThemePage extends ConsumerStatefulWidget {
 }
 
 class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
-
+  final _bookSessionPopupController = OverlayPortalController();
+  final _checkoutPopupController = OverlayPortalController();
+  final _cartPopupController = OverlayPortalController();
+  
   @override
   Widget build(BuildContext context) {
     if(widget.fam.pageContent == null) {
@@ -347,13 +350,32 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                           vertical(2),
                           ElevatedButton(
                             onPressed: () {
-                              
+                              _bookSessionPopupController.show();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             ),
-                            child: themeText("Book Now", color: Colors.black, ),
+                            child: 
+                              OverlayPortal(
+                                controller: _bookSessionPopupController, 
+                                overlayChildBuilder: ((context) => BookSessionView(
+                                  onBookingComplete: (item) {
+                                    _bookSessionPopupController.hide();
+                                  }, onCancel: () {
+                                    _bookSessionPopupController.hide();
+                                  }, 
+                                  providerUserId: widget.fam.admins[0], 
+                                  providerFamId: widget.fam.id!, 
+                                  providerName: widget.fam.name, 
+                                  bookingDuration: item.sessionDuration ?? "60", 
+                                  title: item.title, 
+                                  description: item.description, 
+                                  price: item.price, 
+                                  currency: item.currency)),
+                                child: themeText("Book Now", color: Colors.black, ),
+                                  )
+                             
                           ),
                         ],
                       ),

@@ -125,7 +125,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
             child: OverlayPortal(
               controller: _accountPopupController, 
               overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: smallScreenSize,),),
-              ),),
+            ),),
         //CircleAvatar(backgroundImage: Helpers.loadImageProvider("assets/profile_pic_placeholder.png")),
         const SizedBox(width: 15,),
       ],

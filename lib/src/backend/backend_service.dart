@@ -18,6 +18,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/model/invitation.dart';
 import 'package:flashzone_web/src/model/notification.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/model/purchased_item.dart';
 import 'package:flashzone_web/src/model/store.dart';
 import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
@@ -59,7 +60,7 @@ class BackendService {
   BackendService(this.ref) {
     aws = AwsService(ref);
     firebase = FirebaseService(ref: ref);
-    
+    razorpayService = RazorpayService();
   }
 
   Future<void> init() async {
@@ -306,7 +307,11 @@ class BackendService {
   
   Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) => firebaseFam.getAvailableSlotsForProvider(providerUserId, providerFamId);
 
-  void attachCallbacks(Function (PaymentSuccessResponse) onPaymentSuccess, Function (PaymentFailureResponse) onPaymentFailure, Function (ExternalWalletResponse) onChangePaymentMethod) => razorpayService.attachCallbacks(onPaymentSuccess, onPaymentFailure, onChangePaymentMethod);
+  Future<FZResult> addPurchasedItem(PurchasedItem purchasedItem) => firebaseFam.addPurchasedItem(purchasedItem);
+  Future<PurchasedItem> getPurchasedItemsForUser(String buyerUserId) => firebaseFam.getPurchasedItemsForUser(buyerUserId);
+  Future<PurchasedItem> getPurchasedItemsForFam(String sellerFamId) => firebaseFam.getPurchasedItemsForFam(sellerFamId);
+  
+  void attachCallbacksForPayment(Function (PaymentSuccessResponse) onPaymentSuccess, Function (PaymentFailureResponse) onPaymentFailure, Function (ExternalWalletResponse) onChangePaymentMethod) => razorpayService.attachCallbacks(onPaymentSuccess, onPaymentFailure, onChangePaymentMethod);
   void initiatePayment(double amount, String currency) => razorpayService.initiatePayment(amount, currency);
   
 }

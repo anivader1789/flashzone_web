@@ -36,6 +36,7 @@ class FirebaseService {
     _firebase = await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    _firebaseStorage = FirebaseStorage.instanceFor(app: _firebase);
     _db = FirebaseFirestore.instance;
     //_analytics = FirebaseAnalytics.instanceFor(app: _firebase);
     _firebaseAuth = FirebaseAuth.instanceFor(app: _firebase);

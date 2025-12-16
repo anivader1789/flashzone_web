@@ -5,6 +5,7 @@ class StoreItem {
   final String image;
   final int price;
   final String currency;
+  final String? sessionDuration;
   StoreItem({
     required this.id,
     required this.title,
@@ -13,6 +14,7 @@ class StoreItem {
     required this.image,
     required this.price,
     required this.currency,
+    this.sessionDuration,
   });
 
   static StoreItem fromMap(Map<String, dynamic> data) {
@@ -25,6 +27,7 @@ class StoreItem {
       image: data['image'] as String,
       price: data['price'] as int,
       currency: data['currency'] as String,
+      sessionDuration: data['sessionDuration'] as String?,
     );
   }
 }

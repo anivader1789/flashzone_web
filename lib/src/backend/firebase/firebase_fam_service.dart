@@ -7,6 +7,7 @@ import 'package:flashzone_web/src/model/available_slots.dart';
 import 'package:flashzone_web/src/model/event.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/op_results.dart';
+import 'package:flashzone_web/src/model/purchased_item.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
@@ -111,6 +112,50 @@ class FirebaseFamService {
       throw FirebaseError(message: "Getting my fam events: ${e.toString()}");
     }
   }
+
+  Future<FZResult> addPurchasedItem(PurchasedItem purchasedItem) async {
+    try {
+      final docRef = await db.collection(PurchasedItem.collectionName).add(purchasedItem.toMap());
+      await docRef.update({'id': docRef.id});
+      return FZResult.success(docRef.id);
+    } catch (e) {
+      return FZResult.error(e.toString());
+    }
+  }
+
+  Future<PurchasedItem> getPurchasedItemsForUser(String buyerUserId) async {
+    try {
+      final querySnapshot = await db.collection(PurchasedItem.collectionName)
+        .where(PurchasedItem.fieldBuyerUserId, isEqualTo: buyerUserId)
+        .get();
+      //print("Fetching purchased items: got ${querySnapshot.docs.length} items for buyerUserId = $buyerUserId");
+      if(querySnapshot.docs.isNotEmpty) {
+        return PurchasedItem.fromMap(querySnapshot.docs[0].data(), querySnapshot.docs[0].id);
+      } else {
+        throw FirebaseError(message: "No purchased items found for buyerUserId = $buyerUserId");
+      }
+    } catch (e) {
+      throw FirebaseError(message: "Getting purchased items for user: ${e.toString()}");
+    }
+  }
+
+  Future<PurchasedItem> getPurchasedItemsForFam(String sellerFamId) async {
+    try {
+      final querySnapshot = await db.collection(PurchasedItem.collectionName)
+        .where(PurchasedItem.fieldSellerFamId, isEqualTo: sellerFamId)
+        .get();
+      //print("Fetching purchased items: got ${querySnapshot.docs.length} items for sellerFamId = $sellerFamId");
+      if(querySnapshot.docs.isNotEmpty) {
+        return PurchasedItem.fromMap(querySnapshot.docs[0].data(), querySnapshot.docs[0].id);
+      } else {
+        throw FirebaseError(message: "No purchased items found for sellerFamId = $sellerFamId");
+      }
+    } catch (e) {
+      throw FirebaseError(message: "Getting purchased items for fam: ${e.toString()}");
+    }
+  }
+
+  
 
   Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) async {
     try {
