@@ -18,6 +18,7 @@ import 'package:flashzone_web/src/screens/route_error_screen.dart';
 import 'package:flashzone_web/src/screens/write_flash.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_html/html.dart' as html;
 
 final GoRouter router = GoRouter(
   initialLocation: Routes.home,
@@ -106,12 +107,18 @@ final GoRouter router = GoRouter(
         GoRoute(
           path: '${Routes.famDetail}/:famid',
           builder: (context, state) {
+            bool hasCustomPage = false;
+            final host = html.window.location.host; 
+            if (host == 'simplyyousurabhi.org') {
+              hasCustomPage = true;
+            }
+            
             final famId = state.pathParameters['famid'];
             if(famId == null || famId.isEmpty) {
               return RouteErrorScreen(fullUrl: state.fullPath?? "Unkown");
             }
             
-            return FamHomeScreen(famId: famId);
+            return FamHomeScreen(famId: famId, hasCustomPage: hasCustomPage,);
           },),
         GoRoute(
           path: '${Routes.eventDetail}/:eventid',
@@ -149,8 +156,21 @@ class FZApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String siteTitle = "...";
+    final host = html.window.location.host; // e.g. 'simplyyousurabhi.org'
+    if (host == 'simplyyousurabhi.org') {
+      siteTitle = "Surabhi's site (Simply you Surabhi)";
+    } else if (host == 'flashzone.io' || host.endsWith('flashzone.netlify.app')) {
+      siteTitle = 'Flashzone';
+    } else {
+      siteTitle = 'Flashzone'; // default
+    }
+
+    html.document.title = siteTitle;
+
+
     return MaterialApp.router(
-      title: 'FlashZone',
+      title: siteTitle,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         appBarTheme: const AppBarTheme(

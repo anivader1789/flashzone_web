@@ -21,16 +21,19 @@ class App extends ConsumerWidget {
   
 
   final SettingsController settingsController;
-  
+  String siteTitle = "...";
+
   void _setTitleForHost() {
     final host = html.window.location.host; // e.g. 'simplyyousurabhi.org'
     if (host == 'simplyyousurabhi.org') {
-      html.document.title = "Surabhi's site (Simply you Surabhi)";
+      siteTitle = "Surabhi's site (Simply you Surabhi)";
     } else if (host == 'flashzone.io' || host.endsWith('flashzone.netlify.app')) {
-      html.document.title = 'Flashzone';
+      siteTitle = 'Flashzone';
     } else {
-      html.document.title = 'Flashzone'; // default
+      siteTitle = 'Flashzone'; // default
     }
+
+    html.document.title = siteTitle;
   }
 
   @override
@@ -49,7 +52,7 @@ class App extends ConsumerWidget {
           // background.
           debugShowCheckedModeBanner: false,
           restorationScopeId: 'app',
-          title: "FlashZone",
+          title: siteTitle,
           // Provide the generated AppLocalizations to the MaterialApp. This
           // allows descendant Widgets to display the correct translations
           // depending on the user's locale.

@@ -53,8 +53,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
   
   @override
   Widget build(BuildContext context) {
-    bool smallScreenSize = MediaQuery.of(context).size.width < 800;
-    final user = ref.watch(currentuser);
+    
 
     if(widget.showMenu == false) {
       print("Not showing menu; is a fam");
@@ -62,6 +61,9 @@ class _MasterViewState extends ConsumerState<MasterView> {
         body: widget.child,
       );
     }
+
+    bool smallScreenSize = MediaQuery.of(context).size.width < 800;
+    final user = ref.watch(currentuser);
     
     return Scaffold(
       appBar: AppBar(

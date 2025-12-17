@@ -8,6 +8,7 @@ import 'package:flashzone_web/src/model/flash.dart';
 import 'package:flashzone_web/src/modules/fams/members_list_view.dart';
 import 'package:flashzone_web/src/modules/fams/membership_status_views.dart';
 import 'package:flashzone_web/src/modules/fams/pending_requests_list.dart';
+import 'package:flashzone_web/src/modules/views/loading_fam_view.dart';
 import 'package:flashzone_web/src/screens/master_view.dart';
 import 'package:flashzone_web/src/screens/subviews/event_cell_view.dart';
 import 'package:flashzone_web/src/screens/subviews/flash_view.dart';
@@ -22,9 +23,9 @@ import 'package:go_router/go_router.dart';
 //http://localhost:50000/#fams/H2xoT8GAAWd3tKGbeij3
 
 class FamHomeScreen extends ConsumerStatefulWidget {
-  const FamHomeScreen({super.key, required this.famId});
+  const FamHomeScreen({super.key, required this.famId, required this.hasCustomPage});
   final String? famId;
-
+  final bool hasCustomPage;
   static const routeName = 'fams';
 
   @override
@@ -106,7 +107,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
         Future(() => fetchDetails());
       },
       child: childView(mobileSize), 
-      showMenu: fam == null? true: fam!.pageContent == null? true: false,
+      showMenu: widget.hasCustomPage == false,
       sideMenuIndex: 2);
       
   }
@@ -115,7 +116,18 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     if(ref.read(famInEdit) == null && widget.famId == "0") {
       return FZErrorIndicator(text: "Nothing to preview..", mobileSize: mobileSize);
     }
+
+    if(widget.hasCustomPage) {
+      if(_loading) {
+        return const LoadingWidget();
+      } else {
+        return ThemedPage(fam!);
+      }
+        
+      }
+
     if(_loading) {
+      
       return FZLoadingIndicator(text: "Please wait..", mobileSize: mobileSize);
     }
 
