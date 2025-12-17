@@ -108,10 +108,13 @@ final GoRouter router = GoRouter(
           path: '${Routes.famDetail}/:famid',
           builder: (context, state) {
             bool hasCustomPage = false;
+            String surabhiDomain = 'simplyyousurabhi.org';
             final host = html.window.location.host; 
-            if (host == 'simplyyousurabhi.org') {
+            if (host.contains(surabhiDomain) || host == surabhiDomain) {
               hasCustomPage = true;
             }
+
+            print("(From routing) Host: $host, hasCustomPage: $hasCustomPage");
             
             final famId = state.pathParameters['famid'];
             if(famId == null || famId.isEmpty) {
@@ -158,7 +161,7 @@ class FZApp extends StatelessWidget {
   Widget build(BuildContext context) {
     String siteTitle = "...";
     final host = html.window.location.host; // e.g. 'simplyyousurabhi.org'
-    if (host == 'simplyyousurabhi.org') {
+    if (host == 'simplyyousurabhi.org' || host.contains('simplyyousurabhi')) {
       siteTitle = "Surabhi's site (Simply you Surabhi)";
     } else if (host == 'flashzone.io' || host.endsWith('flashzone.netlify.app')) {
       siteTitle = 'Flashzone';
