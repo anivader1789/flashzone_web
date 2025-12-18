@@ -1,10 +1,10 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/fam_page_content.dart';
+import 'package:flashzone_web/src/model/local%20use/button_data.dart';
 import 'package:flashzone_web/src/model/store.dart';
 import 'package:flashzone_web/src/screens/purchase%20screens/book_session_view.dart';
 import 'package:flashzone_web/src/screens/subviews/themed_nav_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,17 +18,27 @@ class DarkSimpleThemePage extends ConsumerStatefulWidget {
 
 class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
   final _bookSessionPopupController = OverlayPortalController();
-  final _checkoutPopupController = OverlayPortalController();
-  final _cartPopupController = OverlayPortalController();
+  final _ctaPopupControllersList = <OverlayPortalController>[];
+  //final _checkoutPopupController = OverlayPortalController();
+  //final _cartPopupController = OverlayPortalController();
   
   @override
+  void initState() {
+    super.initState();
+    for (var item in widget.fam.pageContent?.storeItems ?? []) {
+      _ctaPopupControllersList.add(OverlayPortalController());
+    }
+  }
+  @override
   Widget build(BuildContext context) {
+
     if(widget.fam.pageContent == null) {
       return Container();
     }
 
     FamPageContent content = widget.fam.pageContent!;
     Size screenSize = MediaQuery.of(context).size;
+    bool isMobile = screenSize.width < 800;
 
     return Stack(
       children: [
@@ -46,17 +56,17 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
         SingleChildScrollView(
           child: Column(
             children: [
-              heroSection(screenSize, content), 
+              heroSection(screenSize, content, isMobile), 
               //vertical(2),
               //const FZText(text: "Helloo", style: FZTextStyle.headline,),
-              midSection(screenSize, content.midSections[0]),
+              midSection(screenSize, isMobile, content.midSections[0]),
               //vertical(),            
               joinFamSection(screenSize, content),
               //vertical(),
-              midSection(screenSize, content.midSections[1], true),
+              midSection(screenSize, isMobile, content.midSections[1], true),
               //vertical(),
               if(content.storeItems != null && content.storeItems!.isNotEmpty)
-                storeSection(screenSize, content.storeItems!),
+                storeSection(screenSize, isMobile, content.storeItems!),
 
               //vertical(),
               sendMessageSection(screenSize),
@@ -69,9 +79,9 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
       //Top navigation bar
       ThemedNavBar(
         titleWidget: themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true), 
-        actions: [
-          TextButton(onPressed: () {}, child: themeText("Book a session", color: Colors.white,)),
-          TextButton(onPressed: () {}, child: themeText("Contact", color: Colors.white,)),
+        buttonsDataList: [
+          ButtonData(label: "Book a session", onPressed: () {}, icon: Icons.book_online,),
+          ButtonData(label: "Contact", onPressed: () {}, icon: Icons.contact_mail,),
         ], 
         userAvatar: ref.read(currentuser).avatar)
       // Container(
@@ -109,7 +119,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
     );
   }
 
-  heroSection(Size screenSize, FamPageContent content) {
+  heroSection(Size screenSize, FamPageContent content, bool isMobileView) {
     return Stack(
       children: [
         Container(
@@ -133,10 +143,10 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                   child: Column(
                     children: [
                       SizedBox(height: screenSize.height * 0.6,),
-                      themeText(content.heroHeading ?? "", size: 44, color: Colors.white),
+                      themeText(content.heroHeading ?? "", size: isMobileView? 24: 44, color: Colors.white),
                       const Divider(color: Colors.white70, thickness: 3.5,),
                       vertical(),
-                      themeText(content.heroSubheading ?? "", italic: true, color: Color.fromARGB(255, 215, 180, 53), size: 24,),
+                      themeText(content.heroSubheading ?? "", italic: true, color: Color.fromARGB(255, 215, 180, 53), size: isMobileView? 16: 24,),
                     ],
                   ),
                 ),
@@ -145,7 +155,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
     );
   }
 
-  midSection(Size screenSize, MidSectionContent section,[ bool imageLeftAligned = false]) {
+  midSection(Size screenSize, bool isMobileView, MidSectionContent section,[ bool imageLeftAligned = false]) {
     Widget imageWidget = Container(
           decoration: BoxDecoration(
             //color: Colors.black,
@@ -177,6 +187,25 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
           right: screenSize.width * 0.1),
         child: textSection,
       );
+    }
+
+    if(isMobileView) {
+      return Container(
+      width: screenSize.width,
+      color: Colors.white,
+      padding: EdgeInsets.only(
+        top: screenSize.height * 0.05, 
+        bottom: screenSize.height * 0.02, 
+        left: screenSize.width * 0.1, 
+        right: screenSize.width * 0.1),
+      child: Column(
+        children: [
+          imageWidget,
+          vertical(4),
+          textSection,
+        ],
+      ),
+    );
     }
 
     if(imageLeftAligned) {
@@ -305,7 +334,8 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
     //       );
   }
   
-  storeSection(Size screenSize, List<StoreItem> storeItems) {
+  storeSection(Size screenSize, bool isMobileView, List<StoreItem> storeItems) {
+    int itemIndex = 0;
     return Container(
       width: screenSize.width,
       color: Colors.black,
@@ -321,24 +351,8 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
           Wrap(
             spacing: 20,
             runSpacing: 20,
-            children: storeItems.map((item) => 
-              Container(
-                width: screenSize.width * 0.75,
-                padding: const EdgeInsets.all(30),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: Image.network(
-                      item.image,
-                      fit: BoxFit.cover,
-                    ),),
-                    horizontal(2),
-                    Expanded(
-                      flex: 2,
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+            children: storeItems.map((item) {
+              Widget detailsAndCtaSection = Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisSize: MainAxisSize.min,
                         children: [
                           themeText(item.title, isPrimaryFont: false, weight: FontWeight.bold, size: 28, color: Colors.yellow),
                           vertical(),
@@ -350,7 +364,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                           vertical(2),
                           ElevatedButton(
                             onPressed: () {
-                              _bookSessionPopupController.show();
+                              _ctaPopupControllersList[itemIndex].show();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
@@ -358,12 +372,12 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                             ),
                             child: 
                               OverlayPortal(
-                                controller: _bookSessionPopupController, 
+                                controller: _ctaPopupControllersList[itemIndex], 
                                 overlayChildBuilder: ((context) => BookSessionView(
                                   onBookingComplete: (item) {
-                                    _bookSessionPopupController.hide();
+                                    _ctaPopupControllersList[itemIndex].hide();
                                   }, onCancel: () {
-                                    _bookSessionPopupController.hide();
+                                    _ctaPopupControllersList[itemIndex].hide();
                                   }, 
                                   providerUserId: widget.fam.admins[0], 
                                   providerFamId: widget.fam.id!, 
@@ -373,16 +387,44 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                                   description: item.description, 
                                   price: item.price, 
                                   currency: item.currency)),
-                                child: themeText("Book Now", color: Colors.black, ),
+                                child: themeText(item.cta, color: Colors.black, ),
                                   )
                              
                           ),
                         ],
-                      ),
+                      );
+
+              Widget itemImage = Image.network(
+                item.image,
+                fit: BoxFit.cover,
+              );
+              itemIndex += 1;
+              return Container(
+                width: screenSize.width * 0.75,
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: isMobileView ? Column(mainAxisSize: MainAxisSize.min,
+                  children: [
+                    itemImage,
+                    vertical(2),
+                    detailsAndCtaSection,
+                  ],
+                ) :
+                 Row(crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: itemImage,),
+                    horizontal(2),
+                    Expanded(
+                      flex: 2,
+                      child: detailsAndCtaSection,
                     ),
                   ],
                 ),
-              )
+              );
+            }
             ).toList(),
           ),
         ],

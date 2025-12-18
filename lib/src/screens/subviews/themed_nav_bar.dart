@@ -1,5 +1,6 @@
 import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
+import 'package:flashzone_web/src/model/local%20use/button_data.dart';
 import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,10 @@ class ThemedNavBar extends StatefulWidget {
   const ThemedNavBar({
     super.key,
     required this.titleWidget,
-    required this.actions,
+    required this.buttonsDataList,
     required this.userAvatar,});
   final Widget titleWidget;
-  final List<Widget> actions;
+  final List<ButtonData> buttonsDataList;
   final String? userAvatar;
 
   @override
@@ -22,13 +23,19 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
   final _accountPopupController = OverlayPortalController();
   final _menuPopupController = OverlayPortalController();
   List<Widget> navDesktopRow = [];
+  
 
   @override
   void initState() {
     super.initState();
 
-    for (var action in widget.actions) {
-      navDesktopRow.add(action);
+    for (var data in widget.buttonsDataList) {
+      navDesktopRow.add(
+        TextButton(
+          onPressed: data.onPressed, 
+          child: Text(data.label, style: const TextStyle(color: Colors.white),),
+        )
+      );
       navDesktopRow.add(horizontal());
     }
   }
@@ -103,7 +110,22 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
   }
 
   menuViewMobile(BuildContext ctx) {
-    
+    List<Widget> buttonsList = [];
+    for (var data in widget.buttonsDataList) {
+      buttonsList.add(
+        ListTile(
+          leading: data.icon != null ? Icon(data.icon) : null,
+          title: Text(data.label),
+          onTap: () {
+            _menuPopupController.hide();
+            if(data.onPressed != null) {
+              data.onPressed!();
+            }
+          },
+        )
+      );
+    }
+
     return Stack(
       children: [ 
       Positioned.fill(
@@ -126,8 +148,9 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
           ),
           child: IntrinsicWidth(
             child: Column(mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ...widget.actions,
+                ...buttonsList,
                 const Divider(),
                 ListTile(
                   leading: const Icon(CupertinoIcons.cart),

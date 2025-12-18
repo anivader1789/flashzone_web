@@ -5,6 +5,7 @@ class StoreItem {
   final String image;
   final int price;
   final String currency;
+  final String cta;
   final String? sessionDuration;
   StoreItem({
     required this.id,
@@ -14,6 +15,7 @@ class StoreItem {
     required this.image,
     required this.price,
     required this.currency,
+    required this.cta,
     this.sessionDuration,
   });
 
@@ -27,6 +29,7 @@ class StoreItem {
       image: data['image'] as String,
       price: data['price'] as int,
       currency: data['currency'] as String,
+      cta: data['cta'] as String,
       sessionDuration: data['sessionDuration'] as String?,
     );
   }

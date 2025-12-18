@@ -9,7 +9,7 @@ class FamPageContent {
   final String? ownerHeadshotUrl;
   final List<MidSectionContent> midSections;
   final List<StoreItem>? storeItems;
-
+  final String storeTitle;
   final String? galleryHeading;
   final List<String>? galleryImageUrls;
 
@@ -23,6 +23,7 @@ class FamPageContent {
     this.ownerHeadshotUrl,
     this.galleryHeading,
     this.galleryImageUrls = const [],
+    this.storeTitle = "Store",
     this.heroSubheading,
   });
 
@@ -41,6 +42,7 @@ class FamPageContent {
               ))
           .toList() ??
           [],
+      storeTitle: data['store_title'] as String? ?? "Store",
       storeItems: (data['store'] as List<dynamic>?)
           ?.map((e) => StoreItem.fromMap(e as Map<String, dynamic>))
           .toList(),
