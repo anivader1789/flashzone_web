@@ -119,7 +119,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     }
 
     if(widget.hasCustomPage) {
-      if(_loading) {
+      if(_loading || fam == null) {
         return const LoadingWidget();
       } else {
         return ThemedPage(fam!);
