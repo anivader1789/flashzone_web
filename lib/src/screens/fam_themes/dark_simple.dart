@@ -335,7 +335,6 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
   }
   
   storeSection(Size screenSize, bool isMobileView, List<StoreItem> storeItems) {
-    int itemIndex = 0;
     return Container(
       width: screenSize.width,
       color: Colors.black,
@@ -351,7 +350,10 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
           Wrap(
             spacing: 20,
             runSpacing: 20,
-            children: storeItems.map((item) {
+            children: storeItems.asMap().entries.map((entry) {
+              final int itemIndex = entry.key;
+              final StoreItem item = entry.value;
+
               Widget detailsAndCtaSection = Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisSize: MainAxisSize.min,
                         children: [
                           themeText(item.title, isPrimaryFont: false, weight: FontWeight.bold, size: 28, color: Colors.yellow),
@@ -364,7 +366,9 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                           vertical(2),
                           ElevatedButton(
                             onPressed: () {
-                              _ctaPopupControllersList[itemIndex].show();
+                              if (itemIndex < _ctaPopupControllersList.length) {
+                                _ctaPopupControllersList[itemIndex].show();
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
@@ -375,9 +379,9 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                                 controller: _ctaPopupControllersList[itemIndex], 
                                 overlayChildBuilder: ((context) => BookSessionView(
                                   onBookingComplete: (item) {
-                                    _ctaPopupControllersList[itemIndex].hide();
+                                    if (itemIndex < _ctaPopupControllersList.length) _ctaPopupControllersList[itemIndex].hide();
                                   }, onCancel: () {
-                                    _ctaPopupControllersList[itemIndex].hide();
+                                    if (itemIndex < _ctaPopupControllersList.length) _ctaPopupControllersList[itemIndex].hide();
                                   }, 
                                   providerUserId: widget.fam.admins[0], 
                                   providerFamId: widget.fam.id!, 
@@ -398,7 +402,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                 item.image,
                 fit: BoxFit.cover,
               );
-              itemIndex += 1;
+
               return Container(
                 width: screenSize.width * 0.75,
                 padding: const EdgeInsets.all(30),

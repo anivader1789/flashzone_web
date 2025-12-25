@@ -28,8 +28,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "26609542744-kavlofsqfska8fagcpg57fer9r6parrd.apps.googleusercontent.com",
+              "client_id": "26609542744-io0414qpi557bgot80stmmlg8egug868.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "26609542744-ojhhim7oo17uqb5nabgo88eqehc6kofc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flashzoneWeb"
+              }
             }
           ]
         }

@@ -73,6 +73,8 @@ class DefaultFirebaseOptions {
     projectId: 'zone-f-6e47c',
     databaseURL: 'https://zone-f-6e47c.firebaseio.com',
     storageBucket: 'zone-f-6e47c.firebasestorage.app',
+    iosClientId: '26609542744-ojhhim7oo17uqb5nabgo88eqehc6kofc.apps.googleusercontent.com',
     iosBundleId: 'com.example.flashzoneWeb',
   );
+
 }

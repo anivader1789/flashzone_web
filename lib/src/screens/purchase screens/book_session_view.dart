@@ -57,7 +57,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     List<Appointment> bookings = await ref.read(backend).getBookingsForUser(widget.providerUserId);
     availableSlotsList = await ref.read(backend).getAvailableSlotsForProvider(widget.providerUserId, widget.providerFamId);
     
-
+    print('Available Slots: ${availableSlotsList.slots}');
     // Process bookings to determine available slots
     setState(() {
       // Update availableSlots based on bookings
@@ -90,6 +90,8 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    bool isMobile = size.width <= 600;
     return Stack(
       children: [
         Positioned.fill(
@@ -100,18 +102,29 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
               ),
             )
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            statusView(),
-            if(!_paymentAndBookingDone && !_paymentInProgress) ...[
-              vertical(2),
-              label('Available Slots for ${widget.providerName}'),
-              vertical(10),
-              availableSlotsView(),
-            ]
-            
-          ],
+        Container(
+          margin:  EdgeInsets.symmetric(
+            horizontal: isMobile ? size.width * 0.05 : size.width * 0.2,
+            vertical: size.height * 0.1,
+          ),
+          padding: const EdgeInsets.only(left: 45),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              statusView(),
+              if(!_paymentAndBookingDone && !_paymentInProgress) ...[
+                vertical(2),
+                headline('Available Slots for next 7 days'),
+                vertical(10),
+                availableSlotsView(isMobile),
+              ]
+              
+            ],
+          ),
         )
       ],
     );
@@ -137,43 +150,108 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     }
   }
 
-  Widget availableSlotsView() {
+  Widget availableSlotsView(bool isMobile) {
     DateTime startDate = DateTime.now();
-    final List<Widget> dayRows = <Widget>[];
-    for (var dayIndex = 1; dayIndex <= slotStatus.length; dayIndex++) {
-      final List<Widget> slotButtons = [];
-      for (var hour = 0; hour < slotStatus[dayIndex].length; hour++) {
-        if (slotStatus[dayIndex][hour]) {
-          slotButtons.add(horizontal());
-          slotButtons.add(slotButton(dayIndex, hour));
+    final List<Widget> columnWidgets = <Widget>[];
+
+    if(isMobile) {
+      for (var dayIndex = 0; dayIndex < slotStatus.length; dayIndex++) {
+        final List<Widget> dayWidgets = [];
+        dayWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex - 1)))));
+        dayWidgets.add(horizontal(2));
+
+        final List<Widget> slotButtonsRowWidgets1 = [];
+        for (var hour = 0; hour < 4; hour++) {
+            int hourToDisplay = availableSlotsList.slots[dayIndex][hour];
+            
+            slotButtonsRowWidgets1.add(slotButton(
+              dayIndex: dayIndex, 
+              hourIndex: hour, 
+              hour: hourToDisplay, 
+              isAvailable: slotStatus[dayIndex][hour],
+              isMobile: isMobile,));
+            slotButtonsRowWidgets1.add(horizontal());
         }
+
+        dayWidgets.add(Row(mainAxisAlignment: MainAxisAlignment.start,
+          children: slotButtonsRowWidgets1,
+        ));
+        dayWidgets.add(horizontal());
+
+        final List<Widget> slotButtonsRowWidgets = [];
+        for (var hour = 4; hour < slotStatus[dayIndex].length; hour++) {
+            int hourToDisplay = availableSlotsList.slots[dayIndex][hour];
+            
+            slotButtonsRowWidgets.add(slotButton(
+              dayIndex: dayIndex, 
+              hourIndex: hour, 
+              hour: hourToDisplay, 
+              isAvailable: slotStatus[dayIndex][hour],
+              isMobile: isMobile,));
+            slotButtonsRowWidgets.add(horizontal());
+        }
+
+        dayWidgets.add(Row(mainAxisAlignment: MainAxisAlignment.start,
+          children: slotButtonsRowWidgets,
+        ));
+
+        columnWidgets.add(vertical(2));
+        columnWidgets.add(Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: dayWidgets,
+        ));
       }
+    } else {
+      for (var dayIndex = 0; dayIndex < slotStatus.length; dayIndex++) {
+        final List<Widget> slotButtonsRowWidgets = [];
+        slotButtonsRowWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex - 1)))));
+        slotButtonsRowWidgets.add(horizontal(2));
+        for (var hour = 0; hour < slotStatus[dayIndex].length; hour++) {
+            int hourToDisplay = availableSlotsList.slots[dayIndex][hour];
+            slotButtonsRowWidgets.add(horizontal());
+            slotButtonsRowWidgets.add(slotButton(
+              dayIndex: dayIndex, 
+              hourIndex: hour, 
+              hour: hourToDisplay, 
+              isAvailable: slotStatus[dayIndex][hour],
+              isMobile: isMobile,));
+        }
 
-      dayRows.add(vertical());
-      dayRows.add(label(UsefulFunctions.formatDateTime(startDate.add(Duration(days: dayIndex - 1)))));
-      dayRows.add(vertical());
-      dayRows.add(Row(
-        children: slotButtons,
-      ));
-
-      
+        columnWidgets.add(vertical(2));
+        columnWidgets.add(Row(mainAxisAlignment: MainAxisAlignment.start,
+          children: slotButtonsRowWidgets,
+        ));
+      }
     }
+    
 
     return Column(
-      children: dayRows,
+      children: columnWidgets,
     );
   }
 
-  Widget slotButton(int dayIndex, int hour) {
+  Widget slotButton({
+    required int dayIndex, 
+    required int hourIndex, 
+    required int hour, 
+    required bool isAvailable,
+    required bool isMobile}) {
+      String labelText = UsefulFunctions.displayableHourString(hour);
     return ElevatedButton(
-      onPressed: () => bookSlot(dayIndex, hour),
-      style: buttonStyle(false),
-      child: label('$hour'),
+      onPressed: () => bookSlot(dayIndex, hourIndex, isAvailable),
+      style: buttonStyle(isAvailable, isMobile),
+      child: isMobile ? mobileLabel(labelText) : label(labelText),
     );
   }
 
-  Future<void> bookSlot(int dayIndex, int slotIndex) async {
+  Future<void> bookSlot(int dayIndex, int slotIndex, bool isAvailable) async {
+    if(isAvailable == false) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "This slot is already booked");
+      return;
+    }
 
+    Helpers.showDialogWithMessage(ctx: context, msg: "Making a new booking..");
+      return;
     
 
     DateTime today = DateTime.now();
@@ -245,11 +323,16 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
 
   }
 
-  buttonStyle(bool isSelected) {
+  buttonStyle(bool isAvailable, bool isMobile) {
     return ElevatedButton.styleFrom(
-      backgroundColor: isSelected ? Colors.blue : Colors.grey[300],
-      foregroundColor: isSelected ? Colors.white : Colors.black,
+      backgroundColor: isAvailable ? Colors.white : Colors.grey[500],
+      foregroundColor: isAvailable ? Colors.white : Colors.black,
+      padding: isMobile ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12) : const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: isAvailable == false ? Colors.red : Colors.blue,
+          width: 3.0,
+        ),
         borderRadius: BorderRadius.circular(8.0),
       ),
     );
@@ -258,6 +341,14 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   label(String text) {
     return FZText(text: text, style: FZTextStyle.paragraph);
   } 
+
+  mobileLabel(String text) {
+    return FZText(text: text, style: FZTextStyle.subheading);
+  }
+
+  headline(String text) {
+    return FZText(text: text, style: FZTextStyle.largeHeadline);
+  }
 
   vertical([double multiple = 1]) => SizedBox(height: 5 * multiple,);
   horizontal([double multiple = 1]) => SizedBox(width: 5 * multiple,);

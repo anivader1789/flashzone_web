@@ -12,6 +12,43 @@ class UsefulFunctions {
         "${dateTime.minute.toString().padLeft(2, '0')}";
   }
 
+  static String displayableDate(DateTime dateTime) {
+    return "${weekName(dateTime.weekday)} - "
+        "${dateTime.day.toString().padLeft(2, '0')}/"
+        "${dateTime.month.toString().padLeft(2, '0')}/"
+        "${dateTime.year.toString().padLeft(4, '0')}";
+  }
+
+  static String displayableHourString(int hour) {
+    int hr = (hour / 100).floor();
+    String hrString = hr > 12 ? (hr - 12).toString() : hr.toString();
+    String ampm = hr >= 12 ? "PM" : "AM";
+    int minute = hour % 100;
+    return "$hrString:"
+        "${minute.toString().padLeft(2, '0')} $ampm";
+  }
+
+  static String weekName(int weekday) {
+    switch (weekday) {
+      case 1:
+        return "Monday";
+      case 2:
+        return "Tuesday";
+      case 3:
+        return "Wednesday";
+      case 4:
+        return "Thursday";
+      case 5:
+        return "Friday";
+      case 6:
+        return "Saturday";
+      case 7:
+        return "Sunday";
+      default:
+        return "";
+    }
+  }
+
   static List<DateTime> generateTimeSlots({
     required List<List<int>> allowedSlots,
     required DateTime startDate,
@@ -88,6 +125,8 @@ class UsefulFunctions {
           dayStatus.add(false);
         }
       }
+
+      //print('Status list for dayOffset $dayOffset: $dayStatus');
 
       statusMatrix.add(dayStatus);
     }
