@@ -56,7 +56,7 @@ class _MasterViewState extends ConsumerState<MasterView> {
     
 
     if(widget.showMenu == false) {
-      print("Not showing menu; is a fam");
+      //print("Not showing menu; is a fam");
       return Scaffold(
         body: widget.child,
       );

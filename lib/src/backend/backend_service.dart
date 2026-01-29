@@ -25,7 +25,8 @@ import 'package:flashzone_web/src/modules/data/cached_data_manager.dart';
 import 'package:flashzone_web/src/modules/location/location_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+//import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:razorpay_web/razorpay_web.dart';
 
 final backend = Provider((ref) => BackendService(ref));
 final currentuser = StateProvider<FZUser>((ref) => FZUser.signedOut());
@@ -33,6 +34,8 @@ final flashes = StateProvider((ref) => List<Flash>.empty(growable: true));
 final nearbyFams = StateProvider((ref) => List<Fam>.empty(growable: true));
 final myFams = StateProvider((ref) => List<Fam>.empty(growable: true));
 final messages = StateProvider<Map<FZUser,List<ChatMessage>>>((ref) => <FZUser,List<ChatMessage>>{});
+
+//final myBookings = StateProvider<List<Appointment>>((ref) => List<Appointment>.empty(growable: true));
 
 final authLoaded = StateProvider<bool>((ref) => false);
 
@@ -301,8 +304,29 @@ class BackendService {
   Future<FZResult> updateFam(Fam fam) => firebaseFam.updateFam(fam);
   Future<Fam?> fetchFam(String famId) => firebaseFam.fetchFam(famId);
 
-  Future<Appointment> makeBooking(Appointment appointment) => firebaseFam.makeBooking(appointment);
-  Future<List<Appointment>> getBookingsForUser(String userId) => firebaseFam.getBookingsForUser(userId);
+  Future<Appointment> makeBooking(Appointment appointment) async {
+    final Appointment = await firebaseFam.makeBooking(appointment);
+    //final bookingsRef = ref.read(myBookings);
+    //bookingsRef.add(Appointment);
+    //ref.read(myBookings.notifier).update((state) => bookingsRef);
+    return Appointment;
+  } 
+
+  Future<List<Appointment>> getBookingsForUser(String userId) async {
+    // final bookingsRef = ref.read(myBookings);
+    // if(bookingsRef.isNotEmpty) {
+    //   return Future.value(bookingsRef);
+    // } else {
+    //   final fetchedBookings = await firebaseFam.getBookingsForUser(userId);
+    //   ref.read(myBookings.notifier).update((state) => fetchedBookings);
+    //   return fetchedBookings;
+    // }
+
+    return await firebaseFam.getBookingsForUser(userId);
+  } 
+
+  Future<List<Appointment>> getMyBookings() => firebaseFam.getMyBookings();
+  
   Future<FZResult> deleteBooking(String appointmentId) => firebaseFam.deleteBooking(appointmentId);
   
   Future<AvailableSlots> getAvailableSlotsForProvider(String providerUserId, String providerFamId) => firebaseFam.getAvailableSlotsForProvider(providerUserId, providerFamId);

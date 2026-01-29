@@ -1,4 +1,4 @@
-class FZChatMessage {
+class FZChatMessage  implements Comparable<FZChatMessage> {
   String? id;
   String message;
   String senderId;
@@ -43,4 +43,11 @@ class FZChatMessage {
       timeKey: time.toIso8601String(),
     };
   }
+
+  @override
+  int compareTo(FZChatMessage other) {
+    // Latest message first
+    return time.compareTo(other.time);
+  }
+
 }

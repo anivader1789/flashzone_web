@@ -102,7 +102,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
   @override
   Widget build(BuildContext context) {
     bool mobileSize = MediaQuery.of(context).size.width < 800;
-    print("Testing custom domain for fam detail page: ${widget.hasCustomPage}");
+   // print("Testing custom domain for fam detail page: ${widget.hasCustomPage}");
     return MasterView(
       onInitDone: () {
         Future(() => fetchDetails());

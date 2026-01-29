@@ -1,7 +1,9 @@
-import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/helpers/packages.dart';
 import 'package:flashzone_web/src/model/local%20use/button_data.dart';
+import 'package:flashzone_web/src/model/user.dart';
 import 'package:flashzone_web/src/screens/account_screen.dart';
+import 'package:flashzone_web/src/screens/fam_cart_screen.dart';
+import 'package:flashzone_web/src/screens/fam_dm_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +12,12 @@ class ThemedNavBar extends StatefulWidget {
     super.key,
     required this.titleWidget,
     required this.buttonsDataList,
-    required this.userAvatar,});
+    required this.famAdmin,
+    required this.user,});
   final Widget titleWidget;
   final List<ButtonData> buttonsDataList;
-  final String? userAvatar;
+  final FZUser? user;
+  final FZUser? famAdmin;
 
   @override
   State<ThemedNavBar> createState() => _ThemedNavBarState();
@@ -21,6 +25,8 @@ class ThemedNavBar extends StatefulWidget {
 
 class _ThemedNavBarState extends State<ThemedNavBar> {
   final _accountPopupController = OverlayPortalController();
+  final _cartPopupController = OverlayPortalController();
+  final _chatPopupController = OverlayPortalController();
   final _menuPopupController = OverlayPortalController();
   List<Widget> navDesktopRow = [];
   
@@ -44,6 +50,8 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
     Size screenSize = MediaQuery.of(context).size;
     bool isDesktop = screenSize.width >= 800;
 
+    
+
     return Container(
         width: screenSize.width,
         height: 60,
@@ -58,21 +66,11 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
                 Row(
                   children: [
                     ...navDesktopRow,
-                    const Icon(CupertinoIcons.cart, color: Colors.white,),
+                    //chatDesktopButton(),
+                    //horizontal(4),
+                    cartDesktoButton(),
                     horizontal(4),
-                    ElevatedButton(
-                      onPressed: _accountPopupController.toggle, 
-                      style: ButtonStyle(elevation: const MaterialStatePropertyAll(0),
-                        backgroundColor: MaterialStatePropertyAll(Constants.bgColor()),
-                        foregroundColor: MaterialStatePropertyAll(Constants.bgColor()),
-                        //padding: MaterialStatePropertyAll(EdgeInsets.zero)
-                        ),
-                      child: CircleAvatar(
-                        foregroundImage: Helpers.loadImageProvider(widget.userAvatar), radius: 18,
-                        child: OverlayPortal(
-                          controller: _accountPopupController, 
-                          overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize:!isDesktop,),),
-                          ),),
+                    accountDesktopButton(),
                   ],
                 )
               
@@ -108,6 +106,82 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
         ),
       );
   }
+
+  chatDesktopButton() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+           _chatPopupController.toggle();
+        },
+        child: Stack(
+          children: [
+            const Icon(CupertinoIcons.chat_bubble, color: Colors.white,),
+            OverlayPortal(
+              controller: _chatPopupController, 
+              overlayChildBuilder: (context) =>  FamDMScreen(
+                receipientUser: widget.famAdmin, 
+                onDismiss: () => _chatPopupController.hide()),)
+          ]),
+      ),);
+  }
+
+  cartDesktoButton() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _cartPopupController.toggle();
+        },
+        child: Stack(
+          children: [
+            const Icon(CupertinoIcons.cart, color: Colors.white,),
+            OverlayPortal(
+              controller: _cartPopupController, 
+              overlayChildBuilder: (context) =>  FamCartScreen(
+                onDismiss: () => _cartPopupController.hide(),
+                user: widget.user,
+              ),)
+          ]),
+      ),);
+  }
+
+  accountDesktopButton() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _accountPopupController.toggle();
+        },
+        child: Stack(
+          children: [
+            CircleAvatar(
+              foregroundImage: Helpers.loadImageProvider(widget.user?.avatar), radius: 12,
+            ),
+            SizedBox(
+              child: OverlayPortal(
+                      controller: _accountPopupController, 
+                      overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize: false,),),
+            )
+          ]),
+      ),);
+
+      //  ElevatedButton(
+      //                 onPressed: _accountPopupController.toggle, 
+      //                 style: ButtonStyle(elevation: const MaterialStatePropertyAll(0),
+      //                   backgroundColor: MaterialStatePropertyAll(Constants.bgColor()),
+      //                   foregroundColor: MaterialStatePropertyAll(Constants.bgColor()),
+      //                   //padding: MaterialStatePropertyAll(EdgeInsets.zero)
+      //                   ),
+      //                 child: CircleAvatar(
+      //                   foregroundImage: Helpers.loadImageProvider(widget.user?.avatar), radius: 18,
+      //                   child: OverlayPortal(
+      //                     controller: _accountPopupController, 
+      //                     overlayChildBuilder:  (context) => AccountScreen(onDismiss: () => _accountPopupController.hide(), mobileSize:!isDesktop,),),
+      //                     ),),
+  }
+
+
 
   menuViewMobile(BuildContext ctx) {
     List<Widget> buttonsList = [];
@@ -154,12 +228,25 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
                 const Divider(),
                 ListTile(
                   leading: const Icon(CupertinoIcons.cart),
-                  title: const Text("Cart"),
-                  onTap: () {},
+                  title: //const FZText(text: "Cart", style: FZTextStyle.paragraph),
+                  Stack(
+                          children: [
+                            const FZText(text: "Purchases", style: FZTextStyle.paragraph),
+                            OverlayPortal(
+                              controller: _cartPopupController, 
+                              overlayChildBuilder: (context) =>  FamCartScreen(
+                                onDismiss: () => _cartPopupController.hide(),
+                                user: widget.user,
+                              ),)
+                          ]),
+                  onTap: () {
+                    _menuPopupController.hide();
+                    _cartPopupController.toggle();
+                  },
                 ),
                 ListTile(
                   leading: CircleAvatar(
-                    foregroundImage: Helpers.loadImageProvider(widget.userAvatar), radius: 12,
+                    foregroundImage: Helpers.loadImageProvider(widget.user?.avatar), radius: 12,
                   ),
                   title: const Text("Account"),
                   onTap: () { 

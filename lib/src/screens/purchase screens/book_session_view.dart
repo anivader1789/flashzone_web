@@ -4,6 +4,7 @@ import 'package:flashzone_web/src/helpers/useful_functions.dart';
 import 'package:flashzone_web/src/model/appointments.dart';
 import 'package:flashzone_web/src/model/available_slots.dart';
 import 'package:flashzone_web/src/model/purchased_item.dart';
+import 'package:flashzone_web/src/model/user.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +13,8 @@ class BookSessionView extends ConsumerStatefulWidget {
   const BookSessionView({
     required this.onBookingComplete,
     required this.onCancel,
-    required this.providerUserId, 
+    required this.providerUser, 
+    
     required this.providerFamId,
     required this.providerName, 
     required this.bookingDuration, 
@@ -23,7 +25,8 @@ class BookSessionView extends ConsumerStatefulWidget {
     super.key});
   final Function(PurchasedItem)? onBookingComplete;
   final Function()? onCancel;
-  final String providerUserId, providerFamId;
+  final FZUser providerUser;
+  final String providerFamId;
   final String providerName;
   final String bookingDuration;
   final String title, description;
@@ -37,9 +40,13 @@ class BookSessionView extends ConsumerStatefulWidget {
 class _BookSessionViewState extends ConsumerState<BookSessionView> {
 
   bool _paymentInProgress = false, 
+      _bookingInProgress = false,
+      _loadingSlots = true,
       //_paymentDoneBookingInProgress = false,
       _paymentFailed = false,
       _paymentAndBookingDone = false;
+
+  DateTime? bookedDateTime;
 
   List<DateTime> availableSlots = [];
   late AvailableSlots availableSlotsList;
@@ -54,10 +61,10 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   }
 
   Future<void> loadAvailableSlots() async {
-    List<Appointment> bookings = await ref.read(backend).getBookingsForUser(widget.providerUserId);
-    availableSlotsList = await ref.read(backend).getAvailableSlotsForProvider(widget.providerUserId, widget.providerFamId);
+    List<Appointment> bookings = await ref.read(backend).getBookingsForUser(widget.providerUser.id!);
+    availableSlotsList = await ref.read(backend).getAvailableSlotsForProvider(widget.providerUser.id!, widget.providerFamId);
     
-    print('Available Slots: ${availableSlotsList.slots}');
+    //print('Available Slots: ${availableSlotsList.slots}');
     // Process bookings to determine available slots
     setState(() {
       // Update availableSlots based on bookings
@@ -67,7 +74,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
         existingBookings: bookings,
       );
 
-      
+      _loadingSlots = false;
     });
 
   }
@@ -151,13 +158,56 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   }
 
   Widget availableSlotsView(bool isMobile) {
+    if(_bookingInProgress) {
+      return Wrap(alignment: WrapAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          vertical(),
+          headline('Booking in progress...'),
+        ],
+      );
+    }
+
+    if(_paymentInProgress) {
+      return Wrap(alignment: WrapAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          vertical(),
+          headline('Payment in progress...'),
+        ],
+      );
+    }
+
+    if(bookedDateTime != null) {
+      return Wrap(alignment: WrapAlignment.center,
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 48,),
+          vertical(),
+          headline('You are now booked for ${UsefulFunctions.displayableDate(bookedDateTime!)}. '),
+          vertical(),
+          label('You will see this booking in your cart session.'),
+        ],
+      );
+    }
+
+    if(_loadingSlots) {
+      return Wrap(alignment: WrapAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          vertical(),
+          headline('Loading available slots...'),
+        ],
+      );
+    }
+
+
     DateTime startDate = DateTime.now();
     final List<Widget> columnWidgets = <Widget>[];
 
     if(isMobile) {
       for (var dayIndex = 0; dayIndex < slotStatus.length; dayIndex++) {
         final List<Widget> dayWidgets = [];
-        dayWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex - 1)))));
+        dayWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex + 1)))));
         dayWidgets.add(horizontal(2));
 
         final List<Widget> slotButtonsRowWidgets1 = [];
@@ -204,7 +254,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     } else {
       for (var dayIndex = 0; dayIndex < slotStatus.length; dayIndex++) {
         final List<Widget> slotButtonsRowWidgets = [];
-        slotButtonsRowWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex - 1)))));
+        slotButtonsRowWidgets.add(label(UsefulFunctions.displayableDate(startDate.add(Duration(days: dayIndex + 1)))));
         slotButtonsRowWidgets.add(horizontal(2));
         for (var hour = 0; hour < slotStatus[dayIndex].length; hour++) {
             int hourToDisplay = availableSlotsList.slots[dayIndex][hour];
@@ -230,6 +280,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     );
   }
 
+
   Widget slotButton({
     required int dayIndex, 
     required int hourIndex, 
@@ -238,90 +289,126 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     required bool isMobile}) {
       String labelText = UsefulFunctions.displayableHourString(hour);
     return ElevatedButton(
-      onPressed: () => bookSlot(dayIndex, hourIndex, isAvailable),
+      onPressed: () => bookSlotClicked(dayIndex, hourIndex, isAvailable),
       style: buttonStyle(isAvailable, isMobile),
       child: isMobile ? mobileLabel(labelText) : label(labelText),
     );
   }
 
-  Future<void> bookSlot(int dayIndex, int slotIndex, bool isAvailable) async {
+  Future<void> bookSlotClicked(int dayIndex, int slotIndex, bool isAvailable) async {
+    if(ref.read(currentuser).isSignedOut) {
+      Helpers.showDialogWithMessage(ctx: context, msg: "You need to be signed in to book a session");
+      return;
+    }
+
+    final bookingDate = DateTime.now().add(Duration(days: dayIndex + 1));
+    final hour = availableSlotsList.slots[dayIndex][slotIndex] ~/ 100;
+    final minute = availableSlotsList.slots[dayIndex][slotIndex] % 100;
+    final slotDateTime = DateTime(
+      bookingDate.year,
+      bookingDate.month,
+      bookingDate.day,
+      hour,
+      minute,
+    );
+
+    print('Attempting to book slot on $slotDateTime');
+
+
     if(isAvailable == false) {
       Helpers.showDialogWithMessage(ctx: context, msg: "This slot is already booked");
       return;
     }
 
-    Helpers.showDialogWithMessage(ctx: context, msg: "Making a new booking..");
-      return;
-    
+    //Helpers.showDialogWithMessage(ctx: context, msg: "Making a new booking..");
+      
+    //Show confirmation dialog
+    Helpers.showConfirmationDialogue(
+      ctx: context, 
+      title: 'Confirm Booking', 
+      msg: 'Do you want to book the session on ${UsefulFunctions.displayableDate(slotDateTime)}?', 
+      onConfirm: ()  {
+        initiateBooking(slotDateTime);
 
-    DateTime today = DateTime.now();
-    int hour = availableSlotsList.slots[dayIndex - 1][slotIndex];
-    int hr = (hour / 100).floor();
-    int minute = hour % 100;
-    DateTime slotTime = DateTime(
-      today.year,
-      today.month,
-      today.day + dayIndex,
-      hr,
-      minute,
+      },
     );
-
-    Appointment newAppointment = Appointment(
-      providerId: widget.providerUserId,
-      consumerId: ref.read(currentuser).id!,
-      startTime: slotTime,
-      endTime: slotTime.add(Duration(
-        minutes: int.parse(widget.bookingDuration),
-      )),
-      meetingLink: '',
-      title: widget.title,
-      description: widget.description,
-    );
-
-    
-
-    PurchasedItem checkoutItem = PurchasedItem(
-      itemTypeIndex: 0,
-      title: widget.title,
-      description: widget.description,
-      buyerUserId: ref.read(currentuser).id!,
-      sellerUserId: widget.providerUserId,
-      sellerFamId: widget.providerFamId,
-      //pic: ,
-      price: widget.price.toDouble(),
-      currency: widget.currency,
-      appointmentId: newAppointment.id, 
-    );
-
-    ref.read(backend).attachCallbacksForPayment(
-      (paymentSuccessResponse) async {
-        ref.read(backend).addPurchasedItem(checkoutItem);
-        ref.read(backend).makeBooking(newAppointment);
-        setState(() {
-          _paymentInProgress = false;
-          _paymentAndBookingDone = true;
-        });
-      }, 
-      (paymentFailureResponse) {
-        setState(() {
-          _paymentInProgress = false;
-          _paymentFailed = true;
-        });
-      }, 
-      (paymentChangeResponse) {
-
-      });
-
-    setState(() {
-      _paymentInProgress = true;
-    });
-
-    ref.read(backend).initiatePayment(widget.price.toDouble(), widget.currency);
 
     //widget.onBookingComplete?.call(checkoutItem);
+  }
+
+  Future<void> initiateBooking(DateTime slotDateTime) async {
+    setState(() {
+          _bookingInProgress = true;
+        });
+
+        Appointment newAppointment = Appointment(
+          providerId: widget.providerUser.id!,
+          providerPictureUrl: widget.providerUser.avatar ?? '',
+          providerName: widget.providerName,
+          duration: int.parse(widget.bookingDuration),
+          price: widget.price.toDouble(),
+          consumerId: ref.read(currentuser).id!,
+          startTime: slotDateTime,
+          endTime: slotDateTime.add(Duration(
+            minutes: int.parse(widget.bookingDuration),
+          )),
+          meetingLink: '',
+          title: widget.title,
+          description: widget.description,
+        );
+
+        newAppointment = await ref.read(backend).makeBooking(newAppointment);
+
+        setState(() {
+          _bookingInProgress = false;
+          _paymentInProgress = true;
+        });
+
+        PurchasedItem checkoutItem = PurchasedItem(
+          itemTypeIndex: 0,
+          title: widget.title,
+          description: widget.description,
+          buyerUserId: ref.read(currentuser).id!,
+          sellerUserId: widget.providerUser.id!,
+          sellerFamId: widget.providerFamId,
+          //pic: ,
+          price: 2,// widget.price.toDouble(),
+          currency: widget.currency,
+          appointmentId: newAppointment.id, 
+        );
+
+        ref.read(backend).attachCallbacksForPayment(
+          (paymentSuccessResponse) async {
+            print('Payment successful: ${paymentSuccessResponse.paymentId}');
+            await ref.read(backend).addPurchasedItem(checkoutItem);
+            setState(() {
+              _paymentInProgress = false;
+              _paymentAndBookingDone = true;
+              bookedDateTime = slotDateTime;
+              _bookingInProgress = false;
+            });
+          }, 
+          (paymentFailureResponse) {
+            print('Payment failed: ${paymentFailureResponse.message}');
+            setState(() {
+              _paymentInProgress = false;
+              _paymentFailed = true;
+            });
+          }, 
+          (paymentChangeResponse) {
+            print('Payment method changed: ${paymentChangeResponse.walletName}');
+          });
+
+        
+
+        ref.read(backend).initiatePayment(
+          2,//widget.price.toDouble(), 
+          widget.currency);
 
 
   }
+
+
 
   buttonStyle(bool isAvailable, bool isMobile) {
     return ElevatedButton.styleFrom(

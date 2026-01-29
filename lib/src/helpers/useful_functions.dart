@@ -56,7 +56,7 @@ class UsefulFunctions {
   }) {
     List<DateTime> slots = [];
     
-    int startWeekday = startDate.weekday - 1; // DateTime.weekday: Monday=1, Sunday=7
+    int startWeekday = (startDate.weekday + 1) % 7; 
 
     for(int dayOffset = 0; dayOffset < allowedSlots.length; dayOffset++) {
       int currentDayIndex = (startWeekday + dayOffset) % 7;
@@ -95,7 +95,8 @@ class UsefulFunctions {
   }) {
     List<List<bool>> statusMatrix = [];
     
-    int startWeekday = startDate.weekday - 1; // DateTime.weekday: Monday=1, Sunday=7
+    int startWeekday = (startDate.weekday - 1) % 7 + 2; 
+
 
     for(int dayOffset = 0; dayOffset < allowedSlots.length; dayOffset++) {
       int currentDayIndex = (startWeekday + dayOffset) % 7;
@@ -110,10 +111,10 @@ class UsefulFunctions {
         DateTime slotTime = DateTime(
           startDate.year,
           startDate.month,
-          startDate.day + dayOffset,
+          startDate.day,
           hr,
           minute,
-        );
+        ).add(Duration(days: dayOffset));
 
         bool isBooked = existingBookings != null && existingBookings.any((booking) {
           return slotTime.isAtSameMomentAs(booking.startTime);

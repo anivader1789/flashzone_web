@@ -83,6 +83,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       }
     }
 
+    Size screenSize = MediaQuery.of(context).size;
+    bool isMobileScreen = screenSize.width <= 600;
+
     return Stack(
       children: [
         Positioned.fill(
@@ -93,30 +96,37 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             )
         ),
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(25, 45, 25, 45),
-                  decoration: BoxDecoration(
-                    color: Constants.cardColor(),
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  ),
-                  child: IntrinsicWidth(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset("assets/flashzoneR.png", height: 21,),
-                      vertical(9),
-                      containerView()
-                    ],),
-                  ),
-                  ),
-              ),
-            ],
+        Container(
+          margin: EdgeInsets.symmetric(
+          horizontal: isMobileScreen ? screenSize.width * 0.1 : screenSize.width * 0.2, 
+          //vertical: isMobileScreen ? screenSize.height * 0.15 : screenSize.height * 0.25,
+          ),
+
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(25, 45, 25, 45),
+                    decoration: BoxDecoration(
+                      color: Constants.cardColor(),
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    ),
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset("assets/flashzoneR.png", height: 21,),
+                        vertical(9),
+                        containerView()
+                      ],),
+                    ),
+                    ),
+                ),
+              ],
+            ),
           ),
         ),]
     );

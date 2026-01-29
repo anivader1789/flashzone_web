@@ -1,19 +1,24 @@
 import 'package:flashzone_web/src/model/op_results.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:razorpay_web/razorpay_web.dart';
+//import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class RazorpayService {
-  static const String razorpayKey = "rzp_live_HBI3NVNg9u7FHK";
-  static const String razorpayKeySecret = "wxR593R6j9UM9ldiNH36UV67";
+  static const String razorpayKey = "rzp_test_RzrMRVQm9hCnY2";
+  static const String razorpayKeySecret = "yPSXmM949JMGqY4quP5jEaSu";
+
+  static const EVENT_PAYMENT_SUCCESS = 'payment.success';
+  static const EVENT_PAYMENT_ERROR = 'payment.error';
+  static const EVENT_EXTERNAL_WALLET = 'payment.external_wallet';
 
   var options = {
     'key': razorpayKey,
     'amount': 0,
     'currency': 'INR',
-    'name': 'Super Real',
-    'description': 'Balance Topup',
+    'name': 'Surabhi Mishra',
+    'description': 'Service Payment',
     'prefill': {
-      'contact': '+919625068595',
-      'email': 'contact@superrealapp.com'
+      'contact': '+919821754624',
+      'email': 'ed@flashzone.com'
     },
     'external': {
       'wallets': ['paytm', 'gpay', 'upi']
@@ -27,9 +32,9 @@ class RazorpayService {
   }
 
   void attachCallbacks(Function (PaymentSuccessResponse) onPaymentSuccess, Function (PaymentFailureResponse) onPaymentFailure, Function (ExternalWalletResponse) onChangePaymentMethod) async {
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, onPaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, onPaymentFailure);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, onChangePaymentMethod);
+    _razorpay.on(EVENT_PAYMENT_SUCCESS, onPaymentSuccess);
+    _razorpay.on(EVENT_PAYMENT_ERROR, onPaymentFailure);
+    _razorpay.on(EVENT_EXTERNAL_WALLET, onChangePaymentMethod);
   }
 
   

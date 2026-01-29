@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flashzone_web/src/backend/backend_service.dart';
 import 'package:flashzone_web/src/model/appointments.dart';
 import 'package:flashzone_web/src/model/available_slots.dart';
 import 'package:flashzone_web/src/model/event.dart';
@@ -188,6 +189,23 @@ class FirebaseFamService {
       }
     } catch (e) {
       throw FirebaseError(message: "Getting user appointments: ${e.toString()}");
+    }
+  }
+
+  Future<List<Appointment>> getMyBookings() async {
+    try {
+      final querySnapshot = await db.collection(Appointment.collectionName)
+        .where(Appointment.fieldConsumerId, isEqualTo: ref.read(currentuser).id)
+        .get();
+      //print("Fetching fam appointments: got ${querySnapshot.docs.length} appointments byFamId = $famId");
+      if(querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.map((e) => Appointment.fromMap(e.data(), e.id))
+        .toList();
+      } else {
+        return List.empty();
+      }
+    } catch (e) {
+      throw FirebaseError(message: "Getting my appointments: ${e.toString()}");
     }
   }
 

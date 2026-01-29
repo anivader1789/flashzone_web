@@ -1,12 +1,17 @@
 import 'package:flashzone_web/src/backend/backend_service.dart';
+import 'package:flashzone_web/src/helpers/constants.dart';
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/model/fam_page_content.dart';
 import 'package:flashzone_web/src/model/local%20use/button_data.dart';
 import 'package:flashzone_web/src/model/store.dart';
+import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/fam_dm_screen.dart';
 import 'package:flashzone_web/src/screens/purchase%20screens/book_session_view.dart';
 import 'package:flashzone_web/src/screens/subviews/themed_nav_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class DarkSimpleThemePage extends ConsumerStatefulWidget {
   const DarkSimpleThemePage(this.fam, {super.key});
@@ -17,10 +22,15 @@ class DarkSimpleThemePage extends ConsumerStatefulWidget {
 }
 
 class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
-  final _bookSessionPopupController = OverlayPortalController();
+  //final _bookSessionPopupController = OverlayPortalController();
   final _ctaPopupControllersList = <OverlayPortalController>[];
+  final _chatPopupController = OverlayPortalController();
   //final _checkoutPopupController = OverlayPortalController();
   //final _cartPopupController = OverlayPortalController();
+  FZUser? famAdmin;
+
+  late List<Widget> pageViews;
+  final ItemScrollController itemScrollController = ItemScrollController();
   
   @override
   void initState() {
@@ -28,7 +38,22 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
     for (var item in widget.fam.pageContent?.storeItems ?? []) {
       _ctaPopupControllersList.add(OverlayPortalController());
     }
+
+
+
+    loadAdminUser();
   }
+
+  buildPageViews() {
+    
+  }
+
+  loadAdminUser() async {
+    famAdmin = await ref.read(backend).fetchRemoteUser(widget.fam.admins[0]);
+    setState(() {});
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -40,22 +65,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
     Size screenSize = MediaQuery.of(context).size;
     bool isMobile = screenSize.width < 800;
 
-    return Stack(
-      children: [
-        //FZNetworkImage(url: content.heroImageUrl, maxWidth: screenSize.width),
-         Container(
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage(content.heroImageUrl ?? ""),
-            ),
-          ),
-          height: screenSize.height,
-        ),
-        SingleChildScrollView(
-          child: Column(
-            children: [
+    pageViews = [
               heroSection(screenSize, content, isMobile), 
               //vertical(2),
               //const FZText(text: "Helloo", style: FZTextStyle.headline,),
@@ -73,46 +83,71 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
               //...content.midSections.map((section) => midSection(screenSize, section)).toList(),
               //vertical(9),
               footerSection(screenSize),
-            ],
+            ];
+
+    return Stack(
+      children: [
+        //FZNetworkImage(url: content.heroImageUrl, maxWidth: screenSize.width),
+         Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: NetworkImage(content.heroImageUrl ?? ""),
+            ),
+          ),
+          height: screenSize.height,
         ),
-      ),
+        ScrollablePositionedList.builder(
+          itemCount: pageViews.length, 
+          itemScrollController: itemScrollController,
+          itemBuilder: (context, index) {
+            return pageViews[index];
+          },),
+      //   SingleChildScrollView(
+      //     child: Column(
+      //       children: [
+      //         heroSection(screenSize, content, isMobile), 
+      //         //vertical(2),
+      //         //const FZText(text: "Helloo", style: FZTextStyle.headline,),
+      //         midSection(screenSize, isMobile, content.midSections[0]),
+      //         //vertical(),            
+      //         joinFamSection(screenSize, content),
+      //         //vertical(),
+      //         midSection(screenSize, isMobile, content.midSections[1], true),
+      //         //vertical(),
+      //         if(content.storeItems != null && content.storeItems!.isNotEmpty)
+      //           storeSection(screenSize, isMobile, content.storeItems!),
+
+      //         //vertical(),
+      //         sendMessageSection(screenSize),
+      //         //...content.midSections.map((section) => midSection(screenSize, section)).toList(),
+      //         //vertical(9),
+      //         footerSection(screenSize),
+      //       ],
+      //   ),
+      // ),
       //Top navigation bar
       ThemedNavBar(
         titleWidget: themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true), 
         buttonsDataList: [
-          ButtonData(label: "Book a session", onPressed: () {}, icon: Icons.book_online,),
-          ButtonData(label: "Contact", onPressed: () {}, icon: Icons.contact_mail,),
+          ButtonData(
+            label: "Book a session", 
+            onPressed: () {
+              if(content.storeItems != null && content.storeItems!.isNotEmpty) {
+                itemScrollController.scrollTo(index: 4, duration: const Duration(seconds: 1), curve: Curves.easeInOut);
+              }
+            }, 
+            icon: Icons.book_online,),
+          ButtonData(
+            label: "Send a message", 
+            onPressed: () {
+              itemScrollController.scrollTo(index: 5, duration: const Duration(seconds: 1), curve: Curves.easeInOut);
+            }, 
+            icon: Icons.chat,),
         ], 
-        userAvatar: ref.read(currentuser).avatar)
-      // Container(
-      //   width: screenSize.width,
-      //   height: 60,
-      //   color: Colors.black.withOpacity(0.7),
-      //   child: Padding(
-      //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      //     child: Row(
-      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //       children: [
-      //         themeText(widget.fam.name, color: Colors.yellow, size: 24, weight: FontWeight.bold, italic: true),
-      //         Row(
-      //           children: [
-      //             //TextButton(onPressed: () {}, child: themeText("About Surabhi", color: Colors.white)),
-      //             //horizontal(4),
-      //             TextButton(onPressed: () {}, child: themeText("Book a session", color: Colors.white,)),
-      //             horizontal(4),
-      //             TextButton(onPressed: () {}, child: themeText("Contact", color: Colors.white,)),
-      //             horizontal(4),
-      //             const Icon(CupertinoIcons.cart, color: Colors.white,),
-      //             horizontal(4),
-      //             CircleAvatar(
-      //               foregroundImage: Helpers.loadImageProvider(ref.read(currentuser).avatar), radius: 18,
-      //               ),
-      //           ],
-      //         )
-      //       ],
-      //     ),
-      //   ),
-      // ),
+        user: ref.read(currentuser),
+        famAdmin: famAdmin,)
       ],
       
 
@@ -335,6 +370,10 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
   }
   
   storeSection(Size screenSize, bool isMobileView, List<StoreItem> storeItems) {
+    if(storeItems.isEmpty || famAdmin == null) {
+      return Container();
+    }
+
     return Container(
       width: screenSize.width,
       color: Colors.black,
@@ -345,7 +384,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
         right: screenSize.width * 0.1),
       child: Column(
         children: [
-          themeText("Guidance sessions with Surabhi", isPrimaryFont: false, weight: FontWeight.bold, size: 32, ),
+          themeText(widget.fam.pageContent!.storeTitle ?? "Guidance sessions", isPrimaryFont: false, weight: FontWeight.bold, size: 32, ),
           vertical(2),
           Wrap(
             spacing: 20,
@@ -383,7 +422,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                                   }, onCancel: () {
                                     if (itemIndex < _ctaPopupControllersList.length) _ctaPopupControllersList[itemIndex].hide();
                                   }, 
-                                  providerUserId: widget.fam.admins[0], 
+                                  providerUser: famAdmin!, 
                                   providerFamId: widget.fam.id!, 
                                   providerName: widget.fam.name, 
                                   bookingDuration: item.sessionDuration ?? "60", 
@@ -437,40 +476,80 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
   }
 
   sendMessageSection(Size screenSize) {
-    return Container(
-      width: screenSize.width,
-      color: Colors.white,
-      padding: EdgeInsets.only(
-        top: screenSize.height * 0.05, 
-        bottom: screenSize.height * 0.02, 
-        left: screenSize.width * 0.1, 
-        right: screenSize.width * 0.1),
-      child: Column(
-        children: [
-          themeText("Send a message", isPrimaryFont: false, weight: FontWeight.bold, size: 32, ),
-          vertical(2),
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Your Message',
+    bool isMobile = screenSize.width <= 800;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+           _chatPopupController.toggle();
+        },
+        child: Stack(
+          children: [
+              Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: screenSize.width * 0.1,
+                  vertical: 40,),
+              child: Container(
+                
+                padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 32),
+                decoration: BoxDecoration(
+                  color: Constants.primaryColor(),
+                  borderRadius: BorderRadius.circular(21), 
+                ),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(CupertinoIcons.chat_bubble, color: Colors.black, size: 20,),
+                    horizontal(),
+                    themeText("Send me a message", color: Colors.black, size: 20, weight: FontWeight.bold,),
+                  ],
+                ),
+              ),
             ),
-            maxLines: 5,
-          ),
-          vertical(2),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-            ),
-            child: themeText("Send", color: Colors.black, weight: FontWeight.w400 ),
-          ),
-        ],
-      ),
-    );
+            OverlayPortal(
+              controller: _chatPopupController, 
+              overlayChildBuilder: (context) =>  FamDMScreen(
+                receipientUser: famAdmin, 
+                onDismiss: () => _chatPopupController.hide()),)
+          ]),
+      ),);
+
+    // return Container(
+    //   width: screenSize.width,
+    //   color: Colors.white,
+    //   padding: EdgeInsets.only(
+    //     top: screenSize.height * 0.05, 
+    //     bottom: screenSize.height * 0.02, 
+    //     left: screenSize.width * 0.1, 
+    //     right: screenSize.width * 0.1),
+    //   child: Column(
+    //     children: [
+    //       themeText("Send a message", isPrimaryFont: false, weight: FontWeight.bold, size: 32, ),
+    //       vertical(2),
+    //       const TextField(
+    //         decoration: InputDecoration(
+    //           border: OutlineInputBorder(),
+    //           labelText: 'Your Message',
+    //         ),
+    //         maxLines: 5,
+    //       ),
+    //       vertical(2),
+    //       ElevatedButton(
+    //         onPressed: () {},
+    //         style: ElevatedButton.styleFrom(
+    //           backgroundColor: Colors.amber,
+    //           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+    //         ),
+    //         child: themeText("Send", color: Colors.black, weight: FontWeight.w400 ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
   
   footerSection(Size screenSize) {
+    bool isMobile = screenSize.width <= 800;
+
     Widget fzSection = Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Image.asset(
@@ -511,7 +590,17 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
       width: double.infinity,
       color: Colors.black,
       padding: EdgeInsets.only(top: 45, bottom: 45, left: screenSize.width * 0.1, right: screenSize.width * 0.1),
-      child: Row(
+      child: isMobile?
+       Column(children: [
+        vertical(),
+        fzSection,
+        vertical(3),
+        const Divider(thickness: 3, color: Colors.white,),
+        vertical(3),
+        famSection
+       ],)
+       :
+       Row(
         children: [
           Expanded(flex: 2, child: fzSection),
           Expanded(flex: 1, child: Container()),

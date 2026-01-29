@@ -184,6 +184,31 @@ class Helpers {
         ));
   }
 
+  static showConfirmationDialogue({required BuildContext ctx, required String msg, required Function () onConfirm, String title = "FlashZone"}) {
+    showDialog(context: ctx, 
+          builder: (ctx) => AlertDialog(
+          title: Text(title),
+          content: Text(msg),
+          actions: <Widget>[
+            FZButton(
+              text: "OK", 
+              onPressed: () {
+                onConfirm();
+                ctx.pop();
+              },
+              bgColor: Constants.bgColor()
+            ),
+            FZButton(
+              text: "Cancel", 
+              onPressed: () {
+                ctx.pop();
+              },
+              bgColor: Constants.bgColor()
+            ),
+          ],
+        ));
+  }
+
   static List<String> getAllFlashTags(String str) {
     List<String> words = str.split(" ");
     for(String word in words) {

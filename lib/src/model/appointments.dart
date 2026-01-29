@@ -1,6 +1,10 @@
 class Appointment {
   String? id;
   String providerId;
+  String providerPictureUrl;
+  String providerName;
+  double price;
+  int duration;
   String consumerId;
   DateTime startTime;
   DateTime endTime;
@@ -10,6 +14,10 @@ class Appointment {
   Appointment({
     this.id,
     required this.providerId,
+    required this.providerPictureUrl,
+    required this.providerName,
+    required this.duration,
+    required this.price,
     required this.consumerId,
     required this.startTime,
     required this.endTime,
@@ -22,6 +30,10 @@ class Appointment {
   static const String collectionName = "appointments",
       fieldId = "id",
       fieldProviderId = "providerId",
+      fieldProviderPictureUrl = "providerPictureUrl",
+      fieldProviderNme = "providerName",
+      fieldDuration = "duration",
+      fieldPrice = "price",
       fieldConsumerId = "consumerId",
       fieldStartTime = "startTime",
       fieldEndTime = "endTime",
@@ -39,7 +51,10 @@ class Appointment {
       fieldTitle: title,
       fieldDescription: description,
       fieldMeetingLink: meetingLink,
-
+      fieldProviderPictureUrl: providerPictureUrl,
+      fieldProviderNme: providerName,
+      fieldDuration: duration,
+      fieldPrice: price,
       fieldCreatedAt: createdAt.toIso8601String(),
     };
   }
@@ -48,6 +63,10 @@ class Appointment {
     return Appointment(
       id: documentId,
       providerId: map[fieldProviderId],
+      providerPictureUrl: map[fieldProviderPictureUrl],
+      providerName: map[fieldProviderNme],
+      duration: map[fieldDuration],
+      price: map[fieldPrice],
       consumerId: map[fieldConsumerId],
       startTime: DateTime.parse(map[fieldStartTime]),
       endTime: DateTime.parse(map[fieldEndTime]),

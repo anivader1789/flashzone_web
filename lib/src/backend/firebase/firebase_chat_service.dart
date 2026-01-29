@@ -23,12 +23,13 @@ class FirebaseChatService {
     required FZUser sender,
     required FZUser receiver,
   }) async {
-    final docRef = await _messagesCollection.add({
+    final chatId = buildChatId(sender.id!, receiver.id!);
+    await _messagesCollection.doc(chatId).set({
       MessageRef.userIdsKey: [sender.id, receiver.id],
       MessageRef.senderKey: sender.compactObject(),
       MessageRef.receiverKey: receiver.compactObject(),
     });
-    return docRef.id;
+    return chatId;
   }
   
 
@@ -36,17 +37,10 @@ class FirebaseChatService {
     required FZUser sender,
     required FZUser receiver,
   }) async {
-    final docRef = await _messagesCollection
-      .where(MessageRef.userIdsKey, arrayContains: sender.id)
-      .where(MessageRef.userIdsKey, arrayContains: receiver.id)
-      .limit(1)
-      .get();
+    final chatId = buildChatId(sender.id!, receiver.id!);
+    final docRef = await _messagesCollection.doc(chatId).get();
 
-    if (docRef.docs.isNotEmpty) {
-      return docRef.docs.first.id;
-    } else {
-      return null;
-    }
+    return docRef.id;
   }
 
   Future<List<MessageRef>> getAllPersonalChatsForUser(
@@ -132,6 +126,15 @@ class FirebaseChatService {
   }
 
 }
+
+  String buildChatId(String uid1, String uid2) {
+    if (uid1.compareTo(uid2) < 0) {
+      return '${uid1}_$uid2';
+    } else {
+      return '${uid2}_$uid1';
+    }
+  }
+
 
 // Probably useless now, but keeping for reference
 /*

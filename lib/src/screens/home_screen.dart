@@ -82,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _currentView = HomeView.flashes;
     } else if(route.contains("flash")) {
       _flashId = route.substring(6);
-      print("Trying to load flash: $_flashId");
+      //print("Trying to load flash: $_flashId");
       if(_flashId != null && _flashId!.isNotEmpty) {
         final flashesRef = ref.read(flashes);
         if(flashesRef.isNotEmpty) {
@@ -104,7 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if(route.contains("events")) {
       if(route.length > 7) {
         _eventId = route.substring(7);
-        print("Trying to load event: $_eventId");
+        //print("Trying to load event: $_eventId");
         if(_eventId != null && _eventId!.isNotEmpty) {
 
           _currentView = HomeView.eventDetails;
@@ -116,7 +116,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
 
       _sideMenuDefaultSelected = 1;
-      print("changed side menu index to: $_sideMenuDefaultSelected");
+      //print("changed side menu index to: $_sideMenuDefaultSelected");
       
     } else if(route.contains(FamChatScreen.routeName)) {
       if(route.length > 8) {
@@ -142,7 +142,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
 
       _sideMenuDefaultSelected = 2;
-      print("changed side menu index to: $_sideMenuDefaultSelected");
+      //print("changed side menu index to: $_sideMenuDefaultSelected");
       
     } else if(route.contains(FamEditScreen.routeName)) {
 

@@ -114,7 +114,7 @@ final GoRouter router = GoRouter(
               hasCustomPage = true;
             }
 
-            print("(From routing) Host: $host, hasCustomPage: $hasCustomPage");
+            //print("(From routing) Host: $host, hasCustomPage: $hasCustomPage");
             
             final famId = state.pathParameters['famid'];
             if(famId == null || famId.isEmpty) {
