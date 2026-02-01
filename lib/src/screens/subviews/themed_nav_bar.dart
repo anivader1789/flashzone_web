@@ -82,6 +82,7 @@ class _ThemedNavBarState extends State<ThemedNavBar> {
                     IconButton(
                       iconSize: 30, 
                       icon: const Icon(Icons.menu), 
+                      color: Colors.white,
                       onPressed: _menuPopupController.toggle,),
                     Positioned(
                       top: 60,

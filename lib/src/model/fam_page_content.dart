@@ -5,6 +5,7 @@ class FamPageContent {
   
   final String? heroImageUrl;
   final String? heroHeading;
+  final String? ytLink;
   final String? heroSubheading;
   final String? ownerHeadshotUrl;
   final List<MidSectionContent> midSections;
@@ -17,6 +18,7 @@ class FamPageContent {
   FamPageContent({
     required this.heroImageUrl,
     required this.heroHeading,
+    required this.ytLink,
     this.themeVersion = 1,
     this.midSections = const [],
     this.storeItems = const [],
@@ -31,6 +33,7 @@ class FamPageContent {
     return FamPageContent(
       themeVersion: data['theme_version'] as int? ?? 1,
       heroImageUrl: data['hero_image_url'] as String?,
+      ytLink: data['yt_link'] as String?,
       heroHeading: data['hero_heading'] as String?,
       heroSubheading: data['hero_subheading'] as String?,
       ownerHeadshotUrl: data['owner_headshot_url'] as String?,

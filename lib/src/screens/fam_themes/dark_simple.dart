@@ -5,6 +5,7 @@ import 'package:flashzone_web/src/model/fam_page_content.dart';
 import 'package:flashzone_web/src/model/local%20use/button_data.dart';
 import 'package:flashzone_web/src/model/store.dart';
 import 'package:flashzone_web/src/model/user.dart';
+import 'package:flashzone_web/src/screens/account_screen.dart';
 import 'package:flashzone_web/src/screens/fam_dm_screen.dart';
 import 'package:flashzone_web/src/screens/purchase%20screens/book_session_view.dart';
 import 'package:flashzone_web/src/screens/subviews/themed_nav_bar.dart';
@@ -12,6 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class DarkSimpleThemePage extends ConsumerStatefulWidget {
   const DarkSimpleThemePage(this.fam, {super.key});
@@ -25,6 +28,7 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
   //final _bookSessionPopupController = OverlayPortalController();
   final _ctaPopupControllersList = <OverlayPortalController>[];
   final _chatPopupController = OverlayPortalController();
+  final _loginPopupController = OverlayPortalController();
   //final _checkoutPopupController = OverlayPortalController();
   //final _cartPopupController = OverlayPortalController();
   FZUser? famAdmin;
@@ -147,7 +151,12 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
             icon: Icons.chat,),
         ], 
         user: ref.read(currentuser),
-        famAdmin: famAdmin,)
+        famAdmin: famAdmin,),
+
+        OverlayPortal(
+          controller: _loginPopupController, 
+          overlayChildBuilder: (context) => AccountScreen(onDismiss: () => _loginPopupController.hide(), mobileSize: false,),
+          child:  Container(),)
       ],
       
 
@@ -384,8 +393,9 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
         right: screenSize.width * 0.1),
       child: Column(
         children: [
-          themeText(widget.fam.pageContent!.storeTitle ?? "Guidance sessions", isPrimaryFont: false, weight: FontWeight.bold, size: 32, ),
           vertical(2),
+          themeText(widget.fam.pageContent!.storeTitle ?? "Guidance sessions", isPrimaryFont: false, weight: FontWeight.bold, size: 32, color: Colors.white ),
+          vertical(4),
           Wrap(
             spacing: 20,
             runSpacing: 20,
@@ -405,7 +415,10 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
                           vertical(2),
                           ElevatedButton(
                             onPressed: () {
-                              if (itemIndex < _ctaPopupControllersList.length) {
+                              if(ref.read(currentuser).isSignedOut) {
+                                _loginPopupController.show();
+                                
+                              } else if (itemIndex < _ctaPopupControllersList.length) {
                                 _ctaPopupControllersList[itemIndex].show();
                               }
                             },
@@ -482,7 +495,14 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-           _chatPopupController.toggle();
+          if(ref.read(currentuser).isSignedOut) {
+            _loginPopupController.show();
+             
+          } else {
+            _chatPopupController.toggle();
+          }
+
+           
         },
         child: Stack(
           children: [
@@ -576,7 +596,10 @@ class _DarkSimpleThemePageState extends ConsumerState<DarkSimpleThemePage> {
               //themeText("Email:surabhimishra@gmail.com", color: Colors.white, size: 16, isPrimaryFont: false,),
               vertical(5),
               InkWell(
-                onTap: () {},
+                onTap: () async {
+                  //Go to link
+                  await launchUrlString(widget.fam.pageContent?.ytLink ?? "", mode: LaunchMode.externalApplication);
+                },
                 child: Image.asset(
                   'assets/yt_logo_fullcolor_white_digital.png',
                   height: 40,

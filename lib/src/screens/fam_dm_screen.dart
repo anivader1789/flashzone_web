@@ -39,6 +39,8 @@ class _FamDMScreenState extends ConsumerState<FamDMScreen> {
           receiver: widget.receipientUser!,
         );
 
+        print("Loaded groupId: $_groupId");
+
 
         if(_groupId != null) {
           ref.read(backend).chatStream(_groupId!, 10).listen((newMessages) {
