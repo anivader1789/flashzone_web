@@ -98,7 +98,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    bool isMobile = size.width <= 600;
+    bool isMobile = size.width <= 800;
     return Stack(
       children: [
         Positioned.fill(
@@ -126,7 +126,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
               if(!_paymentAndBookingDone && !_paymentInProgress) ...[
                 vertical(2),
                 headline('Available Slots for next 7 days'),
-                vertical(10),
+                vertical(2),
                 availableSlotsView(isMobile),
               ]
               
@@ -158,6 +158,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   }
 
   Widget availableSlotsView(bool isMobile) {
+    print("Is mobile view: $isMobile");
     if(_bookingInProgress) {
       return Wrap(alignment: WrapAlignment.center,
         children: [
@@ -245,7 +246,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
           children: slotButtonsRowWidgets,
         ));
 
-        columnWidgets.add(vertical(2));
+        //columnWidgets.add(vertical(2));
         columnWidgets.add(Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: dayWidgets,
@@ -414,7 +415,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
     return ElevatedButton.styleFrom(
       backgroundColor: isAvailable ? Colors.white : Colors.grey[500],
       foregroundColor: isAvailable ? Colors.white : Colors.black,
-      padding: isMobile ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12) : const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: isMobile ? const EdgeInsets.symmetric(vertical: 4, horizontal: 8) : const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shape: RoundedRectangleBorder(
         side: BorderSide(
           color: isAvailable == false ? Colors.red : Colors.blue,
@@ -430,7 +431,7 @@ class _BookSessionViewState extends ConsumerState<BookSessionView> {
   } 
 
   mobileLabel(String text) {
-    return FZText(text: text, style: FZTextStyle.subheading);
+    return FZText(text: text, style: FZTextStyle.smallsubheading);
   }
 
   headline(String text) {
