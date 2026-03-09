@@ -121,9 +121,10 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
     if(widget.hasCustomPage) {
       if(_loading || fam == null) {
         return const LoadingWidget();
-      } else {
-        return ThemedPage(fam!);
-      }
+      } 
+      // else {
+      //   return ThemedPage(fam!);
+      // }
         
       }
 
@@ -136,7 +137,7 @@ class _FamHomeScreenState extends ConsumerState<FamHomeScreen> {
       return FZErrorIndicator(text: "Fam Error", mobileSize: mobileSize);
     }
 
-    if(fam!.pageContent != null) {
+    if(fam!.pageContent?.heroHeading != null) {
       return ThemedPage(fam!);
     }
 

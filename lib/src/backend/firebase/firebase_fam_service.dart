@@ -44,6 +44,7 @@ class FirebaseFamService {
         throw Exception('Fam not found');
       }
     } catch (e) {
+      print("Error fetching Fam: $e");
       throw Exception('Error fetching Fam: $e');
     }
   }

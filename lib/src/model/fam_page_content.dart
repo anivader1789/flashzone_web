@@ -3,10 +3,30 @@ import 'package:flashzone_web/src/model/store.dart';
 class FamPageContent {
   final int themeVersion;
   
+  // Hero section fields
   final String? heroImageUrl;
+  final List<String>? heroImageUrls; // For slideshow (spiritual org template)
   final String? heroHeading;
-  final String? ytLink;
   final String? heroSubheading;
+  
+  // Social media & links
+  final String? ytLink;
+  final String? instagramUrl;
+  final String? facebookUrl;
+  final String? twitterUrl;
+  final String? linkedinUrl;
+  final String? websiteUrl;
+  
+  // About section fields
+  final String? aboutHeading;
+  final String? aboutDescription;
+  final String? aboutImageUrl;
+  
+  // Organization fields
+  final String? organizationDescription;
+  final String? organizationMissionStatement;
+  
+  // Existing fields
   final String? ownerHeadshotUrl;
   final List<MidSectionContent> midSections;
   final List<StoreItem>? storeItems;
@@ -27,6 +47,17 @@ class FamPageContent {
     this.galleryImageUrls = const [],
     this.storeTitle = "Store",
     this.heroSubheading,
+    this.heroImageUrls,
+    this.instagramUrl,
+    this.facebookUrl,
+    this.twitterUrl,
+    this.linkedinUrl,
+    this.websiteUrl,
+    this.aboutHeading,
+    this.aboutDescription,
+    this.aboutImageUrl,
+    this.organizationDescription,
+    this.organizationMissionStatement,
   });
 
   static FamPageContent fromMap(Map<String, dynamic> data) {
@@ -53,6 +84,20 @@ class FamPageContent {
       galleryImageUrls: (data['gallery_image_urls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      // New fields for spiritual org template
+      heroImageUrls: (data['hero_image_urls'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      instagramUrl: data['instagram_url'] as String?,
+      facebookUrl: data['facebook_url'] as String?,
+      twitterUrl: data['twitter_url'] as String?,
+      linkedinUrl: data['linkedin_url'] as String?,
+      websiteUrl: data['website_url'] as String?,
+      aboutHeading: data['about_heading'] as String?,
+      aboutDescription: data['about_description'] as String?,
+      aboutImageUrl: data['about_image_url'] as String?,
+      organizationDescription: data['organization_description'] as String?,
+      organizationMissionStatement: data['organization_mission_statement'] as String?,
     );
   }
 

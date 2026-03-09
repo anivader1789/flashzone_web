@@ -13,6 +13,7 @@ class Fam {
   List<String> memberRequests;
   FamPageContent? pageContent;
   String community; // New field
+  String primaryColor;
 
   FZLocation? location;
 
@@ -29,12 +30,14 @@ class Fam {
     required this.memberRequests,
     this.pageContent,
     this.community = "Spirituality", // Default value
+    this.primaryColor = "ffc107",
   });
 
   static const String collectionName = 'fams', 
     nameKey = 'name', descriptionKey = 'description',
     imageUrlKey = 'image_url', createdAtKey = 'created_at',
     communityKey = 'community',
+    primaryColorKey = 'primary_color',
     adminsKey = 'admins',
     membersKey = 'members',
     locationKey = 'location', addressKey = "address", geoKey = "geo",
@@ -54,6 +57,7 @@ class Fam {
         adminRequests: [], 
         memberRequests: [],
         community: "Spirituality", // Default value
+        primaryColor: "ffc107",
       );
     } 
 
@@ -72,6 +76,7 @@ class Fam {
         Map<String, dynamic>.from(data[pageContentKey] ?? {}),
       ),
       community: data[communityKey] ?? "Spirituality", // Read from data or default
+      primaryColor: data[primaryColorKey] ?? "ffc107",
     );
   }
 
@@ -88,6 +93,7 @@ class Fam {
       adminRequestsKey: adminRequests,
       memberRequestsKey: memberRequests,
       communityKey: community, // New field
+      primaryColorKey: primaryColor,
     };
   }
 
@@ -100,6 +106,7 @@ class Fam {
       adminRequestsKey: adminRequests, 
       memberRequestsKey: memberRequests, 
       communityKey: community, // New field
+      primaryColorKey: primaryColor,
     };
   }
 
@@ -171,6 +178,7 @@ class Fam {
               Map<String, dynamic>.from(json['page_content']))
           : null,
       community: json[communityKey] ?? "Spirituality", // New field
+      primaryColor: json[primaryColorKey] ?? "ffc107",
     );
   }
 
@@ -186,6 +194,7 @@ class Fam {
       'admin_requests': adminRequests,
       'member_requests': memberRequests,
       'community': community, // New field
+      'primary_color': primaryColor,
     };
   }
 }

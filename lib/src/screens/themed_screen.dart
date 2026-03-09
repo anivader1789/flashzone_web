@@ -1,5 +1,6 @@
 import 'package:flashzone_web/src/model/fam.dart';
 import 'package:flashzone_web/src/screens/fam_themes/dark_simple.dart';
+import 'package:flashzone_web/src/screens/fam_themes/spiritual_organisation_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,7 +23,7 @@ class _ThemedPageState extends ConsumerState<ThemedPage> {
           return DarkSimpleThemePage(widget.fam); // Placeholder for actual theme page
         case 2:
           // Return Theme Page for version 2
-          return Container(); // Placeholder for actual theme page
+          return SpiritualOrganisationTemplate(widget.fam); // Placeholder for actual theme page
         default:
           // Fallback for unknown versions
           return Container(); // Placeholder for default theme page
